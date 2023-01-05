@@ -11,16 +11,6 @@ public class UserGameData {
     double avg_rank;
     double avg_uma;
 
-    /**
-     * 반환점
-     */
-    static int return_point;
-
-    /**
-     * 1등-4등에게 더해지는 우마
-     */
-    static int[] uma;
-
     public UserGameData(String name) {
         this.name = name;
         rank_count = new int[]{0, 0, 0, 0, 0};
@@ -32,7 +22,7 @@ public class UserGameData {
     }
 
     public void addGameData(int score, int rank) {
-        total_uma += scoreToUma(score, rank);
+        total_uma += (Math.round((((score - Setting.RETURN_POINT) / 1000.0) + Setting.UMA[rank - 1]) * 10) / 10.0);
         rank_count[rank - 1]++;
     }
 
@@ -47,11 +37,6 @@ public class UserGameData {
         }
         avg_rank = Math.round(avg_rank / game_count * 100) / 100.0;
         avg_uma = Math.round(total_uma / game_count * 10) / 10.0;
-    }
-
-    private double scoreToUma(int score, int rank) {
-        double jun_uma = ((score - return_point) / 1000.0) + uma[rank - 1];
-        return Math.round(jun_uma * 10) / 10.0;
     }
 
     @Override

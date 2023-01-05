@@ -25,17 +25,14 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.INTEGER;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 
 public class Main extends ListenerAdapter {
-    private final String PATH = "F:\\Library\\Document\\programming\\sunwitest.csv";    // TODO 임시 경로
-    private final String LOG_PATH = "F:\\Library\\Document\\programming\\logtest.csv";
-    private final static long ADMIN_ID = 400579163959853056L;
-
     private static RestAction<User> ADMIN;
 
     public static void main(String[] args) throws LoginException {
+        Setting.init();
         Scanner scan = null;
         final String TOKEN;
         try {
-            scan = new Scanner(new File("C:\\token.txt"));
+            scan = new Scanner(new File(Setting.TOKEN_PATH));
             TOKEN = scan.next();
         } catch (FileNotFoundException e) {
             System.out.println("TOKEN NOT FOUND");
@@ -82,7 +79,7 @@ public class Main extends ListenerAdapter {
 
         commands.queue();
 
-        ADMIN = jda.retrieveUserById(400579163959853056L);
+        ADMIN = jda.retrieveUserById(Setting.ADMIN_ID);
 
         System.out.println("Loaded!");
     }
@@ -137,8 +134,8 @@ public class Main extends ListenerAdapter {
             embed.setColor(Color.RED);
             event.replyEmbeds(embed.build()).queue();
 
-            ErrorLogger logger = new ErrorLogger(LOG_PATH);
-            logger.addErrorEvent(event, "no-guild-msg", ADMIN);
+            ErrorLogger logger = new ErrorLogger(Setting.LOG_PATH);
+            logger.addErrorEvent(event, "not-guild-msg", ADMIN);
             return;
         }
 
@@ -150,7 +147,7 @@ public class Main extends ListenerAdapter {
             scores[i / 2] = (int) options.get(++i).getAsLong();
         }
 
-        var process = new ScoreProcess(PATH);
+        var process = new ScoreProcess();
         int result = process.addScore(names, scores);
         switch (result) {
             case -1 -> {     // PARAM ERR
@@ -165,7 +162,7 @@ public class Main extends ListenerAdapter {
                 embed.setColor(Color.RED);
                 event.replyEmbeds(embed.build()).setEphemeral(true).queue();
 
-                ErrorLogger logger = new ErrorLogger(LOG_PATH);
+                ErrorLogger logger = new ErrorLogger(Setting.LOG_PATH);
                 logger.addErrorEvent(event, "parameter-err", ADMIN);
             }
             case -2 -> {    // IOEXCEPTION
@@ -180,7 +177,7 @@ public class Main extends ListenerAdapter {
                 embed.setColor(Color.RED);
                 event.replyEmbeds(embed.build()).setEphemeral(true).queue();
 
-                ErrorLogger logger = new ErrorLogger(LOG_PATH);
+                ErrorLogger logger = new ErrorLogger(Setting.LOG_PATH);
                 logger.addErrorEvent(event, "file-not-found", ADMIN);
             }
             default -> {     // NO ERR
@@ -206,7 +203,7 @@ public class Main extends ListenerAdapter {
         else select = event.getOption("user").getAsUser().getName();
         select = select.replaceAll(" ", "");
 
-        ScoreProcess sp = new ScoreProcess(PATH);
+        ScoreProcess sp = new ScoreProcess();
         UserGameData userdata = null;
         for (var user : sp.getUserDataList()) if (user.name.equals(select)) userdata = user;
         // TODO

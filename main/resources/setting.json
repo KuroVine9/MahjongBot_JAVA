@@ -1,0 +1,13 @@
+{
+  "RETURN_POINT": 25000,
+  "UMA": [
+    15,
+    5,
+    -5,
+    15
+  ],
+  "ADMIN_ID": 400579163959853056,
+  "PATH": "src/main/resources/sunwi.csv",
+  "LOG_PATH": "src/main/resources/log.csv",
+  "TOKEN_PATH": "src/main/resources/token.txt"
+}
