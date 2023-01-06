@@ -4,18 +4,20 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvException;
 
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.stream.IntStream;
 
+/**
+ * 게임 데이터를 처리하기 위한 핸들러 클래스입니다.
+ */
 public class ScoreProcess {
     /**
      * sunwi.csv 파일에 새 반장전 결과를 추가합니다. 인덱스와 추가된 날짜가 같이 기록됩니다.
@@ -29,7 +31,7 @@ public class ScoreProcess {
     public int addScore(String[] name, int[] score) {
         if (
                 (Arrays.stream(name).distinct().count() != 4) || (Arrays.stream(score).sum() != 100000) ||
-                        !((score[0] >= score[1]) && (score[1] >= score[2]) && (score[2] >= score[3]) && (score[3] >= score[4]))
+                        !((score[0] >= score[1]) && (score[1] >= score[2]) && (score[2] >= score[3]))
         ) return -1;
 
         long line_count;
@@ -56,6 +58,27 @@ public class ScoreProcess {
     }
 
     /**
+     * 데이터를 미리 유저 객체로 처리해 두어 효율성을 높입니다.
+     */
+    public void revalidData() {
+        LocalDate now = LocalDate.now();
+        ObjectOutputStream ostream = null;
+        var data = getUserDataList();
+        var month_data = getUserDataList(now.getMonthValue(), now.getYear());
+        try {
+            ostream = new ObjectOutputStream(new FileOutputStream(Setting.USERDATA_PATH));
+            ostream.writeObject(data);
+            ostream.close();
+
+            ostream = new ObjectOutputStream(new FileOutputStream(Setting.MONTH_USERDATA_PATH));
+            ostream.writeObject(month_data);
+            ostream.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * 매개변수로 받은 기간 동안의 유저 데이터 리스트를 반환합니다.
      *
      * @param month        검색할 월
@@ -63,13 +86,13 @@ public class ScoreProcess {
      * @param isdatesearch 코드 재사용을 위한 내부 매개변수
      * @return {@link UserGameData}     형 유저 데이터 리스트
      */
-    private List<UserGameData> processUserData(int month, int year, boolean isdatesearch) {
+    private HashMap<String, UserGameData> processUserData(int month, int year, boolean isdatesearch) {
         HashMap<String, UserGameData> uma_table = new HashMap<>();
         try {
             CSVReader csv = new CSVReader(new FileReader(Setting.PATH));
             for (var line : csv.readAll()) {
-                if ((Integer.parseInt(line[1].split("\\.")[0]) != year
-                        || Integer.parseInt(line[1].split("\\.")[1]) != month) && isdatesearch) continue;
+                if (isdatesearch && (Integer.parseInt(line[1].split("\\.")[0]) != year
+                        || Integer.parseInt(line[1].split("\\.")[1]) != month)) continue;
 
                 for (int i = 2; i < 10; i += 2) {
                     if (!uma_table.containsKey(line[i])) {
@@ -88,11 +111,7 @@ public class ScoreProcess {
             throw new RuntimeException(e);
         }
 
-        return uma_table.entrySet().stream().peek(
-                k -> k.getValue().updateAllData()
-        ).map(
-                Map.Entry::getValue
-        ).toList();
+        return uma_table;
     }
 
     /**
@@ -100,7 +119,7 @@ public class ScoreProcess {
      *
      * @return {@link UserGameData} 형 유저 데이터 리스트
      */
-    public List<UserGameData> getUserDataList() {
+    public HashMap<String, UserGameData> getUserDataList() {
         return processUserData(0, 0, false);
     }
 
@@ -111,34 +130,59 @@ public class ScoreProcess {
      * @param year  검색할 년도
      * @return {@link UserGameData} 형 유저 데이터 리스트
      */
-    public List<UserGameData> getUserDataList(int month, int year) {
+    public HashMap<String, UserGameData> getUserDataList(int month, int year) {
         return processUserData(month, year, true);
     }
 
-    /**
-     * 일정 기간 내 {@code filter}국 이상의 유저만 집계한 유저 데이터 리스트를 반환합니다.
-     *
-     * @param month  검색할 월
-     * @param year   검색할 년도
-     * @param filter 기준 국 수
-     * @return {@link UserGameData} 형 유저 데이터 리스트
-     */
-    public List<UserGameData> getFilteredUserDataList(int month, int year, int filter) {
-        return getUserDataList(month, year).stream().filter(
-                var -> var.game_count >= filter
-        ).toList();
+    private int[][] recentGameResult(String name, int month, int year, boolean isdatesearch) {
+        Queue<Integer> queue = new LinkedList<>();
+        try {
+            CSVReader csv = new CSVReader(new FileReader(Setting.PATH));
+            for (var line : csv.readAll()) {
+                if (isdatesearch && (Integer.parseInt(line[1].split("\\.")[0]) != year
+                        || Integer.parseInt(line[1].split("\\.")[1]) != month)) continue;
+
+                for (int i = 2; i < 10; i += 2) {
+                    // 등수 : i/2, 점수: line[i+1]
+                    if (line[i].equals(name)) queue.offer((i * 5) + (Integer.parseInt(line[i + 1]) >= 50000 ? 1 : 0));
+                }
+
+                while (queue.size() > 10) queue.poll();
+
+            }
+
+        } catch (IOException | CsvException e) {
+            throw new RuntimeException(e);
+        }
+
+        IntStream.generate(() -> 0).limit(10 - queue.size()).forEach(queue::add);
+
+        return new int[][]{
+                queue.stream().map(i -> i / 10).mapToInt(i -> i).toArray(),
+                queue.stream().map(i -> i % 10).mapToInt(i -> i).toArray()
+        };
     }
 
     /**
-     * {@code filter}국 이상의 유저만 집계한 유저 데이터 리스트를 반환합니다.
+     * 그래프 작성용 메소드입니다. 최근 10국의 순위와 냥글라스 여부를 이차원 배열로 반환합니다.
      *
-     * @param filter 기준 국 수
-     * @return {@link UserGameData} 형 유저 데이터 리스트
+     * @param name 검색할 유저의 이름입니다.
+     * @return [0][] : 최근 10국의 순위(범위 : [1, 4]), [1][] : 냥글라스 여부(범위 : [0, 1])
      */
-    public List<UserGameData> getFilteredUserDataList(int filter) {
-        return getUserDataList().stream().filter(
-                var -> var.game_count >= filter
-        ).toList();
+    public int[][] recentGameResult(String name) {
+        return recentGameResult(name, 0, 0, false);
+    }
+
+    /**
+     * 그래프 작성용 메소드입니다. 검색 범위 내 최근 10국의 순위와 냥글라스 여부를 이차원 배열로 반환합니다.
+     *
+     * @param name  검색할 유저의 이름입니다.
+     * @param month 검색할 월
+     * @param year  검색할 년도
+     * @return [0][] : 최근 10국의 순위(범위 : [1, 4]), [1][] : 냥글라스 여부(범위 : [0, 1])
+     */
+    public int[][] recentGameResult(String name, int month, int year) {
+        return recentGameResult(name, month, year, true);
     }
 
 }

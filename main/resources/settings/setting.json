@@ -1,0 +1,17 @@
+{
+  "RETURN_POINT": 25000,
+  "UMA": [
+    15,
+    5,
+    -5,
+    -15
+  ],
+  "ADMIN_ID": 400579163959853056,
+  "PATH": "src/main/resources/data/sunwi.csv",
+  "LOG_PATH": "src/main/resources/logs/log.csv",
+  "ERROR_LOG_PATH": "src/main/resources/logs/error_log.csv",
+  "TOKEN_PATH": "src/main/resources/data/token.txt",
+  "USERDATA_PATH": "src/main/resources/data/userdata.dat",
+  "MONTH_USERDATA_PATH": "src/main/resources/data/month_userdata.dat",
+  "GRAPH_PATH": "src/main/resources/image/score_graph.png"
+}

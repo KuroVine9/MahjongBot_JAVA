@@ -17,8 +17,11 @@ import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 
 import javax.security.auth.login.LoginException;
 import java.awt.*;
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Optional;
 import java.util.Scanner;
 
 import static net.dv8tion.jda.api.interactions.commands.OptionType.INTEGER;
@@ -26,6 +29,7 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 
 public class Main extends ListenerAdapter {
     private static RestAction<User> ADMIN;
+    private static JDA jda;
 
     public static void main(String[] args) throws LoginException {
         Setting.init();
@@ -41,7 +45,7 @@ public class Main extends ListenerAdapter {
 
         scan.close();
 
-        JDA jda = JDABuilder.createDefault(TOKEN).build();
+        jda = JDABuilder.createDefault(TOKEN).build();
 
         jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
         jda.getPresence().setActivity(Activity.watching("?좊땲붾밾"));
@@ -70,13 +74,14 @@ public class Main extends ListenerAdapter {
                                 new OptionData(INTEGER, "3rd_score", "test", true),
                                 new OptionData(USER, "4th_name", "test", true),
                                 new OptionData(INTEGER, "4th_score", "test", true)
-                        ),
+                        )
+        );
+        commands.addCommands(
                 new CommandData("stat", "stat")
                         .addOptions(
                                 new OptionData(USER, "user", "user")
                         )
         );
-
         commands.queue();
 
         ADMIN = jda.retrieveUserById(Setting.ADMIN_ID);
@@ -117,12 +122,16 @@ public class Main extends ListenerAdapter {
             }
             case "add" -> add(event);
 
-            case "stat" -> stat(event);
+            case "stat" -> {
+                stat(event);
+            }
+
             default -> throw new IllegalStateException("Unexpected value: " + event.getName());
         }
     }
 
     public void add(SlashCommandEvent event) {
+        Logger logger = new Logger();
         if (!event.isFromGuild()) {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle("403 Forbidden");
@@ -134,7 +143,6 @@ public class Main extends ListenerAdapter {
             embed.setColor(Color.RED);
             event.replyEmbeds(embed.build()).queue();
 
-            ErrorLogger logger = new ErrorLogger(Setting.LOG_PATH);
             logger.addErrorEvent(event, "not-guild-msg", ADMIN);
             return;
         }
@@ -162,7 +170,6 @@ public class Main extends ListenerAdapter {
                 embed.setColor(Color.RED);
                 event.replyEmbeds(embed.build()).setEphemeral(true).queue();
 
-                ErrorLogger logger = new ErrorLogger(Setting.LOG_PATH);
                 logger.addErrorEvent(event, "parameter-err", ADMIN);
             }
             case -2 -> {    // IOEXCEPTION
@@ -177,12 +184,11 @@ public class Main extends ListenerAdapter {
                 embed.setColor(Color.RED);
                 event.replyEmbeds(embed.build()).setEphemeral(true).queue();
 
-                ErrorLogger logger = new ErrorLogger(Setting.LOG_PATH);
                 logger.addErrorEvent(event, "file-not-found", ADMIN);
             }
             default -> {     // NO ERR
                 EmbedBuilder embed = new EmbedBuilder();
-                embed.setTitle("패보 기록완료");
+                embed.setTitle("패보 기록완료!");
                 for (int i = 0; i < 4; i++) {
                     embed.addField(
                             String.format("%d위 : %s", i + 1, names[i]),
@@ -190,22 +196,91 @@ public class Main extends ListenerAdapter {
                             true
                     );
                 }
-                embed.setFooter(String.valueOf(result));
+                embed.setFooter(
+                        String.format(
+                                "제 %d국, %s",
+                                result,
+                                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))
+                        )
+                );
                 embed.setColor(Color.BLACK);
                 event.replyEmbeds(embed.build()).queue();
+                logger.addEvent(event);
+                process.revalidData();
             }
         }
     }
 
     public void stat(SlashCommandEvent event) {
-        String select;
-        if (event.getOption("user") == null) select = event.getUser().getName();
-        else select = event.getOption("user").getAsUser().getName();
-        select = select.replaceAll(" ", "");
+        HashMap<String, UserGameData> data_list;
+        ScoreProcess process = new ScoreProcess();
+        try {
+            ObjectInputStream istream = new ObjectInputStream(new FileInputStream(Setting.USERDATA_PATH));
+            data_list = (HashMap<String, UserGameData>) istream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            data_list = process.getUserDataList();
+        }
 
-        ScoreProcess sp = new ScoreProcess();
-        UserGameData userdata = null;
-        for (var user : sp.getUserDataList()) if (user.name.equals(select)) userdata = user;
-        // TODO
+        String name;
+        String url;
+        Logger logger = new Logger();
+        if (event.getOption("user") == null) {
+            name = event.getUser().getName();
+            url = event.getUser().getEffectiveAvatarUrl();
+        }
+        else {
+            name = event.getOption("user").getAsUser().getName();
+            url = event.getOption("user").getAsUser().getEffectiveAvatarUrl();
+        }
+        String finalName = name.replaceAll(" ", "");
+
+
+        Optional<UserGameData> userdata = Optional.ofNullable(data_list.get(finalName));
+        var data = userdata.orElseGet(() -> new UserGameData(finalName));
+        data.updateAllData();
+
+        GraphProcess graph = new GraphProcess();
+        graph.scoreGraphGen(process.recentGameResult(finalName));
+
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setTitle(String.format("%s님의 통계", finalName));
+        embed.setColor(Color.BLACK);
+        embed.addField(
+                "총 우마",
+                (data.total_uma >= 0 ? "+" : "") + String.format("%.1f", data.total_uma),
+                true
+        );
+        embed.addField(
+                "총합 국 수",
+                String.format("%s회", data.game_count),
+                true
+        );
+        for (int i = 0; i < 4; i++) {
+            embed.addField(
+                    String.format("%d위률", i + 1),
+                    String.format("%.2f (%d회)", data.rank_pp[i], data.rank_count[i]),
+                    true
+            );
+        }
+        embed.addField(
+                "들통률",
+                String.format("%.2f (%d회)", data.rank_pp[4], data.rank_count[4]),
+                true
+        );
+        embed.addField(
+                "평균순위",
+                String.format("%.2f", data.avg_rank),
+                true
+        );
+        embed.addField(
+                "평균우마",
+                String.format("%.1f", data.avg_uma),
+                true
+        );
+        File image = new File(Setting.GRAPH_PATH);
+        embed.setImage(String.format("attachment://%s", Setting.GRAPH_NAME));
+        embed.setThumbnail(url);
+        event.replyEmbeds(embed.build()).addFile(image, Setting.GRAPH_NAME).queue();
+        logger.addEvent(event);
     }
 }
