@@ -158,8 +158,8 @@ public class ScoreProcess {
         IntStream.generate(() -> 0).limit(10 - queue.size()).forEach(queue::add);
 
         return new int[][]{
-                queue.stream().map(i -> i / 10).mapToInt(i -> i).toArray(),
-                queue.stream().map(i -> i % 10).mapToInt(i -> i).toArray()
+                queue.stream().mapToInt(i -> i / 10).toArray(),
+                queue.stream().mapToInt(i -> i % 10).toArray()
         };
     }
 

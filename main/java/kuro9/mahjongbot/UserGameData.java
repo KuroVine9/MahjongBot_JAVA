@@ -4,13 +4,13 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 public class UserGameData implements Serializable {
-    final String name;
-    double total_uma;
-    int game_count;
-    int[] rank_count;
-    double[] rank_pp;
-    double avg_rank;
-    double avg_uma;
+    public final String name;
+    public double total_uma;
+    public int game_count;
+    public int[] rank_count;
+    public double[] rank_pp;
+    public double avg_rank;
+    public double avg_uma;
 
     public UserGameData(String name) {
         this.name = name;

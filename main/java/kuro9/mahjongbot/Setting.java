@@ -9,17 +9,17 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public record Setting() {
-    static int RETURN_POINT;
-    static int[] UMA;
-    static long ADMIN_ID;
-    static String PATH;
-    static String LOG_PATH;
-    static String ERROR_LOG_PATH;
-    static String TOKEN_PATH;
-    static String USERDATA_PATH;
-    static String MONTH_USERDATA_PATH;
-    static String GRAPH_PATH;
-    static String GRAPH_NAME;
+    public static int RETURN_POINT;
+    public static int[] UMA;
+    public static long ADMIN_ID;
+    public static String PATH;
+    public static String LOG_PATH;
+    public static String ERROR_LOG_PATH;
+    public static String TOKEN_PATH;
+    public static String USERDATA_PATH;
+    public static String MONTH_USERDATA_PATH;
+    public static String GRAPH_PATH;
+    public static String GRAPH_NAME;
 
     public static void init() {
         JSONParser parser = new JSONParser();
