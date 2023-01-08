@@ -13,7 +13,6 @@ import java.util.Optional;
 public class Stat extends StatArranger {
     public Stat(SlashCommandEvent event) {
         HashMap<String, UserGameData> data_list;
-        Logger logger = new Logger();
         ScoreProcess process = new ScoreProcess();
 
         try {
@@ -35,6 +34,6 @@ public class Stat extends StatArranger {
         event.replyEmbeds(
                 getEmbed(user, getValidUser(event).getEffectiveAvatarUrl()).build()
         ).addFile(image, Setting.GRAPH_NAME).queue();
-        logger.addEvent(event);
+        Logger.addEvent(event);
     }
 }

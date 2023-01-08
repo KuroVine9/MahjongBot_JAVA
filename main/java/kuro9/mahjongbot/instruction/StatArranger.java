@@ -5,13 +5,11 @@ import kuro9.mahjongbot.UserGameData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 import java.awt.*;
-import java.util.Optional;
 
 public abstract class StatArranger {
-    
+
     /**
      * 유효한 User 값을 반환합니다. <br>
      * {@code event}에 User 옵션값이 들어있다면 전달된 유저 값을, 없다면 명령어를 실행한 유저를 반환합니다.
@@ -20,9 +18,8 @@ public abstract class StatArranger {
      * @return null이 아닌 유저 데이터
      */
     protected User getValidUser(SlashCommandEvent event) {
-        return (User) Optional.ofNullable((event.getOption("user"))).orElseGet(() -> (OptionMapping) event.getUser());
-//        return ((event.getOption("user") == null) ?
-//                event.getUser().getName() : event.getOption("user").getAsUser().getName());
+        return ((event.getOption("user") == null) ?
+                event.getUser() : event.getOption("user").getAsUser());
     }
 
     /**

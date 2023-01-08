@@ -13,85 +13,61 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
+import net.dv8tion.jda.api.utils.data.DataObject;
+import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import javax.security.auth.login.LoginException;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Scanner;
-
-import static net.dv8tion.jda.api.interactions.commands.OptionType.INTEGER;
-import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 
 public class Main extends ListenerAdapter {
     private static RestAction<User> ADMIN;
 
     public static void main(String[] args) throws LoginException {
-        Setting.init();
-        Scanner scan = null;
+        System.out.println("System Initializing...");
         final String TOKEN;
         try {
-            scan = new Scanner(new File(Setting.TOKEN_PATH));
+            Setting.init();
+            Scanner scan = new Scanner(new File(Setting.TOKEN_PATH));
             TOKEN = scan.next();
-        } catch (FileNotFoundException e) {
-            System.out.println("TOKEN NOT FOUND");
+            scan.close();
+        } catch (IOException | ParseException e) {
+            System.out.println("\n\nInitialize Failure!\n\n");
             throw new RuntimeException(e);
         }
-
-        scan.close();
-
         JDA jda = JDABuilder.createDefault(TOKEN).build();
-
         jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
         jda.getPresence().setActivity(Activity.watching("?좊땲붾밾"));
         jda.addEventListener(new Main());
-
-        CommandListUpdateAction commands = jda.updateCommands();
-
-        commands.addCommands(
-                new CommandData("ping", "calc ping time of the bot")
-        );
-        commands.addCommands(
-                new CommandData("name", "print name")
-                        .addOptions(new OptionData(USER, "user", "user name to print", true))
-        );
-        commands.addCommands(
-                new CommandData("msg", "msgtest")
-        );
-        commands.addCommands(
-                new CommandData("add", "add")
-                        .addOptions(
-                                new OptionData(USER, "1st_name", "test", true),
-                                new OptionData(INTEGER, "1st_score", "test", true),
-                                new OptionData(USER, "2nd_name", "test", true),
-                                new OptionData(INTEGER, "2nd_score", "test", true),
-                                new OptionData(USER, "3rd_name", "test", true),
-                                new OptionData(INTEGER, "3rd_score", "test", true),
-                                new OptionData(USER, "4th_name", "test", true),
-                                new OptionData(INTEGER, "4th_score", "test", true)
-                        )
-        );
-        commands.addCommands(
-                new CommandData("stat", "stat")
-                        .addOptions(
-                                new OptionData(USER, "user", "user")
-                        )
-        );
-        commands.addCommands(
-                new CommandData("month_stat", "month_stat")
-                        .addOptions(
-                                new OptionData(USER, "user", "user"),
-                                new OptionData(INTEGER, "month", "month"),
-                                new OptionData(INTEGER, "year", "year")
-                        )
-        );
-        commands.queue();
-
         ADMIN = jda.retrieveUserById(Setting.ADMIN_ID);
+        System.out.println("Initialize Complete!\n");
 
-        System.out.println("Loaded!");
+        System.out.println("Loading Instructions...");
+        CommandListUpdateAction commands = jda.updateCommands();
+        JSONParser parser = new JSONParser();
+        try {
+            Object obj = parser.parse(new FileReader(Setting.INST_PATH));
+            JSONArray jsonArray = (JSONArray) obj;
+            jsonArray.stream().peek(
+                    data -> System.out.printf("Loaded Instruction [%s]\n", data.toString().split(",|:", 5)[3])
+            ).forEach(data -> commands.addCommands(CommandData.fromData(DataObject.fromJson(data.toString()))));
+        } catch (IOException | ParseException e) {
+            System.out.println("\n\nRuntime Instruction Loding Failure!\n\n");
+            Logger.addSystemErrorEvent("instruction-load-err", ADMIN);
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        commands.queue();
+        System.out.println("Instructions Loaded!");
+
+        System.out.println("Started!");
+        Logger.addSystemEvent("system-start");
     }
 
     @Override

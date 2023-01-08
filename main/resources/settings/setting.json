@@ -13,5 +13,6 @@
   "TOKEN_PATH": "src/main/resources/data/token.txt",
   "USERDATA_PATH": "src/main/resources/data/userdata.dat",
   "MONTH_USERDATA_PATH": "src/main/resources/data/month_userdata.dat",
-  "GRAPH_PATH": "src/main/resources/image/score_graph.png"
+  "GRAPH_PATH": "src/main/resources/image/score_graph.png",
+  "INST_PATH": "src/main/resources/data/instruction.json"
 }

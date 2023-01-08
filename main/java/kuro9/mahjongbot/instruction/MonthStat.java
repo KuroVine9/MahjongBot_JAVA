@@ -14,14 +14,13 @@ import java.util.Optional;
 public class MonthStat extends StatArranger {
     public MonthStat(SlashCommandEvent event) {
         HashMap<String, UserGameData> data_list;
-        Logger logger = new Logger();
         ScoreProcess process = new ScoreProcess();
 
         int month = ((event.getOption("month") == null) ?
                 LocalDate.now().getMonthValue() :
                 (int) event.getOption("month").getAsLong());
         int year = ((event.getOption("year") == null) ?
-                LocalDate.now().getMonthValue() :
+                LocalDate.now().getYear() :
                 (int) event.getOption("year").getAsLong());
 
         try {
@@ -43,6 +42,6 @@ public class MonthStat extends StatArranger {
         event.replyEmbeds(
                 getEmbed(user, getValidUser(event).getEffectiveAvatarUrl(), month, year).build()
         ).addFile(image, Setting.GRAPH_NAME).queue();
-        logger.addEvent(event);
+        Logger.addEvent(event);
     }
 }

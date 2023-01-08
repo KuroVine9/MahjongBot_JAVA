@@ -13,7 +13,6 @@ import java.time.format.DateTimeFormatter;
 
 public class Add {
     public Add(SlashCommandEvent event, RestAction<User> ADMIN) {
-        Logger logger = new Logger();
         if (!event.isFromGuild()) {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle("403 Forbidden");
@@ -25,7 +24,7 @@ public class Add {
             embed.setColor(Color.RED);
             event.replyEmbeds(embed.build()).queue();
 
-            logger.addErrorEvent(event, "not-guild-msg", ADMIN);
+            Logger.addErrorEvent(event, "not-guild-msg", ADMIN);
             return;
         }
 
@@ -52,7 +51,7 @@ public class Add {
                 embed.setColor(Color.RED);
                 event.replyEmbeds(embed.build()).setEphemeral(true).queue();
 
-                logger.addErrorEvent(event, "parameter-err", ADMIN);
+                Logger.addErrorEvent(event, "parameter-err", ADMIN);
             }
             case -2 -> {    // IOEXCEPTION
                 EmbedBuilder embed = new EmbedBuilder();
@@ -66,7 +65,7 @@ public class Add {
                 embed.setColor(Color.RED);
                 event.replyEmbeds(embed.build()).setEphemeral(true).queue();
 
-                logger.addErrorEvent(event, "file-not-found", ADMIN);
+                Logger.addErrorEvent(event, "file-not-found", ADMIN);
             }
             default -> {     // NO ERR
                 EmbedBuilder embed = new EmbedBuilder();
@@ -87,7 +86,7 @@ public class Add {
                 );
                 embed.setColor(Color.BLACK);
                 event.replyEmbeds(embed.build()).queue();
-                logger.addEvent(event);
+                Logger.addEvent(event);
                 process.revalidData();
             }
         }
