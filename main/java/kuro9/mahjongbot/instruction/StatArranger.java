@@ -10,6 +10,10 @@ import java.awt.*;
 
 public abstract class StatArranger {
 
+    protected StatArranger() {
+        Setting.init();
+    }
+
     /**
      * 유효한 User 값을 반환합니다. <br>
      * {@code event}에 User 옵션값이 들어있다면 전달된 유저 값을, 없다면 명령어를 실행한 유저를 반환합니다.
@@ -31,10 +35,10 @@ public abstract class StatArranger {
      * @param year      표시할 년도
      * @return 임베드 데이터
      */
-    protected EmbedBuilder getEmbed(UserGameData user, String thumb_url, int month, int year) {
+    protected EmbedBuilder getEmbed(UserGameData user, int rank, String thumb_url, int month, int year) {
         EmbedBuilder embed = new EmbedBuilder();
-        if (month == 0 || year == 0) embed.setTitle(String.format("%s님의 통계", user.name));
-        else embed.setTitle(String.format("%d년 %d월 %s님의 통계", year, month, user.name));
+        if (month == 0 || year == 0) embed.setTitle(String.format("[#%d] %s님의 통계", rank, user.name));
+        else embed.setTitle(String.format("[#%d] %d년 %d월 %s님의 통계", rank, year, month, user.name));
         embed.setColor(Color.BLACK);
         embed.addField(
                 "총 우마",
@@ -80,7 +84,7 @@ public abstract class StatArranger {
      * @param thumb_url 유저의 썸네일 URL
      * @return 임베드 데이터
      */
-    protected EmbedBuilder getEmbed(UserGameData user, String thumb_url) {
-        return getEmbed(user, thumb_url, 0, 0);
+    protected EmbedBuilder getEmbed(UserGameData user, int rank, String thumb_url) {
+        return getEmbed(user, rank, thumb_url, 0, 0);
     }
 }

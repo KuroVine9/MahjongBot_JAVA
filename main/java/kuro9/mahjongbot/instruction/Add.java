@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Add {
+
     public Add(SlashCommandEvent event, RestAction<User> ADMIN) {
         if (!event.isFromGuild()) {
             EmbedBuilder embed = new EmbedBuilder();
@@ -36,7 +37,7 @@ public class Add {
             scores[i / 2] = (int) options.get(++i).getAsLong();
         }
 
-        var process = new ScoreProcess();
+        ScoreProcess process = new ScoreProcess();
         int result = process.addScore(names, scores);
         switch (result) {
             case -1 -> {     // PARAM ERR

@@ -19,6 +19,7 @@ import java.util.stream.IntStream;
  * 게임 데이터를 처리하기 위한 핸들러 클래스입니다.
  */
 public class ScoreProcess {
+
     /**
      * sunwi.csv 파일에 새 반장전 결과를 추가합니다. 인덱스와 추가된 날짜가 같이 기록됩니다.
      * <br>
@@ -62,7 +63,7 @@ public class ScoreProcess {
      */
     public void revalidData() {
         LocalDate now = LocalDate.now();
-        ObjectOutputStream ostream = null;
+        ObjectOutputStream ostream;
         var data = getUserDataList();
         var month_data = getUserDataList(now.getMonthValue(), now.getYear());
         try {
@@ -70,7 +71,7 @@ public class ScoreProcess {
             ostream.writeObject(data);
             ostream.close();
 
-            ostream = new ObjectOutputStream(new FileOutputStream(Setting.MONTH_USERDATA_PATH));
+            ostream = new ObjectOutputStream(new FileOutputStream(Setting.getValidMonthDataPath()));
             ostream.writeObject(month_data);
             ostream.close();
         } catch (IOException e) {

@@ -98,6 +98,7 @@ public class Logger {
      * @param admin 관리자의 정보가 담긴 매개변수
      */
     private static void callAdmin(MessageEmbed embed, RestAction<User> admin) {
+        if (admin == null) return;
         admin.queue(
                 user -> user.openPrivateChannel().queue(
                         privateChannel -> privateChannel.sendMessage(embed).queue()

@@ -14,7 +14,6 @@ public class Stat extends StatArranger {
     public Stat(SlashCommandEvent event) {
         HashMap<String, UserGameData> data_list;
         ScoreProcess process = new ScoreProcess();
-
         try {
             ObjectInputStream istream = new ObjectInputStream(new FileInputStream(Setting.USERDATA_PATH));
             data_list = (HashMap<String, UserGameData>) istream.readObject();
@@ -30,9 +29,18 @@ public class Stat extends StatArranger {
         GraphProcess graph = new GraphProcess();
         graph.scoreGraphGen(process.recentGameResult(finalName));
 
+        var sorted_list = data_list.values().stream().sorted(
+                (dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
+        ).toList();
+
+        int rank = 0;
+        for (; rank < sorted_list.size(); rank++) {
+            if (sorted_list.get(rank).name.equals(finalName)) break;
+        }
+
         File image = new File(Setting.GRAPH_PATH);
         event.replyEmbeds(
-                getEmbed(user, getValidUser(event).getEffectiveAvatarUrl()).build()
+                getEmbed(user, rank + 1, getValidUser(event).getEffectiveAvatarUrl()).build()
         ).addFile(image, Setting.GRAPH_NAME).queue();
         Logger.addEvent(event);
     }

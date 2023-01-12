@@ -24,7 +24,7 @@ public class MonthStat extends StatArranger {
                 (int) event.getOption("year").getAsLong());
 
         try {
-            ObjectInputStream istream = new ObjectInputStream(new FileInputStream(Setting.MONTH_USERDATA_PATH));
+            ObjectInputStream istream = new ObjectInputStream(new FileInputStream(Setting.getValidMonthDataPath(month, year)));
             data_list = (HashMap<String, UserGameData>) istream.readObject();
         } catch (IOException | ClassNotFoundException e) {
             data_list = process.getUserDataList(month, year);
@@ -38,9 +38,18 @@ public class MonthStat extends StatArranger {
         GraphProcess graph = new GraphProcess();
         graph.scoreGraphGen(process.recentGameResult(finalName, month, year));
 
+        var sorted_list = data_list.values().stream().sorted(
+                (dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
+        ).toList();
+
+        int rank = 0;
+        for (; rank < sorted_list.size(); rank++) {
+            if (sorted_list.get(rank).name.equals(finalName)) break;
+        }
+
         File image = new File(Setting.GRAPH_PATH);
         event.replyEmbeds(
-                getEmbed(user, getValidUser(event).getEffectiveAvatarUrl(), month, year).build()
+                getEmbed(user, rank + 1, getValidUser(event).getEffectiveAvatarUrl(), month, year).build()
         ).addFile(image, Setting.GRAPH_NAME).queue();
         Logger.addEvent(event);
     }

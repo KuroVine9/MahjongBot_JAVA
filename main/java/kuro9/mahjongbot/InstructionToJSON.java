@@ -1,5 +1,6 @@
 package kuro9.mahjongbot;
 
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.json.simple.parser.ParseException;
@@ -49,12 +50,27 @@ public class InstructionToJSON {
                                 new OptionData(INTEGER, "month", "month"),
                                 new OptionData(INTEGER, "year", "year")
                         ).toData().toJson()));
+        command_list.add(new String(
+                new CommandData("revalid", "revalid")
+                        .toData().toJson()));
+        command_list.add(new String(
+                new CommandData("rank", "rank")
+                        .addOptions(
+                                new OptionData(
+                                        INTEGER, "type", "type"
+                                ).addChoices(
+                                        new Command.Choice("summary", 0),
+                                        new Command.Choice("uma", 1),
+                                        new Command.Choice("total_game_count", 2),
+                                        new Command.Choice("average_rank", 3),
+                                        new Command.Choice("average_uma", 4)
+                                )
+                        ).toData().toJson()
+        ));
         Setting.init();
         PrintWriter ostream = new PrintWriter(new FileWriter(Setting.INST_PATH));
         ostream.println(
-                command_list.stream().map(
-                        string -> "\t" + string
-                ).collect(Collectors.joining(",\n", "[\n", "\n]"))
+                command_list.stream().collect(Collectors.joining(",\n\t", "[\n\t", "\n]"))
         );
         ostream.close();
 

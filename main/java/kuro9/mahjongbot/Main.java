@@ -1,18 +1,18 @@
 package kuro9.mahjongbot;
 
-import kuro9.mahjongbot.instruction.Add;
-import kuro9.mahjongbot.instruction.MonthStat;
-import kuro9.mahjongbot.instruction.Stat;
+import kuro9.mahjongbot.instruction.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.utils.data.DataObject;
@@ -31,13 +31,14 @@ public class Main extends ListenerAdapter {
 
     public static void main(String[] args) throws LoginException {
         System.out.println("System Initializing...");
+        Setting.init();
         final String TOKEN;
         try {
-            Setting.init();
+
             Scanner scan = new Scanner(new File(Setting.TOKEN_PATH));
             TOKEN = scan.next();
             scan.close();
-        } catch (IOException | ParseException e) {
+        } catch (IOException e) {
             System.out.println("\n\nInitialize Failure!\n\n");
             throw new RuntimeException(e);
         }
@@ -99,14 +100,34 @@ public class Main extends ListenerAdapter {
                         ).queue();
             }
             case "name" -> {
-                event.reply(String.format("UserName: %s", event.getOption("user").getAsUser().getAsTag())).queue();
+                event.reply(
+                        String.format("UserName: %s", event.getOption("user").getAsUser().getAsTag())
+                ).addActionRow(
+                        Button.primary("buttonID", "buttonName")
+                ).queue();
             }
             case "add" -> new Add(event, ADMIN);
             case "stat" -> new Stat(event);
             case "month_stat" -> new MonthStat(event);
+            case "revalid" -> new ReValid(event);
+            case "rank" -> {
+                Rank r = new Rank();
+                switch (event.getOption("type") == null ? -1 : (int) event.getOption("type").getAsLong()) {
+                    case 0 -> r.summaryReply(event);
+                    case 1, -1 -> r.umaReply(event);
+                    case 2 -> r.totalGameReply(event);
+                }
+            }
 
             default -> throw new IllegalStateException("Unexpected value: " + event.getName());
         }
+    }
+
+    @Override
+    public void onButtonClick(ButtonClickEvent event) {
+        if (event.getComponentId().matches("^rank_uma.*")) new Rank().umaPageControl(event);
+        else if (event.getComponentId().matches("^rank_totalgame.*")) new Rank().totalGamePageControl(event);
+        else if (event.getComponentId().equals("buttonID")) event.editMessage("button!").queue();
     }
 
 }
