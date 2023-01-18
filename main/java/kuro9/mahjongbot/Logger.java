@@ -4,6 +4,8 @@ import com.opencsv.CSVWriter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 
@@ -25,7 +27,7 @@ public class Logger {
      *
      * @param event JDA의 SlashCommandEvent
      */
-    public static void addEvent(SlashCommandEvent event) {
+    public static void addEvent(GenericInteractionCreateEvent event) {
         writeLogToCSV(getLogList(event));
     }
 
@@ -126,34 +128,40 @@ public class Logger {
     /**
      * 로그를 작성합니다. 에러 로그용 메소드입니다.
      *
-     * @param event       JDA의 SlashCommandEvent
+     * @param event       SlashCommandEvent, ButtonClickEvent의 슈퍼클래스 파라미터
      * @param description 에러 형태에 대한 요약
      * @return 로그 메시지 리스트
      */
-    private static ArrayList<String> getLogList(SlashCommandEvent event, String description) {
+    private static ArrayList<String> getLogList(GenericInteractionCreateEvent event, String description) {
         ArrayList<String> log_list = new ArrayList<>();
         String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("[yyyy-MM-dd HH:mm:ss]"));
         log_list.add(time);
         log_list.add(String.format("[%s]", description));
         log_list.add(String.format("%B", event.isFromGuild()));
         log_list.add(event.getUser().getAsTag());
-        log_list.add(event.getName());
-        event.getOptions().forEach(
-                option -> log_list.add(
-                        String.format(
-                                "%s : %s",
-                                option.getName(),
-                                switch (option.getType()) {
-                                    case STRING -> option.getAsString();
-                                    case INTEGER -> String.valueOf(option.getAsLong());
-                                    case BOOLEAN -> String.valueOf(option.getAsBoolean());
-                                    case USER -> option.getAsUser().getAsTag();
-                                    case ROLE -> option.getAsRole().getName();
-                                    default -> null;
-                                }
-                        )
-                )
-        );
+
+        if (event instanceof SlashCommandEvent s) {
+            log_list.add(s.getName());
+            s.getOptions().forEach(
+                    option -> log_list.add(
+                            String.format(
+                                    "%s : %s",
+                                    option.getName(),
+                                    switch (option.getType()) {
+                                        case STRING -> option.getAsString();
+                                        case INTEGER -> String.valueOf(option.getAsLong());
+                                        case BOOLEAN -> String.valueOf(option.getAsBoolean());
+                                        case USER -> option.getAsUser().getAsTag();
+                                        case ROLE -> option.getAsRole().getName();
+                                        default -> null;
+                                    }
+                            )
+                    )
+            );
+        }
+        else if (event instanceof ButtonClickEvent b) {
+            log_list.add(b.getButton() == null ? "no-button-found" : b.getButton().getId());
+        }
         return log_list;
     }
 
@@ -163,7 +171,7 @@ public class Logger {
      * @param event JDA의 SlashCommandEvent
      * @return 로그 메시지 리스트
      */
-    private static ArrayList<String> getLogList(SlashCommandEvent event) {
+    private static ArrayList<String> getLogList(GenericInteractionCreateEvent event) {
         var list = getLogList(event, "");
         list.remove(1);
         return list;
@@ -188,7 +196,7 @@ public class Logger {
     }
 
     /**
-     * 코드 재사용을 줄이기 위한 메소드입니다. 로그를 PATH CSV 파일에 append합니다.
+     * 코드 재사용을 위한 메소드입니다. 로그를 PATH CSV 파일에 append합니다.
      *
      * @param log_list 로그 정보가 담긴 리스트
      * @param PATH     로그 파일 경로

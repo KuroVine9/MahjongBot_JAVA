@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.utils.data.DataObject;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
@@ -56,7 +57,7 @@ public class Main extends ListenerAdapter {
             Object obj = parser.parse(new FileReader(Setting.INST_PATH));
             JSONArray jsonArray = (JSONArray) obj;
             jsonArray.stream().peek(
-                    data -> System.out.printf("Loaded Instruction [%s]\n", data.toString().split(",|:", 5)[3])
+                    data -> System.out.printf("Loaded Instruction [%s]\n", ((JSONObject) data).get("name").toString())
             ).forEach(data -> commands.addCommands(CommandData.fromData(DataObject.fromJson(data.toString()))));
         } catch (IOException | ParseException e) {
             System.out.println("\n\nRuntime Instruction Loding Failure!\n\n");
@@ -111,11 +112,17 @@ public class Main extends ListenerAdapter {
             case "month_stat" -> new MonthStat(event);
             case "revalid" -> new ReValid(event);
             case "rank" -> {
-                Rank r = new Rank();
                 switch (event.getOption("type") == null ? -1 : (int) event.getOption("type").getAsLong()) {
-                    case 0 -> r.summaryReply(event);
-                    case 1, -1 -> r.umaReply(event);
-                    case 2 -> r.totalGameReply(event);
+                    case 0 -> Rank.summaryReply(event);
+                    case 1, -1 -> Rank.umaReply(event);
+                    case 2 -> Rank.totalGameReply(event);
+                }
+            }
+            case "month_rank" -> {
+                switch (event.getOption("type") == null ? -1 : (int) event.getOption("type").getAsLong()) {
+                    case 0 -> MonthRank.summaryReply(event);
+                    case 1, -1 -> MonthRank.umaReply(event);
+                    case 2 -> MonthRank.totalGameReply(event);
                 }
             }
 
@@ -125,8 +132,10 @@ public class Main extends ListenerAdapter {
 
     @Override
     public void onButtonClick(ButtonClickEvent event) {
-        if (event.getComponentId().matches("^rank_uma.*")) new Rank().umaPageControl(event);
-        else if (event.getComponentId().matches("^rank_totalgame.*")) new Rank().totalGamePageControl(event);
+        if (event.getComponentId().matches("^rank_uma.*")) Rank.umaPageControl(event);
+        else if (event.getComponentId().matches("^rank_totalgame.*")) Rank.totalGamePageControl(event);
+        else if (event.getComponentId().matches("^month_rank_uma.*")) MonthRank.umaPageControl(event);
+        else if (event.getComponentId().matches("^month_rank_totalgame.*")) MonthRank.totalGamePageControl(event);
         else if (event.getComponentId().equals("buttonID")) event.editMessage("button!").queue();
     }
 

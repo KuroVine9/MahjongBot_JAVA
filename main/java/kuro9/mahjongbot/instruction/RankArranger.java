@@ -1,5 +1,272 @@
 package kuro9.mahjongbot.instruction;
 
+import kuro9.mahjongbot.ScoreProcess;
+import kuro9.mahjongbot.UserGameData;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 public abstract class RankArranger {
 
+    protected static EmbedBuilder getSummaryEmbed(String title, List<UserGameData> sorted_list) {
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setTitle(title);
+        sorted_list = sorted_list.stream().sorted(
+                (dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
+        ).toList();
+        embed.addField(
+                "총 우마(상위)",
+                String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
+                        sorted_list.get(0).name, sorted_list.get(0).total_uma,
+                        sorted_list.get(1).name, sorted_list.get(1).total_uma,
+                        sorted_list.get(2).name, sorted_list.get(2).total_uma
+                ),
+                true
+        );
+        embed.addField(
+                "총 우마(하위)",
+                String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
+                        sorted_list.get(sorted_list.size() - 1).name, sorted_list.get(sorted_list.size() - 1).total_uma,
+                        sorted_list.get(sorted_list.size() - 2).name, sorted_list.get(sorted_list.size() - 2).total_uma,
+                        sorted_list.get(sorted_list.size() - 3).name, sorted_list.get(sorted_list.size() - 3).total_uma
+                ),
+                true
+        );
+        sorted_list = sorted_list.stream().sorted(
+                (dataA, dataB) -> (int) (dataB.game_count - dataA.game_count)
+        ).toList();
+        embed.addField(
+                "총합 국 수",
+                String.format("%s : %d회\n%s : %d회\n%s : %d회",
+                        sorted_list.get(0).name, sorted_list.get(0).game_count,
+                        sorted_list.get(1).name, sorted_list.get(1).game_count,
+                        sorted_list.get(2).name, sorted_list.get(2).game_count
+                ),
+                true
+        );
+        sorted_list = sorted_list.stream().sorted(
+                (dataA, dataB) -> (int) ((dataB.rank_pp[4] * 100) - (dataA.rank_pp[4] * 100))
+        ).toList();
+        embed.addField(
+                "들통률",
+                String.format("%s : %.1f%%\n%s : %.1f%%\n%s : %.1f%%",
+                        sorted_list.get(0).name, sorted_list.get(0).rank_pp[4],
+                        sorted_list.get(1).name, sorted_list.get(1).rank_pp[4],
+                        sorted_list.get(2).name, sorted_list.get(2).rank_pp[4]
+                ),
+                true
+        );
+        sorted_list = sorted_list.stream().sorted(
+                (dataA, dataB) -> (int) ((dataA.avg_rank * 100) - (dataB.avg_rank * 100))
+        ).toList();
+        embed.addField(
+                "평균 순위(상위)",
+                String.format("%s : %.2f\n%s : %.2f\n%s : %.2f",
+                        sorted_list.get(0).name, sorted_list.get(0).avg_rank,
+                        sorted_list.get(1).name, sorted_list.get(1).avg_rank,
+                        sorted_list.get(2).name, sorted_list.get(2).avg_rank
+                ),
+                true
+        );
+        embed.addField(
+                "평균 순위(하위)",
+                String.format("%s : %.2f\n%s : %.2f\n%s : %.2f",
+                        sorted_list.get(sorted_list.size() - 1).name, sorted_list.get(sorted_list.size() - 1).avg_rank,
+                        sorted_list.get(sorted_list.size() - 2).name, sorted_list.get(sorted_list.size() - 2).avg_rank,
+                        sorted_list.get(sorted_list.size() - 3).name, sorted_list.get(sorted_list.size() - 3).avg_rank
+                ),
+                true
+        );
+        sorted_list = sorted_list.stream().sorted(
+                (dataA, dataB) -> (int) ((dataB.avg_uma * 100) - (dataA.avg_uma * 100))
+        ).toList();
+        embed.addField(
+                "평균 우마(상위)",
+                String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
+                        sorted_list.get(0).name, sorted_list.get(0).avg_uma,
+                        sorted_list.get(1).name, sorted_list.get(1).avg_uma,
+                        sorted_list.get(2).name, sorted_list.get(2).avg_uma
+                ),
+                true
+        );
+        embed.addField(
+                "평균 우마(하위)",
+                String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
+                        sorted_list.get(sorted_list.size() - 1).name, sorted_list.get(sorted_list.size() - 1).avg_uma,
+                        sorted_list.get(sorted_list.size() - 2).name, sorted_list.get(sorted_list.size() - 2).avg_uma,
+                        sorted_list.get(sorted_list.size() - 3).name, sorted_list.get(sorted_list.size() - 3).avg_uma
+                ),
+                true
+        );
+        return embed;
+    }
+
+    protected static List<UserGameData> getSortedTotalGameList(int filter) {
+        return ScoreProcess.getUserDataList().values().stream()
+                .filter(data -> data.game_count >= filter)
+                .peek(UserGameData::updateAllData)
+                .sorted((dataA, dataB) -> (dataB.game_count - dataA.game_count)
+                ).toList();
+    }
+
+    protected static List<UserGameData> getSortedTotalGameList(int filter, int month, int year) {
+        return ScoreProcess.getUserDataList(month, year).values().stream()
+                .filter(data -> data.game_count >= filter)
+                .peek(UserGameData::updateAllData)
+                .sorted((dataA, dataB) -> (dataB.game_count - dataA.game_count)
+                ).toList();
+    }
+
+    protected static List<UserGameData> getSortedTotalGameList() {
+        return getSortedTotalGameList(0);
+    }
+
+    protected static String getTotalGamePrintString(List<UserGameData> data_list, String title, int page) {
+        return getPrintString(
+                data_list,
+                title,
+                page,
+                data -> String.format("%d\n", data.game_count)
+        );
+    }
+
+    protected static List<UserGameData> getSortedUmaList(int filter) {
+        return ScoreProcess.getUserDataList().values().stream()
+                .filter(data -> data.game_count >= filter)
+                .sorted((dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
+                ).toList();
+    }
+
+    protected static List<UserGameData> getSortedUmaList(int filter, int month, int year) {
+        return ScoreProcess.getUserDataList(month, year).values().stream()
+                .filter(data -> data.game_count >= filter)
+                .sorted((dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
+                ).toList();
+    }
+
+    protected static List<UserGameData> getSortedUmaList() {
+        return getSortedUmaList(0);
+    }
+
+    protected static String getUmaPrintString(List<UserGameData> data_list, String title, int page) {
+        return getPrintString(
+                data_list,
+                title,
+                page,
+                data -> String.format("%+.1f\n", data.total_uma)
+        );
+    }
+
+    private static String getPrintString(List<UserGameData> data_list, String title, int page, Function<UserGameData, String> get_data) {
+        StringBuilder page_block = new StringBuilder();
+        page_block.append("```ansi\n").append(String.format("\u001B[1;34m%s (%d/%d)\u001B[0m\n\n", title, page, ((data_list.size() - 1) / 30) + 1));
+        for (int i = (page - 1) * 30; i < Math.min(data_list.size(), page * 30); i++) {
+            page_block.append(String.format("%-5d", i + 1)).append("\u001B[1;32m");
+            page_block.append(getConstantWidthName(data_list.get(i).name));
+            page_block.append("\u001B[0m");
+            page_block.append(get_data.apply(data_list.get(i)));
+        }
+        page_block.append("```");
+        return page_block.toString();
+    }
+
+    protected static String getConstantWidthName(String name) {
+        StringBuilder line = new StringBuilder();
+        if (name.length() + getLongCharCount(name) > 20) {
+            int space_count = 0;
+            int char_count = 0;
+            for (; (char_count < name.length() && space_count <= 20); char_count++) {
+                if (isLongChar(name.charAt(char_count))) space_count += 2;
+                else space_count++;
+            }
+            if (char_count < name.length()) name = name.substring(0, char_count);
+        }
+        line.append(name);
+        line.append(" ".repeat(Math.max(0, 24 - (name.length() + getLongCharCount(name)))));
+
+        return line.toString();
+    }
+
+    protected static int getLongCharCount(String s) {
+        int count = 0;
+        for (int i = 0; i < s.length(); i++) if (isLongChar(s.charAt(i))) count++;
+        return count;
+    }
+
+    protected static boolean isLongChar(char ch) {
+        // 한국어&&일본어
+        return (('\u3131' <= ch && ch <= '\u3163') || ('\uAC00' <= ch && ch <= '\uD7A3') || ('\u3041' <= ch && ch <= '\u3096')
+                || ('\u30A1' <= ch && ch <= '\u30FC') || ch == '\u3005' || ch == '\u3006' || ch == '\u3024'
+                || ('\u4E00' <= ch && ch <= '\u9FA5'));
+    }
+
+    protected static void pageControl(ButtonClickEvent event, Button[] buttons, int[] page_count, int size, Supplier<String> action) {
+        if (event.getInteraction().getComponentId().equals(buttons[2].getId())) {
+            event.editMessage(action.get()).queue();
+            return;
+        }
+        else if (event.getInteraction().getComponentId().equals(buttons[0].getId())) {
+            page_count[0] = 1;
+            event.editMessage(action.get()).setActionRow(
+                    buttons[0].asDisabled(),
+                    buttons[1].asDisabled(),
+                    buttons[2],
+                    buttons[3],
+                    buttons[4]
+            ).queue();
+        }
+        else if (event.getInteraction().getComponentId().equals(buttons[1].getId())) {
+            if ((page_count[0] != 1)) --page_count[0];
+            if (page_count[0] < 2) {
+                event.editMessage(action.get()).setActionRow(
+                        buttons[0].asDisabled(),
+                        buttons[1].asDisabled(),
+                        buttons[2],
+                        buttons[3],
+                        buttons[4]
+                ).queue();
+            }
+            else {
+                event.editMessage(action.get()).setActionRow(
+                        buttons[0],
+                        buttons[1],
+                        buttons[2],
+                        buttons[3].asDisabled(),
+                        buttons[4].asDisabled()
+                ).queue();
+            }
+
+        }
+        else if (event.getInteraction().getComponentId().equals(buttons[3].getId())) {
+            if (page_count[0] < ((size - 1) / 30 + 1)) ++page_count[0];
+            if (page_count[0] > ((size - 1) / 30)) {
+                event.editMessage(action.get()).setActionRow(
+                        buttons[0],
+                        buttons[1],
+                        buttons[2],
+                        buttons[3].asDisabled(),
+                        buttons[4].asDisabled()
+                ).queue();
+            }
+            else {
+                event.editMessage(action.get()).setActionRow(buttons).queue();
+            }
+
+        }
+        else if (event.getInteraction().getComponentId().equals(buttons[4].getId())) {
+            page_count[0] = ((size - 1) / 30 + 1);
+            event.editMessage(action.get()).setActionRow(
+                    buttons[0],
+                    buttons[1],
+                    buttons[2],
+                    buttons[3].asDisabled(),
+                    buttons[4].asDisabled()
+            ).queue();
+        }
+        else return;
+    }
 }

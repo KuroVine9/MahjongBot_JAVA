@@ -34,15 +34,15 @@ public record Setting() {
             throw new RuntimeException(e);
         }
         JSONObject jsonObject = (JSONObject) obj;
-        RETURN_POINT = ((Long) jsonObject.get("RETURN_POINT")).intValue();
-        ADMIN_ID = (Long) jsonObject.get("ADMIN_ID");
-        PATH = (String) jsonObject.get("PATH");
-        LOG_PATH = (String) jsonObject.get("LOG_PATH");
-        ERROR_LOG_PATH = (String) jsonObject.get("ERROR_LOG_PATH");
-        TOKEN_PATH = (String) jsonObject.get("TOKEN_PATH");
-        USERDATA_PATH = (String) jsonObject.get("USERDATA_PATH");
+        RETURN_POINT = Integer.parseInt(jsonObject.get("RETURN_POINT").toString());
+        ADMIN_ID = Long.parseLong(jsonObject.get("ADMIN_ID").toString());
+        PATH = jsonObject.get("PATH").toString();
+        LOG_PATH = jsonObject.get("LOG_PATH").toString();
+        ERROR_LOG_PATH = jsonObject.get("ERROR_LOG_PATH").toString();
+        TOKEN_PATH = jsonObject.get("TOKEN_PATH").toString();
+        USERDATA_PATH = jsonObject.get("USERDATA_PATH").toString();
         MONTH_USERDATA_PATH = jsonObject.get("MONTH_USERDATA_PATH").toString();
-        GRAPH_PATH = (String) jsonObject.get("GRAPH_PATH");
+        GRAPH_PATH = jsonObject.get("GRAPH_PATH").toString();
         INST_PATH = jsonObject.get("INST_PATH").toString();
 
         JSONArray jsonArray = (JSONArray) jsonObject.get("UMA");

@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 public class ReValid {
     public ReValid(SlashCommandEvent event) {
         long time = System.currentTimeMillis();
-        new ScoreProcess().revalidData();
+        ScoreProcess.revalidData();
         Logger.addEvent(event);
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("PROCESSED");

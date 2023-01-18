@@ -14,7 +14,6 @@ import java.util.Optional;
 public class MonthStat extends StatArranger {
     public MonthStat(SlashCommandEvent event) {
         HashMap<String, UserGameData> data_list;
-        ScoreProcess process = new ScoreProcess();
 
         int month = ((event.getOption("month") == null) ?
                 LocalDate.now().getMonthValue() :
@@ -27,7 +26,7 @@ public class MonthStat extends StatArranger {
             ObjectInputStream istream = new ObjectInputStream(new FileInputStream(Setting.getValidMonthDataPath(month, year)));
             data_list = (HashMap<String, UserGameData>) istream.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            data_list = process.getUserDataList(month, year);
+            data_list = ScoreProcess.getUserDataList(month, year);
         }
         // TODO 이름 공백
         String finalName = getValidUser(event).getName().replaceAll(" ", "");
@@ -36,7 +35,7 @@ public class MonthStat extends StatArranger {
         user.updateAllData();
 
         GraphProcess graph = new GraphProcess();
-        graph.scoreGraphGen(process.recentGameResult(finalName, month, year));
+        graph.scoreGraphGen(ScoreProcess.recentGameResult(finalName, month, year));
 
         var sorted_list = data_list.values().stream().sorted(
                 (dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))

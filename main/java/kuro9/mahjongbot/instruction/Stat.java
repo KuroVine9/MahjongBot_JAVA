@@ -13,12 +13,11 @@ import java.util.Optional;
 public class Stat extends StatArranger {
     public Stat(SlashCommandEvent event) {
         HashMap<String, UserGameData> data_list;
-        ScoreProcess process = new ScoreProcess();
         try {
             ObjectInputStream istream = new ObjectInputStream(new FileInputStream(Setting.USERDATA_PATH));
             data_list = (HashMap<String, UserGameData>) istream.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            data_list = process.getUserDataList();
+            data_list = ScoreProcess.getUserDataList();
         }
         // TODO 이름 공백
         String finalName = getValidUser(event).getName().replaceAll(" ", "");
@@ -27,7 +26,7 @@ public class Stat extends StatArranger {
         user.updateAllData();
 
         GraphProcess graph = new GraphProcess();
-        graph.scoreGraphGen(process.recentGameResult(finalName));
+        graph.scoreGraphGen(ScoreProcess.recentGameResult(finalName));
 
         var sorted_list = data_list.values().stream().sorted(
                 (dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))

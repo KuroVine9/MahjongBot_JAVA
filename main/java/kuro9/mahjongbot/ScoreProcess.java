@@ -29,7 +29,7 @@ public class ScoreProcess {
      * @param score 1위부터 4위의 점수가 기록된 {@code int} 배열
      * @return 입력된 결과의 인덱스 (매개변수에 대한 논리적 에러 : -1, {@link IOException} : -2)
      */
-    public int addScore(String[] name, int[] score) {
+    public static int addScore(String[] name, int[] score) {
         if (
                 (Arrays.stream(name).distinct().count() != 4) || (Arrays.stream(score).sum() != 100000) ||
                         !((score[0] >= score[1]) && (score[1] >= score[2]) && (score[2] >= score[3]))
@@ -61,7 +61,7 @@ public class ScoreProcess {
     /**
      * 데이터를 미리 유저 객체로 처리해 두어 효율성을 높입니다.
      */
-    public void revalidData() {
+    public static void revalidData() {
         LocalDate now = LocalDate.now();
         ObjectOutputStream ostream;
         var data = getUserDataList();
@@ -87,7 +87,7 @@ public class ScoreProcess {
      * @param isdatesearch 코드 재사용을 위한 내부 매개변수
      * @return {@link UserGameData}     형 유저 데이터 리스트
      */
-    private HashMap<String, UserGameData> processUserData(int month, int year, boolean isdatesearch) {
+    private static HashMap<String, UserGameData> processUserData(int month, int year, boolean isdatesearch) {
         HashMap<String, UserGameData> uma_table = new HashMap<>();
         try {
             CSVReader csv = new CSVReader(new FileReader(Setting.PATH));
@@ -120,7 +120,7 @@ public class ScoreProcess {
      *
      * @return {@link UserGameData} 형 유저 데이터 리스트
      */
-    public HashMap<String, UserGameData> getUserDataList() {
+    public static HashMap<String, UserGameData> getUserDataList() {
         return processUserData(0, 0, false);
     }
 
@@ -131,11 +131,11 @@ public class ScoreProcess {
      * @param year  검색할 년도
      * @return {@link UserGameData} 형 유저 데이터 리스트
      */
-    public HashMap<String, UserGameData> getUserDataList(int month, int year) {
+    public static HashMap<String, UserGameData> getUserDataList(int month, int year) {
         return processUserData(month, year, true);
     }
 
-    private int[][] recentGameResult(String name, int month, int year, boolean isdatesearch) {
+    private static int[][] recentGameResult(String name, int month, int year, boolean isdatesearch) {
         Queue<Integer> queue = new LinkedList<>();
         try {
             CSVReader csv = new CSVReader(new FileReader(Setting.PATH));
@@ -170,7 +170,7 @@ public class ScoreProcess {
      * @param name 검색할 유저의 이름입니다.
      * @return [0][] : 최근 10국의 순위(범위 : [1, 4]), [1][] : 냥글라스 여부(범위 : [0, 1])
      */
-    public int[][] recentGameResult(String name) {
+    public static int[][] recentGameResult(String name) {
         return recentGameResult(name, 0, 0, false);
     }
 
@@ -182,7 +182,7 @@ public class ScoreProcess {
      * @param year  검색할 년도
      * @return [0][] : 최근 10국의 순위(범위 : [1, 4]), [1][] : 냥글라스 여부(범위 : [0, 1])
      */
-    public int[][] recentGameResult(String name, int month, int year) {
+    public static int[][] recentGameResult(String name, int month, int year) {
         return recentGameResult(name, month, year, true);
     }
 

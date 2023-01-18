@@ -37,8 +37,7 @@ public class Add {
             scores[i / 2] = (int) options.get(++i).getAsLong();
         }
 
-        ScoreProcess process = new ScoreProcess();
-        int result = process.addScore(names, scores);
+        int result = ScoreProcess.addScore(names, scores);
         switch (result) {
             case -1 -> {     // PARAM ERR
                 EmbedBuilder embed = new EmbedBuilder();
@@ -88,7 +87,7 @@ public class Add {
                 embed.setColor(Color.BLACK);
                 event.replyEmbeds(embed.build()).queue();
                 Logger.addEvent(event);
-                process.revalidData();
+                ScoreProcess.revalidData();
             }
         }
     }

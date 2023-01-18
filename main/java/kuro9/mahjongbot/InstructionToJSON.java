@@ -61,10 +61,23 @@ public class InstructionToJSON {
                                 ).addChoices(
                                         new Command.Choice("summary", 0),
                                         new Command.Choice("uma", 1),
-                                        new Command.Choice("total_game_count", 2),
-                                        new Command.Choice("average_rank", 3),
-                                        new Command.Choice("average_uma", 4)
+                                        new Command.Choice("total_game_count", 2)
                                 )
+                        ).toData().toJson()
+        ));
+        command_list.add(new String(
+                new CommandData("month_rank", "month_rank")
+                        .addOptions(
+                                new OptionData(
+                                        INTEGER, "type", "type"
+                                ).addChoices(
+                                        new Command.Choice("summary", 0),
+                                        new Command.Choice("uma", 1),
+                                        new Command.Choice("total_game_count", 2)
+                                ),
+                                new OptionData(INTEGER, "month", "month"),
+                                new OptionData(INTEGER, "year", "year"),
+                                new OptionData(INTEGER, "filter", "filter")
                         ).toData().toJson()
         ));
         Setting.init();

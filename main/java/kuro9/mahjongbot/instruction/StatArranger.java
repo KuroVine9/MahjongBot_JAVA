@@ -38,7 +38,7 @@ public abstract class StatArranger {
     protected EmbedBuilder getEmbed(UserGameData user, int rank, String thumb_url, int month, int year) {
         EmbedBuilder embed = new EmbedBuilder();
         if (month == 0 || year == 0) embed.setTitle(String.format("[#%d] %s님의 통계", rank, user.name));
-        else embed.setTitle(String.format("[#%d] %d년 %d월 %s님의 통계", rank, year, month, user.name));
+        else embed.setTitle(String.format("[#%d] [%d.%02d] %s님의 통계", rank, year, month, user.name));
         embed.setColor(Color.BLACK);
         embed.addField(
                 "총 우마",
