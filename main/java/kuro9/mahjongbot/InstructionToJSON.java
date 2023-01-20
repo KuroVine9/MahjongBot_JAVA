@@ -38,7 +38,7 @@ public class InstructionToJSON {
                         )
                         .toData().toJson()));
         command_list.add(new String(
-                new CommandData("stat", "stat")
+                new CommandData("entire_stat", "stat")
                         .addOptions(
                                 new OptionData(USER, "user", "user")
                         )
@@ -51,10 +51,21 @@ public class InstructionToJSON {
                                 new OptionData(INTEGER, "year", "year")
                         ).toData().toJson()));
         command_list.add(new String(
+                new CommandData("stat", "season_stat")
+                        .addOptions(
+                                new OptionData(USER, "user", "user"),
+                                new OptionData(INTEGER, "season", "season")
+                                        .addChoices(
+                                                new Command.Choice("1-6", 1),
+                                                new Command.Choice("7-12", 2)
+                                        ),
+                                new OptionData(INTEGER, "year", "year")
+                        ).toData().toJson()));
+        command_list.add(new String(
                 new CommandData("revalid", "revalid")
                         .toData().toJson()));
         command_list.add(new String(
-                new CommandData("rank", "rank")
+                new CommandData("entire_rank", "rank")
                         .addOptions(
                                 new OptionData(
                                         INTEGER, "type", "type"
@@ -62,7 +73,8 @@ public class InstructionToJSON {
                                         new Command.Choice("summary", 0),
                                         new Command.Choice("uma", 1),
                                         new Command.Choice("total_game_count", 2)
-                                )
+                                ),
+                                new OptionData(INTEGER, "filter", "filter")
                         ).toData().toJson()
         ));
         command_list.add(new String(
@@ -76,6 +88,25 @@ public class InstructionToJSON {
                                         new Command.Choice("total_game_count", 2)
                                 ),
                                 new OptionData(INTEGER, "month", "month"),
+                                new OptionData(INTEGER, "year", "year"),
+                                new OptionData(INTEGER, "filter", "filter")
+                        ).toData().toJson()
+        ));
+        command_list.add(new String(
+                new CommandData("rank", "season_rank")
+                        .addOptions(
+                                new OptionData(
+                                        INTEGER, "type", "type"
+                                ).addChoices(
+                                        new Command.Choice("summary", 0),
+                                        new Command.Choice("uma", 1),
+                                        new Command.Choice("total_game_count", 2)
+                                ),
+                                new OptionData(INTEGER, "season", "season")
+                                        .addChoices(
+                                                new Command.Choice("1-6", 1),
+                                                new Command.Choice("7-12", 2)
+                                        ),
                                 new OptionData(INTEGER, "year", "year"),
                                 new OptionData(INTEGER, "filter", "filter")
                         ).toData().toJson()

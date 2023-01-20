@@ -46,7 +46,7 @@ public class ScoreProcess {
             str[1] = date;
             int count = 2;
             for (int i = 0; i < 4; i++) {
-                str[count++] = name[i].replaceAll(" ", "");
+                str[count++] = name[i];
                 str[count++] = String.valueOf(score[i]);
             }
 
@@ -64,15 +64,19 @@ public class ScoreProcess {
     public static void revalidData() {
         LocalDate now = LocalDate.now();
         ObjectOutputStream ostream;
-        var data = getUserDataList();
-        var month_data = getUserDataList(now.getMonthValue(), now.getYear());
+        int month = now.getMonthValue();
+        int year = now.getYear();
         try {
             ostream = new ObjectOutputStream(new FileOutputStream(Setting.USERDATA_PATH));
-            ostream.writeObject(data);
+            ostream.writeObject(getUserDataList());
             ostream.close();
 
             ostream = new ObjectOutputStream(new FileOutputStream(Setting.getValidMonthDataPath()));
-            ostream.writeObject(month_data);
+            ostream.writeObject(getUserDataList(month, year));
+            ostream.close();
+
+            ostream = new ObjectOutputStream(new FileOutputStream(Setting.getValidHalfDataPath()));
+            ostream.writeObject(getUserDataList((((month - 1) / 6) + 1), year, month, year));
             ostream.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -82,30 +86,32 @@ public class ScoreProcess {
     /**
      * 매개변수로 받은 기간 동안의 유저 데이터 리스트를 반환합니다.
      *
-     * @param month        검색할 월
-     * @param year         검색할 년도
+     * @param start_month  시작 월
+     * @param start_year   시작 년도
+     * @param end_month    끝 월
+     * @param end_year     끝 년도
      * @param isdatesearch 코드 재사용을 위한 내부 매개변수
      * @return {@link UserGameData}     형 유저 데이터 리스트
      */
-    private static HashMap<String, UserGameData> processUserData(int month, int year, boolean isdatesearch) {
+    private static HashMap<String, UserGameData> processUserData(int start_month, int start_year, int end_month, int end_year, boolean isdatesearch) {
         HashMap<String, UserGameData> uma_table = new HashMap<>();
         try {
             CSVReader csv = new CSVReader(new FileReader(Setting.PATH));
             for (var line : csv.readAll()) {
-                if (isdatesearch && (Integer.parseInt(line[1].split("\\.")[0]) != year
-                        || Integer.parseInt(line[1].split("\\.")[1]) != month)) continue;
-
-                for (int i = 2; i < 10; i += 2) {
-                    if (!uma_table.containsKey(line[i])) {
-                        UserGameData user = new UserGameData(line[i]);
-                        user.addGameData(Integer.parseInt(line[i + 1]), (i / 2));
-                        uma_table.put(line[i], user);
-                    }
-                    else {
-                        uma_table.get(line[i]).addGameData(Integer.parseInt(line[i + 1]), (i / 2));
+                int search_year = Integer.parseInt(line[1].split("\\.")[0]);
+                int search_month = Integer.parseInt(line[1].split("\\.")[1]);
+                if (!isdatesearch || ((start_year <= search_year && search_year <= end_year) && (start_month <= search_month && search_month <= end_month))) {
+                    for (int i = 2; i < 10; i += 2) {
+                        if (!uma_table.containsKey(line[i])) {
+                            UserGameData user = new UserGameData(line[i]);
+                            user.addGameData(Integer.parseInt(line[i + 1]), (i / 2));
+                            uma_table.put(line[i], user);
+                        }
+                        else {
+                            uma_table.get(line[i]).addGameData(Integer.parseInt(line[i + 1]), (i / 2));
+                        }
                     }
                 }
-
             }
 
         } catch (IOException | CsvException e) {
@@ -121,7 +127,7 @@ public class ScoreProcess {
      * @return {@link UserGameData} 형 유저 데이터 리스트
      */
     public static HashMap<String, UserGameData> getUserDataList() {
-        return processUserData(0, 0, false);
+        return processUserData(0, 0, 0, 0, false);
     }
 
     /**
@@ -132,23 +138,38 @@ public class ScoreProcess {
      * @return {@link UserGameData} 형 유저 데이터 리스트
      */
     public static HashMap<String, UserGameData> getUserDataList(int month, int year) {
-        return processUserData(month, year, true);
+        return processUserData(month, year, month, year, true);
     }
 
-    private static int[][] recentGameResult(String name, int month, int year, boolean isdatesearch) {
+    /**
+     * 매개변수로 받은 기간 동안의 유저 데이터 리스트를 반환합니다.
+     *
+     * @param start_month 시작 월
+     * @param start_year  시작 년도
+     * @param end_month   끝 월
+     * @param end_year    끝 년도
+     * @return {@link UserGameData}     형 유저 데이터 리스트
+     */
+    public static HashMap<String, UserGameData> getUserDataList(int start_month, int start_year, int end_month, int end_year) {
+        return processUserData(start_month, start_year, end_month, end_year, true);
+    }
+
+    private static int[][] recentGameResult(String name, int start_month, int start_year, int end_month, int end_year, boolean isdatesearch) {
         Queue<Integer> queue = new LinkedList<>();
         try {
             CSVReader csv = new CSVReader(new FileReader(Setting.PATH));
             for (var line : csv.readAll()) {
-                if (isdatesearch && (Integer.parseInt(line[1].split("\\.")[0]) != year
-                        || Integer.parseInt(line[1].split("\\.")[1]) != month)) continue;
+                int search_year = Integer.parseInt(line[1].split("\\.")[0]);
+                int search_month = Integer.parseInt(line[1].split("\\.")[1]);
+                if (!isdatesearch || ((start_year <= search_year && search_year <= end_year) && (start_month <= search_month && search_month <= end_month))) {
+                    for (int i = 2; i < 10; i += 2) {
+                        // 등수 : i/2, 점수: line[i+1]
+                        if (line[i].equals(name))
+                            queue.offer((i * 5) + (Integer.parseInt(line[i + 1]) >= 50000 ? 1 : 0));
+                    }
 
-                for (int i = 2; i < 10; i += 2) {
-                    // 등수 : i/2, 점수: line[i+1]
-                    if (line[i].equals(name)) queue.offer((i * 5) + (Integer.parseInt(line[i + 1]) >= 50000 ? 1 : 0));
+                    while (queue.size() > 10) queue.poll();
                 }
-
-                while (queue.size() > 10) queue.poll();
 
             }
 
@@ -171,7 +192,7 @@ public class ScoreProcess {
      * @return [0][] : 최근 10국의 순위(범위 : [1, 4]), [1][] : 냥글라스 여부(범위 : [0, 1])
      */
     public static int[][] recentGameResult(String name) {
-        return recentGameResult(name, 0, 0, false);
+        return recentGameResult(name, 0, 0, 0, 0, false);
     }
 
     /**
@@ -183,7 +204,20 @@ public class ScoreProcess {
      * @return [0][] : 최근 10국의 순위(범위 : [1, 4]), [1][] : 냥글라스 여부(범위 : [0, 1])
      */
     public static int[][] recentGameResult(String name, int month, int year) {
-        return recentGameResult(name, month, year, true);
+        return recentGameResult(name, month, year, month, year, true);
     }
 
+    /**
+     * 그래프 작성용 메소드입니다. 검색 범위 내 최근 10국의 순위와 냥글라스 여부를 이차원 배열로 반환합니다.
+     *
+     * @param name        검색할 유저의 이름입니다.
+     * @param start_month 시작 월
+     * @param start_year  시작 년도
+     * @param end_month   끝 월
+     * @param end_year    끝 년도
+     * @return [0][] : 최근 10국의 순위(범위 : [1, 4]), [1][] : 냥글라스 여부(범위 : [0, 1])
+     */
+    public static int[][] recentGameResult(String name, int start_month, int start_year, int end_month, int end_year) {
+        return recentGameResult(name, start_month, start_year, end_month, end_year, true);
+    }
 }

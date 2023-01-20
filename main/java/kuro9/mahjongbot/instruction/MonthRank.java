@@ -4,13 +4,8 @@ import kuro9.mahjongbot.Logger;
 import kuro9.mahjongbot.ScoreProcess;
 import kuro9.mahjongbot.UserGameData;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
-
-import java.time.LocalDate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MonthRank extends RankArranger {
     static int[] month_uma_page_count = {1};
@@ -29,59 +24,6 @@ public class MonthRank extends RankArranger {
             Button.secondary("month_rank_totalgame_go_next", ">"),
             Button.secondary("month_rank_totalgame_go_last", ">>")
     };
-
-    private static int getValidMonth(GenericInteractionCreateEvent event) {
-        if (event instanceof SlashCommandEvent s) {
-            return ((s.getOption("month") == null) ?
-                    LocalDate.now().getMonthValue() :
-                    (int) s.getOption("month").getAsLong());
-        }
-        else if (event instanceof ButtonClickEvent b) {
-            String pattern = "\\[\\d{4}.(\\d{2})";
-            Pattern r = Pattern.compile(pattern);
-            Matcher m = r.matcher(b.getMessage().getContentDisplay());
-            if (m.find()) {
-                return Integer.parseInt(m.group(1));
-            }
-            else return 0;
-        }
-        else return 0;
-    }
-
-    private static int getValidYear(GenericInteractionCreateEvent event) {
-        if (event instanceof SlashCommandEvent s) {
-            return ((s.getOption("year") == null) ?
-                    LocalDate.now().getYear() :
-                    (int) s.getOption("year").getAsLong());
-        }
-        else if (event instanceof ButtonClickEvent b) {
-            String pattern = "\\[(\\d{4})";
-            Pattern r = Pattern.compile(pattern);
-            Matcher m = r.matcher(b.getMessage().getContentDisplay());
-            if (m.find()) {
-                return Integer.parseInt(m.group(1));
-            }
-            else return 0;
-        }
-        else return 0;
-    }
-
-    private static int getValidFilter(GenericInteractionCreateEvent event) {
-        if (event instanceof SlashCommandEvent s) {
-            return ((s.getOption("filter") == null) ?
-                    0 : (int) s.getOption("filter").getAsLong());
-        }
-        else if (event instanceof ButtonClickEvent b) {
-            String pattern = "\\((\\d+)";
-            Pattern r = Pattern.compile(pattern);
-            Matcher m = r.matcher(b.getMessage().getContentDisplay());
-            if (m.find()) {
-                return Integer.parseInt(m.group(1));
-            }
-            else return 0;
-        }
-        else return 0;
-    }
 
     public static void summaryReply(SlashCommandEvent event) {
         int month = getValidMonth(event);

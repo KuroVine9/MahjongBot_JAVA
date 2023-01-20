@@ -2,6 +2,8 @@ package kuro9.mahjongbot.instruction;
 
 import kuro9.mahjongbot.Logger;
 import kuro9.mahjongbot.ScoreProcess;
+import kuro9.mahjongbot.Setting;
+import kuro9.mahjongbot.gdrive.GDrive;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -13,7 +15,7 @@ import java.time.format.DateTimeFormatter;
 
 public class Add {
 
-    public Add(SlashCommandEvent event, RestAction<User> ADMIN) {
+    public static void action(SlashCommandEvent event, RestAction<User> ADMIN) {
         if (!event.isFromGuild()) {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle("403 Forbidden");
@@ -33,7 +35,7 @@ public class Add {
         String[] names = new String[4];
         int[] scores = new int[4];
         for (int i = 0; i < options.size(); i++) {
-            names[i / 2] = options.get(i).getAsUser().getName().replaceAll(" ", "");
+            names[i / 2] = options.get(i).getAsUser().getName();
             scores[i / 2] = (int) options.get(++i).getAsLong();
         }
 
@@ -88,6 +90,7 @@ public class Add {
                 event.replyEmbeds(embed.build()).queue();
                 Logger.addEvent(event);
                 ScoreProcess.revalidData();
+                GDrive.upload(Setting.FILE_ID, ADMIN);
             }
         }
     }

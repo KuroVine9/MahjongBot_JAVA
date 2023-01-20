@@ -26,23 +26,25 @@ public class Rank extends RankArranger {
     };
 
     public static void summaryReply(SlashCommandEvent event) {
+        int filter = getValidFilter(event);
         event.replyEmbeds(
                 getSummaryEmbed(
-                        "VRC 집계마작 순위 (10국 이상)",
+                        String.format("VRC 집계마작 순위 (%d국 이상)", filter),
                         ScoreProcess.getUserDataList().values().stream().peek(UserGameData::updateAllData)
-                                .filter(data -> data.game_count >= 10).toList()
+                                .filter(data -> data.game_count >= filter).toList()
                 ).build()
         ).queue();
         Logger.addEvent(event);
     }
 
     public static void umaReply(SlashCommandEvent event) {
-        var sorted_list = getSortedUmaList();
+        int filter = getValidFilter(event);
+        var sorted_list = getSortedUmaList(filter);
         uma_page_count[0] = 1;
         event.reply(
                 getUmaPrintString(
                         sorted_list,
-                        "총 우마 순위",
+                        String.format("총 우마 순위 (%d국 이상)", filter),
                         uma_page_count[0]
                 )
         ).addActionRow(
@@ -56,7 +58,8 @@ public class Rank extends RankArranger {
     }
 
     public static void umaPageControl(ButtonClickEvent event) {
-        var sorted_list = getSortedUmaList();
+        int filter = getValidFilter(event);
+        var sorted_list = getSortedUmaList(filter);
         pageControl(
                 event,
                 uma_button,
@@ -64,7 +67,7 @@ public class Rank extends RankArranger {
                 sorted_list.size(),
                 () -> getUmaPrintString(
                         sorted_list,
-                        "총 우마 순위",
+                        String.format("총 우마 순위 (%d국 이상)", filter),
                         uma_page_count[0]
                 )
         );
@@ -72,12 +75,13 @@ public class Rank extends RankArranger {
     }
 
     public static void totalGameReply(SlashCommandEvent event) {
-        var sorted_list = getSortedTotalGameList();
+        int filter = getValidFilter(event);
+        var sorted_list = getSortedTotalGameList(filter);
         total_game_page_count[0] = 1;
         event.reply(
                 getTotalGamePrintString(
                         sorted_list,
-                        "총합 국 수 순위",
+                        String.format("총합 국 수 순위 (%d국 이상)", filter),
                         total_game_page_count[0]
                 )
         ).addActionRow(
@@ -91,7 +95,8 @@ public class Rank extends RankArranger {
     }
 
     public static void totalGamePageControl(ButtonClickEvent event) {
-        var sorted_list = getSortedTotalGameList();
+        int filter = getValidFilter(event);
+        var sorted_list = getSortedTotalGameList(filter);
         pageControl(
                 event,
                 total_game_button,
@@ -99,7 +104,7 @@ public class Rank extends RankArranger {
                 sorted_list.size(),
                 () -> getTotalGamePrintString(
                         sorted_list,
-                        "총합 국 수 순위",
+                        String.format("총합 국 수 순위 (%d국 이상)", filter),
                         total_game_page_count[0]
                 )
         );

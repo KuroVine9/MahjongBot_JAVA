@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Optional;
 
 public class MonthStat extends StatArranger {
-    public MonthStat(SlashCommandEvent event) {
+    public static void action(SlashCommandEvent event) {
         HashMap<String, UserGameData> data_list;
 
         int month = ((event.getOption("month") == null) ?
@@ -28,8 +28,8 @@ public class MonthStat extends StatArranger {
         } catch (IOException | ClassNotFoundException e) {
             data_list = ScoreProcess.getUserDataList(month, year);
         }
-        // TODO 이름 공백
-        String finalName = getValidUser(event).getName().replaceAll(" ", "");
+
+        String finalName = getValidUser(event).getName();
 
         UserGameData user = Optional.ofNullable(data_list.get(finalName)).orElseGet(() -> new UserGameData(finalName));
         user.updateAllData();
@@ -37,18 +37,15 @@ public class MonthStat extends StatArranger {
         GraphProcess graph = new GraphProcess();
         graph.scoreGraphGen(ScoreProcess.recentGameResult(finalName, month, year));
 
-        var sorted_list = data_list.values().stream().sorted(
-                (dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
-        ).toList();
-
-        int rank = 0;
-        for (; rank < sorted_list.size(); rank++) {
-            if (sorted_list.get(rank).name.equals(finalName)) break;
-        }
+        int rank = getRank(data_list, finalName);
 
         File image = new File(Setting.GRAPH_PATH);
         event.replyEmbeds(
-                getEmbed(user, rank + 1, getValidUser(event).getEffectiveAvatarUrl(), month, year).build()
+                getEmbed(
+                        user,
+                        String.format("[#%d] [%d.%02d] %s님의 통계", rank, year, month, user.name),
+                        getValidUser(event).getEffectiveAvatarUrl()
+                ).build()
         ).addFile(image, Setting.GRAPH_NAME).queue();
         Logger.addEvent(event);
     }

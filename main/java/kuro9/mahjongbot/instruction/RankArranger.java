@@ -4,13 +4,71 @@ import kuro9.mahjongbot.ScoreProcess;
 import kuro9.mahjongbot.UserGameData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class RankArranger {
+
+    protected static int getValidMonth(GenericInteractionCreateEvent event) {
+        if (event instanceof SlashCommandEvent s) {
+            return ((s.getOption("month") == null) ?
+                    LocalDate.now().getMonthValue() :
+                    (int) s.getOption("month").getAsLong());
+        }
+        else if (event instanceof ButtonClickEvent b) {
+            String pattern = "\\[\\d{4}.(\\d{2})";
+            Pattern r = Pattern.compile(pattern);
+            Matcher m = r.matcher(b.getMessage().getContentDisplay());
+            if (m.find()) {
+                return Integer.parseInt(m.group(1));
+            }
+            else return 0;
+        }
+        else return 0;
+    }
+
+    protected static int getValidYear(GenericInteractionCreateEvent event) {
+        if (event instanceof SlashCommandEvent s) {
+            return ((s.getOption("year") == null) ?
+                    LocalDate.now().getYear() :
+                    (int) s.getOption("year").getAsLong());
+        }
+        else if (event instanceof ButtonClickEvent b) {
+            String pattern = "\\[(\\d{4})";
+            Pattern r = Pattern.compile(pattern);
+            Matcher m = r.matcher(b.getMessage().getContentDisplay());
+            if (m.find()) {
+                return Integer.parseInt(m.group(1));
+            }
+            else return 0;
+        }
+        else return 0;
+    }
+
+    protected static int getValidFilter(GenericInteractionCreateEvent event) {
+        if (event instanceof SlashCommandEvent s) {
+            return ((s.getOption("filter") == null) ?
+                    0 : (int) s.getOption("filter").getAsLong());
+        }
+        else if (event instanceof ButtonClickEvent b) {
+            String pattern = "\\((\\d+)";
+            Pattern r = Pattern.compile(pattern);
+            Matcher m = r.matcher(b.getMessage().getContentDisplay());
+            if (m.find()) {
+                return Integer.parseInt(m.group(1));
+            }
+            else return 0;
+        }
+        else return 0;
+    }
 
     protected static EmbedBuilder getSummaryEmbed(String title, List<UserGameData> sorted_list) {
         EmbedBuilder embed = new EmbedBuilder();
@@ -121,6 +179,14 @@ public abstract class RankArranger {
                 ).toList();
     }
 
+    protected static List<UserGameData> getSortedTotalGameList(int filter, int start_month, int start_year, int end_month, int end_year) {
+        return ScoreProcess.getUserDataList(start_month, start_year, end_month, end_year).values().stream()
+                .filter(data -> data.game_count >= filter)
+                .peek(UserGameData::updateAllData)
+                .sorted((dataA, dataB) -> (dataB.game_count - dataA.game_count)
+                ).toList();
+    }
+
     protected static List<UserGameData> getSortedTotalGameList() {
         return getSortedTotalGameList(0);
     }
@@ -143,6 +209,13 @@ public abstract class RankArranger {
 
     protected static List<UserGameData> getSortedUmaList(int filter, int month, int year) {
         return ScoreProcess.getUserDataList(month, year).values().stream()
+                .filter(data -> data.game_count >= filter)
+                .sorted((dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
+                ).toList();
+    }
+
+    protected static List<UserGameData> getSortedUmaList(int filter, int start_month, int start_year, int end_month, int end_year) {
+        return ScoreProcess.getUserDataList(start_month, start_year, end_month, end_year).values().stream()
                 .filter(data -> data.game_count >= filter)
                 .sorted((dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
                 ).toList();
@@ -206,7 +279,25 @@ public abstract class RankArranger {
 
     protected static void pageControl(ButtonClickEvent event, Button[] buttons, int[] page_count, int size, Supplier<String> action) {
         if (event.getInteraction().getComponentId().equals(buttons[2].getId())) {
-            event.editMessage(action.get()).queue();
+            if (page_count[0] == 1) {
+                event.editMessage(action.get()).setActionRow(
+                        buttons[0].asDisabled(),
+                        buttons[1].asDisabled(),
+                        buttons[2],
+                        buttons[3],
+                        buttons[4]
+                ).queue();
+            }
+            else if (page_count[0] == ((size - 1) / 30 + 1)) {
+                event.editMessage(action.get()).setActionRow(
+                        buttons[0],
+                        buttons[1],
+                        buttons[2],
+                        buttons[3].asDisabled(),
+                        buttons[4].asDisabled()
+                ).queue();
+            }
+            else event.editMessage(action.get()).setActionRow(buttons).queue();
             return;
         }
         else if (event.getInteraction().getComponentId().equals(buttons[0].getId())) {

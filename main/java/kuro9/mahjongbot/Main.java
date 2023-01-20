@@ -70,6 +70,7 @@ public class Main extends ListenerAdapter {
 
         System.out.println("Started!");
         Logger.addSystemEvent("system-start");
+
     }
 
     @Override
@@ -107,11 +108,12 @@ public class Main extends ListenerAdapter {
                         Button.primary("buttonID", "buttonName")
                 ).queue();
             }
-            case "add" -> new Add(event, ADMIN);
-            case "stat" -> new Stat(event);
-            case "month_stat" -> new MonthStat(event);
-            case "revalid" -> new ReValid(event);
-            case "rank" -> {
+            case "add" -> Add.action(event, ADMIN);
+            case "stat" -> SeasonStat.action(event);
+            case "month_stat" -> MonthStat.action(event);
+            case "entire_stat" -> Stat.action(event);
+            case "revalid" -> ReValid.action(event);
+            case "entire_rank" -> {
                 switch (event.getOption("type") == null ? -1 : (int) event.getOption("type").getAsLong()) {
                     case 0 -> Rank.summaryReply(event);
                     case 1, -1 -> Rank.umaReply(event);
@@ -125,6 +127,13 @@ public class Main extends ListenerAdapter {
                     case 2 -> MonthRank.totalGameReply(event);
                 }
             }
+            case "rank" -> {
+                switch (event.getOption("type") == null ? -1 : (int) event.getOption("type").getAsLong()) {
+                    case 0 -> SeasonRank.summaryReply(event);
+                    case 1, -1 -> SeasonRank.umaReply(event);
+                    case 2 -> SeasonRank.totalGameReply(event);
+                }
+            }
 
             default -> throw new IllegalStateException("Unexpected value: " + event.getName());
         }
@@ -136,6 +145,8 @@ public class Main extends ListenerAdapter {
         else if (event.getComponentId().matches("^rank_totalgame.*")) Rank.totalGamePageControl(event);
         else if (event.getComponentId().matches("^month_rank_uma.*")) MonthRank.umaPageControl(event);
         else if (event.getComponentId().matches("^month_rank_totalgame.*")) MonthRank.totalGamePageControl(event);
+        else if (event.getComponentId().matches("^season_rank_uma.*")) SeasonRank.umaPageControl(event);
+        else if (event.getComponentId().matches("^season_rank_totalgame.*")) SeasonRank.totalGamePageControl(event);
         else if (event.getComponentId().equals("buttonID")) event.editMessage("button!").queue();
     }
 
