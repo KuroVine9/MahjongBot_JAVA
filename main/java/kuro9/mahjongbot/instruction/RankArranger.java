@@ -165,24 +165,24 @@ public abstract class RankArranger {
 
     protected static List<UserGameData> getSortedTotalGameList(int filter) {
         return ScoreProcess.getUserDataList().values().stream()
-                .filter(data -> data.game_count >= filter)
                 .peek(UserGameData::updateAllData)
+                .filter(data -> data.game_count >= filter)
                 .sorted((dataA, dataB) -> (dataB.game_count - dataA.game_count)
                 ).toList();
     }
 
     protected static List<UserGameData> getSortedTotalGameList(int filter, int month, int year) {
         return ScoreProcess.getUserDataList(month, year).values().stream()
-                .filter(data -> data.game_count >= filter)
                 .peek(UserGameData::updateAllData)
+                .filter(data -> data.game_count >= filter)
                 .sorted((dataA, dataB) -> (dataB.game_count - dataA.game_count)
                 ).toList();
     }
 
     protected static List<UserGameData> getSortedTotalGameList(int filter, int start_month, int start_year, int end_month, int end_year) {
         return ScoreProcess.getUserDataList(start_month, start_year, end_month, end_year).values().stream()
-                .filter(data -> data.game_count >= filter)
                 .peek(UserGameData::updateAllData)
+                .filter(data -> data.game_count >= filter)
                 .sorted((dataA, dataB) -> (dataB.game_count - dataA.game_count)
                 ).toList();
     }
@@ -202,6 +202,7 @@ public abstract class RankArranger {
 
     protected static List<UserGameData> getSortedUmaList(int filter) {
         return ScoreProcess.getUserDataList().values().stream()
+                .peek(UserGameData::updateAllData)
                 .filter(data -> data.game_count >= filter)
                 .sorted((dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
                 ).toList();
@@ -209,6 +210,7 @@ public abstract class RankArranger {
 
     protected static List<UserGameData> getSortedUmaList(int filter, int month, int year) {
         return ScoreProcess.getUserDataList(month, year).values().stream()
+                .peek(UserGameData::updateAllData)
                 .filter(data -> data.game_count >= filter)
                 .sorted((dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
                 ).toList();
@@ -216,6 +218,7 @@ public abstract class RankArranger {
 
     protected static List<UserGameData> getSortedUmaList(int filter, int start_month, int start_year, int end_month, int end_year) {
         return ScoreProcess.getUserDataList(start_month, start_year, end_month, end_year).values().stream()
+                .peek(UserGameData::updateAllData)
                 .filter(data -> data.game_count >= filter)
                 .sorted((dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
                 ).toList();
@@ -321,7 +324,7 @@ public abstract class RankArranger {
                         buttons[4]
                 ).queue();
             }
-            else {
+            else if (page_count[0] == ((size - 1) / 30 + 1)) {
                 event.editMessage(action.get()).setActionRow(
                         buttons[0],
                         buttons[1],
@@ -329,6 +332,9 @@ public abstract class RankArranger {
                         buttons[3].asDisabled(),
                         buttons[4].asDisabled()
                 ).queue();
+            }
+            else {
+                event.editMessage(action.get()).setActionRow(buttons).queue();
             }
 
         }

@@ -28,7 +28,8 @@ public class Logger {
      * @param event JDA의 SlashCommandEvent
      */
     public static void addEvent(GenericInteractionCreateEvent event) {
-        writeLogToCSV(getLogList(event));
+        ArrayList<String> log_list = getLogList(event);
+        writeLogToCSV(log_list);
     }
 
     /**
@@ -183,6 +184,7 @@ public class Logger {
      * @param log_list 로그 정보가 담긴 리스트
      */
     private static void writeErrorLogToCSV(ArrayList<String> log_list) {
+        while (log_list.size() < 13) log_list.add("<NO_DATA>");
         abstractWriteLogToCSV(log_list, Setting.ERROR_LOG_PATH);
     }
 
@@ -192,6 +194,7 @@ public class Logger {
      * @param log_list 로그 정보가 담긴 리스트
      */
     private static void writeLogToCSV(ArrayList<String> log_list) {
+        while (log_list.size() < 12) log_list.add("<NO_DATA>");
         abstractWriteLogToCSV(log_list, Setting.LOG_PATH);
     }
 
@@ -212,4 +215,5 @@ public class Logger {
             throw new RuntimeException(e);
         }
     }
+
 }
