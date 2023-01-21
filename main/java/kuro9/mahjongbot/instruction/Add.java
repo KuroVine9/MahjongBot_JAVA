@@ -6,7 +6,7 @@ import kuro9.mahjongbot.Setting;
 import kuro9.mahjongbot.gdrive.GDrive;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 
 import java.awt.*;
@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter;
 
 public class Add {
 
-    public static void action(SlashCommandEvent event, RestAction<User> ADMIN) {
+    public static void action(SlashCommandInteractionEvent event, RestAction<User> ADMIN) {
         if (!event.isFromGuild()) {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle("403 Forbidden");

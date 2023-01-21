@@ -4,9 +4,9 @@ import com.opencsv.CSVWriter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 
 import java.awt.*;
@@ -70,7 +70,7 @@ public class Logger {
      * @param description 에러 형태에 대한 요약
      * @param admin       관리자의 정보가 담긴 매개변수
      */
-    public static void addErrorEvent(SlashCommandEvent event, String description, RestAction<User> admin) {
+    public static void addErrorEvent(SlashCommandInteractionEvent event, String description, RestAction<User> admin) {
         ArrayList<String> log_list = getLogList(event, description);
 
         writeErrorLogToCSV(log_list);
@@ -103,7 +103,7 @@ public class Logger {
         if (admin == null) return;
         admin.queue(
                 user -> user.openPrivateChannel().queue(
-                        privateChannel -> privateChannel.sendMessage(embed).queue()
+                        privateChannel -> privateChannel.sendMessageEmbeds(embed).queue()
                 )
         );
     }
@@ -140,7 +140,7 @@ public class Logger {
         log_list.add(String.format("%B", event.isFromGuild()));
         log_list.add(event.getUser().getAsTag());
 
-        if (event instanceof SlashCommandEvent s) {
+        if (event instanceof SlashCommandInteractionEvent s) {
             log_list.add(s.getName());
             s.getOptions().forEach(
                     option -> log_list.add(
@@ -159,8 +159,8 @@ public class Logger {
                     )
             );
         }
-        else if (event instanceof ButtonClickEvent b) {
-            log_list.add(b.getButton() == null ? "no-button-found" : b.getButton().getId());
+        else if (event instanceof ButtonInteractionEvent b) {
+            log_list.add(b.getButton().getId());
         }
         return log_list;
     }

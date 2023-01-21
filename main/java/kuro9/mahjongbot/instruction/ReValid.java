@@ -3,10 +3,10 @@ package kuro9.mahjongbot.instruction;
 import kuro9.mahjongbot.Logger;
 import kuro9.mahjongbot.ScoreProcess;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 public class ReValid {
-    public static void action(SlashCommandEvent event) {
+    public static void action(SlashCommandInteractionEvent event) {
         long time = System.currentTimeMillis();
         ScoreProcess.revalidData();
         Logger.addEvent(event);

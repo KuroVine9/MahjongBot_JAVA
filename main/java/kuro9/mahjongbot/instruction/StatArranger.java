@@ -4,7 +4,7 @@ import kuro9.mahjongbot.Setting;
 import kuro9.mahjongbot.UserGameData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -18,7 +18,7 @@ public abstract class StatArranger {
      * @param event 이벤트 매개변수
      * @return null이 아닌 유저 데이터
      */
-    protected static User getValidUser(SlashCommandEvent event) {
+    protected static User getValidUser(SlashCommandInteractionEvent event) {
         return ((event.getOption("user") == null) ?
                 event.getUser() : event.getOption("user").getAsUser());
     }

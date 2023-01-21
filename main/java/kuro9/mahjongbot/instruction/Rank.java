@@ -3,9 +3,9 @@ package kuro9.mahjongbot.instruction;
 import kuro9.mahjongbot.Logger;
 import kuro9.mahjongbot.ScoreProcess;
 import kuro9.mahjongbot.UserGameData;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 public class Rank extends RankArranger {
     static int[] uma_page_count = {1};
@@ -25,7 +25,7 @@ public class Rank extends RankArranger {
             Button.secondary("rank_totalgame_go_last", ">>")
     };
 
-    public static void summaryReply(SlashCommandEvent event) {
+    public static void summaryReply(SlashCommandInteractionEvent event) {
         int filter = getValidFilter(event);
         event.replyEmbeds(
                 getSummaryEmbed(
@@ -37,7 +37,7 @@ public class Rank extends RankArranger {
         Logger.addEvent(event);
     }
 
-    public static void umaReply(SlashCommandEvent event) {
+    public static void umaReply(SlashCommandInteractionEvent event) {
         int filter = getValidFilter(event);
         var sorted_list = getSortedUmaList(filter);
         uma_page_count[0] = 1;
@@ -57,7 +57,7 @@ public class Rank extends RankArranger {
         Logger.addEvent(event);
     }
 
-    public static void umaPageControl(ButtonClickEvent event) {
+    public static void umaPageControl(ButtonInteractionEvent event) {
         int filter = getValidFilter(event);
         var sorted_list = getSortedUmaList(filter);
         pageControl(
@@ -74,7 +74,7 @@ public class Rank extends RankArranger {
         Logger.addEvent(event);
     }
 
-    public static void totalGameReply(SlashCommandEvent event) {
+    public static void totalGameReply(SlashCommandInteractionEvent event) {
         int filter = getValidFilter(event);
         var sorted_list = getSortedTotalGameList(filter);
         total_game_page_count[0] = 1;
@@ -94,7 +94,7 @@ public class Rank extends RankArranger {
         Logger.addEvent(event);
     }
 
-    public static void totalGamePageControl(ButtonClickEvent event) {
+    public static void totalGamePageControl(ButtonInteractionEvent event) {
         int filter = getValidFilter(event);
         var sorted_list = getSortedTotalGameList(filter);
         pageControl(

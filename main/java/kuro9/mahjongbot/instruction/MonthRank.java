@@ -3,9 +3,9 @@ package kuro9.mahjongbot.instruction;
 import kuro9.mahjongbot.Logger;
 import kuro9.mahjongbot.ScoreProcess;
 import kuro9.mahjongbot.UserGameData;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 public class MonthRank extends RankArranger {
     static int[] month_uma_page_count = {1};
@@ -25,7 +25,7 @@ public class MonthRank extends RankArranger {
             Button.secondary("month_rank_totalgame_go_last", ">>")
     };
 
-    public static void summaryReply(SlashCommandEvent event) {
+    public static void summaryReply(SlashCommandInteractionEvent event) {
         int month = getValidMonth(event);
         int year = getValidYear(event);
         int filter = getValidFilter(event);
@@ -40,7 +40,7 @@ public class MonthRank extends RankArranger {
         Logger.addEvent(event);
     }
 
-    public static void umaReply(SlashCommandEvent event) {
+    public static void umaReply(SlashCommandInteractionEvent event) {
         var sorted_list = getSortedUmaList(getValidFilter(event), getValidMonth(event), getValidYear(event));
         month_uma_page_count[0] = 1;
         event.reply(
@@ -59,7 +59,7 @@ public class MonthRank extends RankArranger {
         Logger.addEvent(event);
     }
 
-    public static void umaPageControl(ButtonClickEvent event) {
+    public static void umaPageControl(ButtonInteractionEvent event) {
         var sorted_list = getSortedUmaList(getValidFilter(event), getValidMonth(event), getValidYear(event));
         pageControl(
                 event,
@@ -75,7 +75,7 @@ public class MonthRank extends RankArranger {
         Logger.addEvent(event);
     }
 
-    public static void totalGameReply(SlashCommandEvent event) {
+    public static void totalGameReply(SlashCommandInteractionEvent event) {
         var sorted_list = getSortedTotalGameList(getValidFilter(event), getValidMonth(event), getValidYear(event));
         month_total_game_page_count[0] = 1;
         event.reply(
@@ -94,7 +94,7 @@ public class MonthRank extends RankArranger {
         Logger.addEvent(event);
     }
 
-    public static void totalGamePageControl(ButtonClickEvent event) {
+    public static void totalGamePageControl(ButtonInteractionEvent event) {
         var sorted_list = getSortedTotalGameList(getValidFilter(event), getValidMonth(event), getValidYear(event));
         pageControl(
                 event,

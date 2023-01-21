@@ -3,10 +3,10 @@ package kuro9.mahjongbot.instruction;
 import kuro9.mahjongbot.Logger;
 import kuro9.mahjongbot.ScoreProcess;
 import kuro9.mahjongbot.UserGameData;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.time.LocalDateTime;
 import java.util.regex.Matcher;
@@ -32,12 +32,12 @@ public class SeasonRank extends RankArranger {
     };
 
     private static int getValidSeason(GenericInteractionCreateEvent event) {
-        if (event instanceof SlashCommandEvent s) {
+        if (event instanceof SlashCommandInteractionEvent s) {
             return ((s.getOption("season") == null) ?
                     ((LocalDateTime.now().getMonthValue() - 1) / 6) + 1 :
                     (int) s.getOption("season").getAsLong());
         }
-        else if (event instanceof ButtonClickEvent b) {
+        else if (event instanceof ButtonInteractionEvent b) {
             String pattern = "\\[\\d{4}.(\\d)";
             Pattern r = Pattern.compile(pattern);
             Matcher m = r.matcher(b.getMessage().getContentDisplay());
@@ -49,7 +49,7 @@ public class SeasonRank extends RankArranger {
         else return 0;
     }
 
-    public static void summaryReply(SlashCommandEvent event) {
+    public static void summaryReply(SlashCommandInteractionEvent event) {
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
@@ -66,7 +66,7 @@ public class SeasonRank extends RankArranger {
         Logger.addEvent(event);
     }
 
-    public static void umaReply(SlashCommandEvent event) {
+    public static void umaReply(SlashCommandInteractionEvent event) {
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
@@ -91,7 +91,7 @@ public class SeasonRank extends RankArranger {
         Logger.addEvent(event);
     }
 
-    public static void umaPageControl(ButtonClickEvent event) {
+    public static void umaPageControl(ButtonInteractionEvent event) {
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
@@ -113,7 +113,7 @@ public class SeasonRank extends RankArranger {
         Logger.addEvent(event);
     }
 
-    public static void totalGameReply(SlashCommandEvent event) {
+    public static void totalGameReply(SlashCommandInteractionEvent event) {
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
@@ -138,7 +138,7 @@ public class SeasonRank extends RankArranger {
         Logger.addEvent(event);
     }
 
-    public static void totalGamePageControl(ButtonClickEvent event) {
+    public static void totalGamePageControl(ButtonInteractionEvent event) {
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;

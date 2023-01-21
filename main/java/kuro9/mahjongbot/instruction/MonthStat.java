@@ -1,7 +1,8 @@
 package kuro9.mahjongbot.instruction;
 
 import kuro9.mahjongbot.*;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.utils.FileUpload;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,7 +13,7 @@ import java.util.HashMap;
 import java.util.Optional;
 
 public class MonthStat extends StatArranger {
-    public static void action(SlashCommandEvent event) {
+    public static void action(SlashCommandInteractionEvent event) {
         HashMap<String, UserGameData> data_list;
 
         int month = ((event.getOption("month") == null) ?
@@ -46,7 +47,7 @@ public class MonthStat extends StatArranger {
                         String.format("[#%d] [%d.%02d] %s님의 통계", rank, year, month, user.name),
                         getValidUser(event).getEffectiveAvatarUrl()
                 ).build()
-        ).addFile(image, Setting.GRAPH_NAME).queue();
+        ).addFiles(FileUpload.fromData(image)).queue();
         Logger.addEvent(event);
     }
 }
