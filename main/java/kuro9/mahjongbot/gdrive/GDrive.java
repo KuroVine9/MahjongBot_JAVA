@@ -40,7 +40,7 @@ public class GDrive {
                     )
             ).setApplicationName(client_email.split("@")[0]).build();
 
-            java.io.File fileContent = new java.io.File(Setting.PATH);
+            java.io.File fileContent = new java.io.File(Setting.DATA_PATH);
             FileContent mediaContent = new FileContent("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileContent);
 
             File updateFile = driveService.files().update(fileID, null, mediaContent).execute();

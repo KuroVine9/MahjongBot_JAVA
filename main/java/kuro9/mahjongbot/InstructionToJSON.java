@@ -137,6 +137,6 @@ public class InstructionToJSON {
         );
         ostream.close();
 
-        System.out.println("Instruction JSON Updated!");
+        System.out.println("[MahjongBot:InstructionToJSON] Instruction JSON Updated!");
     }
 }

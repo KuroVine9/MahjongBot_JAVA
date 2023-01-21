@@ -11,7 +11,7 @@ import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.Optional;
 
-public class Stat extends StatArranger {
+public class EntireStat extends StatArranger {
     public static void action(SlashCommandInteractionEvent event) {
         HashMap<String, UserGameData> data_list;
         try {

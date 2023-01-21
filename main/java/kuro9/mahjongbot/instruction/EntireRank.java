@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
-public class Rank extends RankArranger {
+public class EntireRank extends RankArranger {
     static int[] uma_page_count = {1};
     static Button[] uma_button = {
             Button.secondary("rank_uma_go_first", "<<"),

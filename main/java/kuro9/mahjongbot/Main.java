@@ -21,7 +21,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -30,8 +29,8 @@ import java.util.Scanner;
 public class Main extends ListenerAdapter {
     private static RestAction<User> ADMIN;
 
-    public static void main(String[] args) throws LoginException {
-        System.out.println("System Initializing...");
+    public static void main(String[] args) {
+        System.out.println("[MahjongBot:Main] System Initializing...");
         Setting.init();
         final String TOKEN;
         try {
@@ -40,7 +39,7 @@ public class Main extends ListenerAdapter {
             TOKEN = scan.next();
             scan.close();
         } catch (IOException e) {
-            System.out.println("\n\nInitialize Failure!\n\n");
+            System.out.println("\n\n[MahjongBot:Main] Initialize Failure!\n\n");
             throw new RuntimeException(e);
         }
         JDA jda = JDABuilder.createDefault(TOKEN).build();
@@ -48,27 +47,27 @@ public class Main extends ListenerAdapter {
         jda.getPresence().setActivity(Activity.watching("?좊땲붾밾"));
         jda.addEventListener(new Main());
         ADMIN = jda.retrieveUserById(Setting.ADMIN_ID);
-        System.out.println("Initialize Complete!\n");
+        System.out.println("[MahjongBot:Main] Initialize Complete!\n");
 
-        System.out.println("Loading Instructions...");
+        System.out.println("[MahjongBot:Main] Loading Instructions...");
         CommandListUpdateAction commands = jda.updateCommands();
         JSONParser parser = new JSONParser();
         try {
             Object obj = parser.parse(new FileReader(Setting.INST_PATH));
             JSONArray jsonArray = (JSONArray) obj;
             jsonArray.stream().peek(
-                    data -> System.out.printf("Loaded Instruction [%s]\n", ((JSONObject) data).get("name").toString())
+                    data -> System.out.printf("[MahjongBot:Main] Loaded Instruction \"%s\"\n", ((JSONObject) data).get("name").toString())
             ).forEach(data -> commands.addCommands(CommandData.fromData(DataObject.fromJson(data.toString()))));
         } catch (IOException | ParseException e) {
-            System.out.println("\n\nRuntime Instruction Loding Failure!\n\n");
+            System.out.println("\n\n[MahjongBot:Main] Runtime Instruction Loding Failure!\n\n");
             Logger.addSystemErrorEvent("instruction-load-err", ADMIN);
             e.printStackTrace();
             throw new RuntimeException(e);
         }
         commands.queue();
-        System.out.println("Instructions Loaded!");
+        System.out.println("[MahjongBot:Main] Instructions Loaded!");
 
-        System.out.println("Started!");
+        System.out.println("[MahjongBot:Main] Bot Started!");
         Logger.addSystemEvent("system-start");
 
     }
@@ -111,13 +110,13 @@ public class Main extends ListenerAdapter {
             case "add" -> Add.action(event, ADMIN);
             case "stat" -> SeasonStat.action(event);
             case "month_stat" -> MonthStat.action(event);
-            case "entire_stat" -> Stat.action(event);
+            case "entire_stat" -> EntireStat.action(event);
             case "revalid" -> ReValid.action(event);
             case "entire_rank" -> {
                 switch (event.getOption("type") == null ? -1 : (int) event.getOption("type").getAsLong()) {
-                    case 0 -> Rank.summaryReply(event);
-                    case 1, -1 -> Rank.umaReply(event);
-                    case 2 -> Rank.totalGameReply(event);
+                    case 0 -> EntireRank.summaryReply(event);
+                    case 1, -1 -> EntireRank.umaReply(event);
+                    case 2 -> EntireRank.totalGameReply(event);
                 }
             }
             case "month_rank" -> {
@@ -141,8 +140,8 @@ public class Main extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        if (event.getComponentId().matches("^rank_uma.*")) Rank.umaPageControl(event);
-        else if (event.getComponentId().matches("^rank_totalgame.*")) Rank.totalGamePageControl(event);
+        if (event.getComponentId().matches("^rank_uma.*")) EntireRank.umaPageControl(event);
+        else if (event.getComponentId().matches("^rank_totalgame.*")) EntireRank.totalGamePageControl(event);
         else if (event.getComponentId().matches("^month_rank_uma.*")) MonthRank.umaPageControl(event);
         else if (event.getComponentId().matches("^month_rank_totalgame.*")) MonthRank.totalGamePageControl(event);
         else if (event.getComponentId().matches("^season_rank_uma.*")) SeasonRank.umaPageControl(event);
