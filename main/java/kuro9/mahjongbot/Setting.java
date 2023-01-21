@@ -14,7 +14,7 @@ public record Setting() {
     public static int RETURN_POINT;
     public static int[] UMA;
     public static long ADMIN_ID;
-    public static String PATH;
+    public static String DATA_PATH;
     public static String LOG_PATH;
     public static String ERROR_LOG_PATH;
     public static String TOKEN_PATH;
@@ -26,6 +26,8 @@ public record Setting() {
     public static String INST_PATH;
     public static String CREDENTIAL_PATH;
     public static String FILE_ID;
+    public static String IMAGE_BACKGROUND_PATH;
+    public static String IMAGE_NYANGLASS_PATH;
 
     public static void init() {
         JSONParser parser = new JSONParser();
@@ -39,7 +41,7 @@ public record Setting() {
         JSONObject jsonObject = (JSONObject) obj;
         RETURN_POINT = Integer.parseInt(jsonObject.get("RETURN_POINT").toString());
         ADMIN_ID = Long.parseLong(jsonObject.get("ADMIN_ID").toString());
-        PATH = jsonObject.get("PATH").toString();
+        DATA_PATH = jsonObject.get("PATH").toString();
         LOG_PATH = jsonObject.get("LOG_PATH").toString();
         ERROR_LOG_PATH = jsonObject.get("ERROR_LOG_PATH").toString();
         TOKEN_PATH = jsonObject.get("TOKEN_PATH").toString();
@@ -50,6 +52,9 @@ public record Setting() {
         INST_PATH = jsonObject.get("INST_PATH").toString();
         CREDENTIAL_PATH = jsonObject.get("CREDENTIAL_PATH").toString();
         FILE_ID = jsonObject.get("FILE_ID").toString();
+        IMAGE_BACKGROUND_PATH = jsonObject.get("IMAGE_BACKGROUND_PATH").toString();
+        IMAGE_NYANGLASS_PATH = jsonObject.get("IMAGE_NYANGLASS_PATH").toString();
+
 
         JSONArray jsonArray = (JSONArray) jsonObject.get("UMA");
         UMA = new int[jsonArray.size()];

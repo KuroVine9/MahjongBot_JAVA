@@ -17,5 +17,7 @@
   "GRAPH_PATH": "src/main/resources/image/score_graph.png",
   "INST_PATH": "src/main/resources/data/instruction.json",
   "CREDENTIAL_PATH": "src/main/resources/data/csvsheetformahjong-01cd1878c004.json",
-  "FILE_ID": "1FZi3B-tiUA92LIt0FQhyzYWsjgDeMGC1"
+  "FILE_ID": "1FZi3B-tiUA92LIt0FQhyzYWsjgDeMGC1",
+  "IMAGE_BACKGROUND_PATH": "src/main/resources/image_source/score_graph_base.png",
+  "IMAGE_NYANGLASS_PATH": "src/main/resources/image_source/nyanglass_nuki.png"
 }

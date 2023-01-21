@@ -43,8 +43,8 @@ public class GraphProcess extends JFrame {
          */
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
-            ImageIcon background = new ImageIcon("src/main/resources/image_source/score_graph_base.png");
-            ImageIcon nyan_glass = new ImageIcon("src/main/resources/image_source/nyanglass_nuki.png");
+            ImageIcon background = new ImageIcon(Setting.IMAGE_BACKGROUND_PATH);
+            ImageIcon nyan_glass = new ImageIcon(Setting.IMAGE_NYANGLASS_PATH);
             g.drawImage(background.getImage(), 0, 0, null);
             Graphics2D g2 = (Graphics2D) g;
 
