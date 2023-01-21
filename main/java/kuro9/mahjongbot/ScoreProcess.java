@@ -37,7 +37,7 @@ public class ScoreProcess {
 
         long line_count;
         try {
-            line_count = Files.lines(Paths.get(Setting.PATH)).count() + 1;
+            line_count = Files.lines(Paths.get(Setting.PATH)).count();
             String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
             CSVWriter csv = new CSVWriter(new FileWriter(Setting.PATH, true));
 
@@ -97,6 +97,7 @@ public class ScoreProcess {
         HashMap<String, UserGameData> uma_table = new HashMap<>();
         try {
             CSVReader csv = new CSVReader(new FileReader(Setting.PATH));
+            csv.skip(1);
             for (var line : csv.readAll()) {
                 int search_year = Integer.parseInt(line[1].split("\\.")[0]);
                 int search_month = Integer.parseInt(line[1].split("\\.")[1]);
@@ -158,6 +159,7 @@ public class ScoreProcess {
         Queue<Integer> queue = new LinkedList<>();
         try {
             CSVReader csv = new CSVReader(new FileReader(Setting.PATH));
+            csv.skip(1);
             for (var line : csv.readAll()) {
                 int search_year = Integer.parseInt(line[1].split("\\.")[0]);
                 int search_month = Integer.parseInt(line[1].split("\\.")[1]);

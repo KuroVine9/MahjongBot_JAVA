@@ -3,10 +3,10 @@ package kuro9.mahjongbot.instruction;
 import kuro9.mahjongbot.ScoreProcess;
 import kuro9.mahjongbot.UserGameData;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,12 +18,12 @@ import java.util.regex.Pattern;
 public abstract class RankArranger {
 
     protected static int getValidMonth(GenericInteractionCreateEvent event) {
-        if (event instanceof SlashCommandEvent s) {
+        if (event instanceof SlashCommandInteractionEvent s) {
             return ((s.getOption("month") == null) ?
                     LocalDate.now().getMonthValue() :
                     (int) s.getOption("month").getAsLong());
         }
-        else if (event instanceof ButtonClickEvent b) {
+        else if (event instanceof ButtonInteractionEvent b) {
             String pattern = "\\[\\d{4}.(\\d{2})";
             Pattern r = Pattern.compile(pattern);
             Matcher m = r.matcher(b.getMessage().getContentDisplay());
@@ -36,12 +36,12 @@ public abstract class RankArranger {
     }
 
     protected static int getValidYear(GenericInteractionCreateEvent event) {
-        if (event instanceof SlashCommandEvent s) {
+        if (event instanceof SlashCommandInteractionEvent s) {
             return ((s.getOption("year") == null) ?
                     LocalDate.now().getYear() :
                     (int) s.getOption("year").getAsLong());
         }
-        else if (event instanceof ButtonClickEvent b) {
+        else if (event instanceof ButtonInteractionEvent b) {
             String pattern = "\\[(\\d{4})";
             Pattern r = Pattern.compile(pattern);
             Matcher m = r.matcher(b.getMessage().getContentDisplay());
@@ -54,11 +54,11 @@ public abstract class RankArranger {
     }
 
     protected static int getValidFilter(GenericInteractionCreateEvent event) {
-        if (event instanceof SlashCommandEvent s) {
+        if (event instanceof SlashCommandInteractionEvent s) {
             return ((s.getOption("filter") == null) ?
                     0 : (int) s.getOption("filter").getAsLong());
         }
-        else if (event instanceof ButtonClickEvent b) {
+        else if (event instanceof ButtonInteractionEvent b) {
             String pattern = "\\((\\d+)";
             Pattern r = Pattern.compile(pattern);
             Matcher m = r.matcher(b.getMessage().getContentDisplay());
@@ -277,7 +277,7 @@ public abstract class RankArranger {
                 || ('\u4E00' <= ch && ch <= '\u9FA5'));
     }
 
-    protected static void pageControl(ButtonClickEvent event, Button[] buttons, int[] page_count, int size, Supplier<String> action) {
+    protected static void pageControl(ButtonInteractionEvent event, Button[] buttons, int[] page_count, int size, Supplier<String> action) {
         if (event.getInteraction().getComponentId().equals(buttons[2].getId())) {
             if (page_count[0] == 1) {
                 event.editMessage(action.get()).setActionRow(

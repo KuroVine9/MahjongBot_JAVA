@@ -1,8 +1,11 @@
 package kuro9.mahjongbot;
 
+import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.Command;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.localization.LocalizationFunction;
+import net.dv8tion.jda.api.interactions.commands.localization.ResourceBundleLocalizationFunction;
 import org.json.simple.parser.ParseException;
 
 import java.io.FileWriter;
@@ -17,15 +20,24 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 public class InstructionToJSON {
     public static void main(String[] args) throws IOException, ParseException {
         ArrayList<String> command_list = new ArrayList<>();
-        command_list.add(new String(new CommandData("ping", "calc ping time of the bot").toData().toJson()));
-        command_list.add(new String(new CommandData("name", "print name")
+
+        final LocalizationFunction localizationFunction = ResourceBundleLocalizationFunction
+                .fromBundles("localization/Instructions", DiscordLocale.KOREAN, DiscordLocale.JAPANESE)
+                .build();
+
+        command_list.add(new String(Commands.slash("ping", "calc ping time of the bot")
+                .setLocalizationFunction(localizationFunction).toData().toJson()));
+        command_list.add(new String(Commands.slash("name", "print name")
+                .setLocalizationFunction(localizationFunction)
                 .addOptions(new OptionData(USER, "user", "user name to print", true))
                 .toData().toJson()));
         command_list.add(new String(
-                new CommandData("msg", "msgtest")
+                Commands.slash("msg", "msgtest")
+                        .setLocalizationFunction(localizationFunction)
                         .toData().toJson()));
         command_list.add(new String(
-                new CommandData("add", "add")
+                Commands.slash("add", "add")
+                        .setLocalizationFunction(localizationFunction)
                         .addOptions(
                                 new OptionData(USER, "1st_name", "test", true),
                                 new OptionData(INTEGER, "1st_score", "test", true),
@@ -38,20 +50,23 @@ public class InstructionToJSON {
                         )
                         .toData().toJson()));
         command_list.add(new String(
-                new CommandData("entire_stat", "stat")
+                Commands.slash("entire_stat", "stat")
+                        .setLocalizationFunction(localizationFunction)
                         .addOptions(
                                 new OptionData(USER, "user", "user")
                         )
                         .toData().toJson()));
         command_list.add(new String(
-                new CommandData("month_stat", "month_stat")
+                Commands.slash("month_stat", "month_stat")
+                        .setLocalizationFunction(localizationFunction)
                         .addOptions(
                                 new OptionData(USER, "user", "user"),
                                 new OptionData(INTEGER, "month", "month"),
                                 new OptionData(INTEGER, "year", "year")
                         ).toData().toJson()));
         command_list.add(new String(
-                new CommandData("stat", "season_stat")
+                Commands.slash("stat", "season_stat")
+                        .setLocalizationFunction(localizationFunction)
                         .addOptions(
                                 new OptionData(USER, "user", "user"),
                                 new OptionData(INTEGER, "season", "season")
@@ -62,10 +77,12 @@ public class InstructionToJSON {
                                 new OptionData(INTEGER, "year", "year")
                         ).toData().toJson()));
         command_list.add(new String(
-                new CommandData("revalid", "revalid")
+                Commands.slash("revalid", "revalid")
+                        .setLocalizationFunction(localizationFunction)
                         .toData().toJson()));
         command_list.add(new String(
-                new CommandData("entire_rank", "rank")
+                Commands.slash("entire_rank", "rank")
+                        .setLocalizationFunction(localizationFunction)
                         .addOptions(
                                 new OptionData(
                                         INTEGER, "type", "type"
@@ -78,7 +95,8 @@ public class InstructionToJSON {
                         ).toData().toJson()
         ));
         command_list.add(new String(
-                new CommandData("month_rank", "month_rank")
+                Commands.slash("month_rank", "month_rank")
+                        .setLocalizationFunction(localizationFunction)
                         .addOptions(
                                 new OptionData(
                                         INTEGER, "type", "type"
@@ -93,7 +111,8 @@ public class InstructionToJSON {
                         ).toData().toJson()
         ));
         command_list.add(new String(
-                new CommandData("rank", "season_rank")
+                Commands.slash("rank", "season_rank")
+                        .setLocalizationFunction(localizationFunction)
                         .addOptions(
                                 new OptionData(
                                         INTEGER, "type", "type"
