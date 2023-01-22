@@ -41,7 +41,7 @@ public record Setting() {
         JSONObject jsonObject = (JSONObject) obj;
         RETURN_POINT = Integer.parseInt(jsonObject.get("RETURN_POINT").toString());
         ADMIN_ID = Long.parseLong(jsonObject.get("ADMIN_ID").toString());
-        DATA_PATH = jsonObject.get("PATH").toString();
+        DATA_PATH = jsonObject.get("DATA_PATH").toString();
         LOG_PATH = jsonObject.get("LOG_PATH").toString();
         ERROR_LOG_PATH = jsonObject.get("ERROR_LOG_PATH").toString();
         TOKEN_PATH = jsonObject.get("TOKEN_PATH").toString();

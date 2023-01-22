@@ -30,6 +30,7 @@ public class Main extends ListenerAdapter {
     private static RestAction<User> ADMIN;
 
     public static void main(String[] args) {
+        long time = System.currentTimeMillis();
         System.out.println("[MahjongBot:Main] System Initializing...");
         Setting.init();
         final String TOKEN;
@@ -67,7 +68,7 @@ public class Main extends ListenerAdapter {
         commands.queue();
         System.out.println("[MahjongBot:Main] Instructions Loaded!");
 
-        System.out.println("[MahjongBot:Main] Bot Started!");
+        System.out.printf("[MahjongBot:Main] Bot Started! (%d ms)\n", System.currentTimeMillis() - time);
         Logger.addSystemEvent("system-start");
 
     }
@@ -85,6 +86,7 @@ public class Main extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+        System.out.printf("[MahjongBot:Main] %s used /%s\n", event.getUser().getAsTag(), event.getName());
         switch (event.getName()) {
             case "msg" -> {
                 ADMIN.queue(
@@ -140,6 +142,8 @@ public class Main extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
+        System.out.printf("[MahjongBot:Main] %s used BUTTON.%s\n", event.getUser().getAsTag(), event.getComponentId());
+
         if (event.getComponentId().matches("^rank_uma.*")) EntireRank.umaPageControl(event);
         else if (event.getComponentId().matches("^rank_totalgame.*")) EntireRank.totalGamePageControl(event);
         else if (event.getComponentId().matches("^month_rank_uma.*")) MonthRank.umaPageControl(event);
