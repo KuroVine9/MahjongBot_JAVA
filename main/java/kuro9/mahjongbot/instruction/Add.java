@@ -13,6 +13,9 @@ import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * 순위 데이터 파일에 기록을 추가합니다. 
+ */
 public class Add {
 
     public static void action(SlashCommandInteractionEvent event, RestAction<User> ADMIN) {

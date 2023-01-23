@@ -28,7 +28,12 @@ import java.util.Scanner;
 
 public class Main extends ListenerAdapter {
     private static RestAction<User> ADMIN;
-
+    private static EntireRank entireRank;
+    private static MonthRank monthRank;
+    private static SeasonRank seasonRank;
+    private static EntireStat entireStat;
+    private static MonthStat monthStat;
+    private static SeasonStat seasonStat;
     public static void main(String[] args) {
         long time = System.currentTimeMillis();
         System.out.println("[MahjongBot:Main] System Initializing...");
@@ -66,6 +71,12 @@ public class Main extends ListenerAdapter {
             throw new RuntimeException(e);
         }
         commands.queue();
+        entireRank = new EntireRank();
+        monthRank = new MonthRank();
+        seasonRank = new SeasonRank();
+        entireStat = new EntireStat();
+        monthStat = new MonthStat();
+        seasonStat = new SeasonStat();
         System.out.println("[MahjongBot:Main] Instructions Loaded!");
 
         System.out.printf("[MahjongBot:Main] Bot Started! (%d ms)\n", System.currentTimeMillis() - time);
@@ -110,29 +121,29 @@ public class Main extends ListenerAdapter {
                 ).queue();
             }
             case "add" -> Add.action(event, ADMIN);
-            case "stat" -> SeasonStat.action(event);
-            case "month_stat" -> MonthStat.action(event);
-            case "entire_stat" -> EntireStat.action(event);
-            case "revalid" -> ReValid.action(event);
+            case "stat" -> seasonStat.action(event);
+            case "month_stat" -> monthStat.action(event);
+            case "entire_stat" -> entireStat.action(event);
+            case "revalid" -> ReValid.action(event, ADMIN);
             case "entire_rank" -> {
                 switch (event.getOption("type") == null ? -1 : (int) event.getOption("type").getAsLong()) {
-                    case 0 -> EntireRank.summaryReply(event);
-                    case 1, -1 -> EntireRank.umaReply(event);
-                    case 2 -> EntireRank.totalGameReply(event);
+                    case 0 -> entireRank.summaryReply(event);
+                    case 1, -1 -> entireRank.umaReply(event);
+                    case 2 -> entireRank.totalGameReply(event);
                 }
             }
             case "month_rank" -> {
                 switch (event.getOption("type") == null ? -1 : (int) event.getOption("type").getAsLong()) {
-                    case 0 -> MonthRank.summaryReply(event);
-                    case 1, -1 -> MonthRank.umaReply(event);
-                    case 2 -> MonthRank.totalGameReply(event);
+                    case 0 -> monthRank.summaryReply(event);
+                    case 1, -1 -> monthRank.umaReply(event);
+                    case 2 -> monthRank.totalGameReply(event);
                 }
             }
             case "rank" -> {
                 switch (event.getOption("type") == null ? -1 : (int) event.getOption("type").getAsLong()) {
-                    case 0 -> SeasonRank.summaryReply(event);
-                    case 1, -1 -> SeasonRank.umaReply(event);
-                    case 2 -> SeasonRank.totalGameReply(event);
+                    case 0 -> seasonRank.summaryReply(event);
+                    case 1, -1 -> seasonRank.umaReply(event);
+                    case 2 -> seasonRank.totalGameReply(event);
                 }
             }
 
@@ -144,12 +155,12 @@ public class Main extends ListenerAdapter {
     public void onButtonInteraction(ButtonInteractionEvent event) {
         System.out.printf("[MahjongBot:Main] %s used BUTTON.%s\n", event.getUser().getAsTag(), event.getComponentId());
 
-        if (event.getComponentId().matches("^rank_uma.*")) EntireRank.umaPageControl(event);
-        else if (event.getComponentId().matches("^rank_totalgame.*")) EntireRank.totalGamePageControl(event);
-        else if (event.getComponentId().matches("^month_rank_uma.*")) MonthRank.umaPageControl(event);
-        else if (event.getComponentId().matches("^month_rank_totalgame.*")) MonthRank.totalGamePageControl(event);
-        else if (event.getComponentId().matches("^season_rank_uma.*")) SeasonRank.umaPageControl(event);
-        else if (event.getComponentId().matches("^season_rank_totalgame.*")) SeasonRank.totalGamePageControl(event);
+        if (event.getComponentId().matches("^rank_uma.*")) entireRank.umaPageControl(event);
+        else if (event.getComponentId().matches("^rank_totalgame.*")) entireRank.totalGamePageControl(event);
+        else if (event.getComponentId().matches("^month_rank_uma.*")) monthRank.umaPageControl(event);
+        else if (event.getComponentId().matches("^month_rank_totalgame.*")) monthRank.totalGamePageControl(event);
+        else if (event.getComponentId().matches("^season_rank_uma.*")) seasonRank.umaPageControl(event);
+        else if (event.getComponentId().matches("^season_rank_totalgame.*")) seasonRank.totalGamePageControl(event);
         else if (event.getComponentId().equals("buttonID")) event.editMessage("button!").queue();
     }
 

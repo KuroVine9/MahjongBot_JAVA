@@ -3,11 +3,15 @@ package kuro9.mahjongbot.instruction;
 import kuro9.mahjongbot.Logger;
 import kuro9.mahjongbot.ScoreProcess;
 import kuro9.mahjongbot.UserGameData;
+import kuro9.mahjongbot.instruction.action.RankInterface;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
-public class EntireRank extends RankArranger {
+/**
+ * 전체 범위의 데이터 순위를 출력합니다.
+ */
+public class EntireRank extends RankArranger implements RankInterface {
     static int[] uma_page_count = {1};
     static Button[] uma_button = {
             Button.secondary("rank_uma_go_first", "<<"),
@@ -25,7 +29,8 @@ public class EntireRank extends RankArranger {
             Button.secondary("rank_totalgame_go_last", ">>")
     };
 
-    public static void summaryReply(SlashCommandInteractionEvent event) {
+    @Override
+    public void summaryReply(SlashCommandInteractionEvent event) {
         int filter = getValidFilter(event);
         event.replyEmbeds(
                 getSummaryEmbed(
@@ -37,7 +42,8 @@ public class EntireRank extends RankArranger {
         Logger.addEvent(event);
     }
 
-    public static void umaReply(SlashCommandInteractionEvent event) {
+    @Override
+    public void umaReply(SlashCommandInteractionEvent event) {
         int filter = getValidFilter(event);
         var sorted_list = getSortedUmaList(filter);
         uma_page_count[0] = 1;
@@ -57,7 +63,8 @@ public class EntireRank extends RankArranger {
         Logger.addEvent(event);
     }
 
-    public static void umaPageControl(ButtonInteractionEvent event) {
+    @Override
+    public void umaPageControl(ButtonInteractionEvent event) {
         int filter = getValidFilter(event);
         var sorted_list = getSortedUmaList(filter);
         pageControl(
@@ -74,7 +81,8 @@ public class EntireRank extends RankArranger {
         Logger.addEvent(event);
     }
 
-    public static void totalGameReply(SlashCommandInteractionEvent event) {
+    @Override
+    public void totalGameReply(SlashCommandInteractionEvent event) {
         int filter = getValidFilter(event);
         var sorted_list = getSortedTotalGameList(filter);
         total_game_page_count[0] = 1;
@@ -94,7 +102,8 @@ public class EntireRank extends RankArranger {
         Logger.addEvent(event);
     }
 
-    public static void totalGamePageControl(ButtonInteractionEvent event) {
+    @Override
+    public void totalGamePageControl(ButtonInteractionEvent event) {
         int filter = getValidFilter(event);
         var sorted_list = getSortedTotalGameList(filter);
         pageControl(

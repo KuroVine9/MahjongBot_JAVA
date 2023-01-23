@@ -1,6 +1,7 @@
 package kuro9.mahjongbot.instruction;
 
 import kuro9.mahjongbot.*;
+import kuro9.mahjongbot.instruction.action.StatInterface;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
 
@@ -11,8 +12,12 @@ import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.Optional;
 
-public class EntireStat extends StatArranger {
-    public static void action(SlashCommandInteractionEvent event) {
+/**
+ * 전체 범위의 유저 스탯을 출력합니다.
+ */
+public class EntireStat extends StatArranger implements StatInterface {
+    @Override
+    public void action(SlashCommandInteractionEvent event) {
         HashMap<String, UserGameData> data_list;
         try {
             ObjectInputStream istream = new ObjectInputStream(new FileInputStream(Setting.USERDATA_PATH));

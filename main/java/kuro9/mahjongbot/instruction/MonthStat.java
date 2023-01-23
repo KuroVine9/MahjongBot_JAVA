@@ -1,6 +1,7 @@
 package kuro9.mahjongbot.instruction;
 
 import kuro9.mahjongbot.*;
+import kuro9.mahjongbot.instruction.action.StatInterface;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
 
@@ -12,8 +13,9 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Optional;
 
-public class MonthStat extends StatArranger {
-    public static void action(SlashCommandInteractionEvent event) {
+public class MonthStat extends StatArranger implements StatInterface {
+    @Override
+    public void action(SlashCommandInteractionEvent event) {
         HashMap<String, UserGameData> data_list;
 
         int month = ((event.getOption("month") == null) ?
