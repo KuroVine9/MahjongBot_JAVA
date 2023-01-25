@@ -1,27 +1,33 @@
 package kuro9.mahjongbot.instruction;
 
 import kuro9.mahjongbot.Logger;
+import kuro9.mahjongbot.ResourceHandler;
 import kuro9.mahjongbot.ScoreProcess;
 import kuro9.mahjongbot.Setting;
 import kuro9.mahjongbot.gdrive.GDrive;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 
 import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ResourceBundle;
 
+/**
+ * 순위 데이터 파일에 기록을 추가합니다.
+ */
 public class Add {
 
-    public static void action(SlashCommandEvent event, RestAction<User> ADMIN) {
+    public static void action(SlashCommandInteractionEvent event, RestAction<User> ADMIN) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         if (!event.isFromGuild()) {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle("403 Forbidden");
             embed.addField(
-                    "정상적인 경로에서 명령어를 실행하여 주십시오.",
-                    "에러 이벤트는 디버깅을 위해 저장됩니다.",
+                    resourceBundle.getString("add.embed.err.403.name"),
+                    resourceBundle.getString("add.embed.err.403.description"),
                     true
             );
             embed.setColor(Color.RED);
@@ -46,8 +52,8 @@ public class Add {
                 embed.setTitle("400 Bad Request");
                 embed.setDescription("Parameter err.");
                 embed.addField(
-                        "다음의 항목을 확인해 주십시오.",
-                        "``` - 점수의 총합\n - 점수의 정렬 여부\n - 중복된 이름```",
+                        resourceBundle.getString("add.embed.err.400.name"),
+                        resourceBundle.getString("add.embed.err.400.description"),
                         true
                 );
                 embed.setColor(Color.RED);
@@ -60,8 +66,8 @@ public class Add {
                 embed.setTitle("404 Not Found");
                 embed.setDescription("File I/O Exception");
                 embed.addField(
-                        "순위 파일을 찾을 수 없습니다.",
-                        "잠시 후 다시 시도해 주세요.",
+                        resourceBundle.getString("add.embed.err.404.name"),
+                        resourceBundle.getString("add.embed.err.404.description"),
                         true
                 );
                 embed.setColor(Color.RED);
@@ -71,17 +77,17 @@ public class Add {
             }
             default -> {     // NO ERR
                 EmbedBuilder embed = new EmbedBuilder();
-                embed.setTitle("패보 기록완료!");
+                embed.setTitle(resourceBundle.getString("add.embed.success.title"));
                 for (int i = 0; i < 4; i++) {
                     embed.addField(
-                            String.format("%d위 : %s", i + 1, names[i]),
+                            String.format(resourceBundle.getString("add.embed.success.field"), i + 1, names[i]),
                             String.valueOf(scores[i]),
                             true
                     );
                 }
                 embed.setFooter(
                         String.format(
-                                "제 %d국, %s",
+                                resourceBundle.getString("add.embed.success.footer"),
                                 result,
                                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))
                         )

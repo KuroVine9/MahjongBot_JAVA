@@ -1,29 +1,33 @@
 package kuro9.mahjongbot.instruction;
 
+import kuro9.mahjongbot.ResourceHandler;
 import kuro9.mahjongbot.ScoreProcess;
 import kuro9.mahjongbot.UserGameData;
+import kuro9.mahjongbot.instruction.action.RankInterface;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class RankArranger {
+public abstract class RankArranger implements RankInterface {
 
     protected static int getValidMonth(GenericInteractionCreateEvent event) {
-        if (event instanceof SlashCommandEvent s) {
+        if (event instanceof SlashCommandInteractionEvent s) {
             return ((s.getOption("month") == null) ?
                     LocalDate.now().getMonthValue() :
                     (int) s.getOption("month").getAsLong());
         }
-        else if (event instanceof ButtonClickEvent b) {
+        else if (event instanceof ButtonInteractionEvent b) {
             String pattern = "\\[\\d{4}.(\\d{2})";
             Pattern r = Pattern.compile(pattern);
             Matcher m = r.matcher(b.getMessage().getContentDisplay());
@@ -36,12 +40,12 @@ public abstract class RankArranger {
     }
 
     protected static int getValidYear(GenericInteractionCreateEvent event) {
-        if (event instanceof SlashCommandEvent s) {
+        if (event instanceof SlashCommandInteractionEvent s) {
             return ((s.getOption("year") == null) ?
                     LocalDate.now().getYear() :
                     (int) s.getOption("year").getAsLong());
         }
-        else if (event instanceof ButtonClickEvent b) {
+        else if (event instanceof ButtonInteractionEvent b) {
             String pattern = "\\[(\\d{4})";
             Pattern r = Pattern.compile(pattern);
             Matcher m = r.matcher(b.getMessage().getContentDisplay());
@@ -54,11 +58,11 @@ public abstract class RankArranger {
     }
 
     protected static int getValidFilter(GenericInteractionCreateEvent event) {
-        if (event instanceof SlashCommandEvent s) {
+        if (event instanceof SlashCommandInteractionEvent s) {
             return ((s.getOption("filter") == null) ?
                     0 : (int) s.getOption("filter").getAsLong());
         }
-        else if (event instanceof ButtonClickEvent b) {
+        else if (event instanceof ButtonInteractionEvent b) {
             String pattern = "\\((\\d+)";
             Pattern r = Pattern.compile(pattern);
             Matcher m = r.matcher(b.getMessage().getContentDisplay());
@@ -70,14 +74,15 @@ public abstract class RankArranger {
         else return 0;
     }
 
-    protected static EmbedBuilder getSummaryEmbed(String title, List<UserGameData> sorted_list) {
+    protected static EmbedBuilder getSummaryEmbed(String title, List<UserGameData> sorted_list, DiscordLocale locale) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(locale);
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle(title);
         sorted_list = sorted_list.stream().sorted(
                 (dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
         ).toList();
         embed.addField(
-                "총 우마(상위)",
+                resourceBundle.getString("rank_arranger.embed.total_uma_de"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
                         sorted_list.get(0).name, sorted_list.get(0).total_uma,
                         sorted_list.get(1).name, sorted_list.get(1).total_uma,
@@ -86,7 +91,7 @@ public abstract class RankArranger {
                 true
         );
         embed.addField(
-                "총 우마(하위)",
+                resourceBundle.getString("rank_arranger.embed.total_uma_as"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
                         sorted_list.get(sorted_list.size() - 1).name, sorted_list.get(sorted_list.size() - 1).total_uma,
                         sorted_list.get(sorted_list.size() - 2).name, sorted_list.get(sorted_list.size() - 2).total_uma,
@@ -98,8 +103,8 @@ public abstract class RankArranger {
                 (dataA, dataB) -> (int) (dataB.game_count - dataA.game_count)
         ).toList();
         embed.addField(
-                "총합 국 수",
-                String.format("%s : %d회\n%s : %d회\n%s : %d회",
+                resourceBundle.getString("rank_arranger.embed.total_game_count.title"),
+                String.format(resourceBundle.getString("rank_arranger.embed.total_game_count.field"),
                         sorted_list.get(0).name, sorted_list.get(0).game_count,
                         sorted_list.get(1).name, sorted_list.get(1).game_count,
                         sorted_list.get(2).name, sorted_list.get(2).game_count
@@ -110,7 +115,7 @@ public abstract class RankArranger {
                 (dataA, dataB) -> (int) ((dataB.rank_pp[4] * 100) - (dataA.rank_pp[4] * 100))
         ).toList();
         embed.addField(
-                "들통률",
+                resourceBundle.getString("rank_arranger.embed.tobi"),
                 String.format("%s : %.1f%%\n%s : %.1f%%\n%s : %.1f%%",
                         sorted_list.get(0).name, sorted_list.get(0).rank_pp[4],
                         sorted_list.get(1).name, sorted_list.get(1).rank_pp[4],
@@ -122,7 +127,7 @@ public abstract class RankArranger {
                 (dataA, dataB) -> (int) ((dataA.avg_rank * 100) - (dataB.avg_rank * 100))
         ).toList();
         embed.addField(
-                "평균 순위(상위)",
+                resourceBundle.getString("rank_arranger.embed.avg_rank_de"),
                 String.format("%s : %.2f\n%s : %.2f\n%s : %.2f",
                         sorted_list.get(0).name, sorted_list.get(0).avg_rank,
                         sorted_list.get(1).name, sorted_list.get(1).avg_rank,
@@ -131,7 +136,7 @@ public abstract class RankArranger {
                 true
         );
         embed.addField(
-                "평균 순위(하위)",
+                resourceBundle.getString("rank_arranger.embed.avg_rank_as"),
                 String.format("%s : %.2f\n%s : %.2f\n%s : %.2f",
                         sorted_list.get(sorted_list.size() - 1).name, sorted_list.get(sorted_list.size() - 1).avg_rank,
                         sorted_list.get(sorted_list.size() - 2).name, sorted_list.get(sorted_list.size() - 2).avg_rank,
@@ -143,7 +148,7 @@ public abstract class RankArranger {
                 (dataA, dataB) -> (int) ((dataB.avg_uma * 100) - (dataA.avg_uma * 100))
         ).toList();
         embed.addField(
-                "평균 우마(상위)",
+                resourceBundle.getString("rank_arranger.embed.avg_uma_de"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
                         sorted_list.get(0).name, sorted_list.get(0).avg_uma,
                         sorted_list.get(1).name, sorted_list.get(1).avg_uma,
@@ -152,7 +157,7 @@ public abstract class RankArranger {
                 true
         );
         embed.addField(
-                "평균 우마(하위)",
+                resourceBundle.getString("rank_arranger.embed.avg_uma_as"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
                         sorted_list.get(sorted_list.size() - 1).name, sorted_list.get(sorted_list.size() - 1).avg_uma,
                         sorted_list.get(sorted_list.size() - 2).name, sorted_list.get(sorted_list.size() - 2).avg_uma,
@@ -165,24 +170,24 @@ public abstract class RankArranger {
 
     protected static List<UserGameData> getSortedTotalGameList(int filter) {
         return ScoreProcess.getUserDataList().values().stream()
-                .filter(data -> data.game_count >= filter)
                 .peek(UserGameData::updateAllData)
+                .filter(data -> data.game_count >= filter)
                 .sorted((dataA, dataB) -> (dataB.game_count - dataA.game_count)
                 ).toList();
     }
 
     protected static List<UserGameData> getSortedTotalGameList(int filter, int month, int year) {
         return ScoreProcess.getUserDataList(month, year).values().stream()
-                .filter(data -> data.game_count >= filter)
                 .peek(UserGameData::updateAllData)
+                .filter(data -> data.game_count >= filter)
                 .sorted((dataA, dataB) -> (dataB.game_count - dataA.game_count)
                 ).toList();
     }
 
     protected static List<UserGameData> getSortedTotalGameList(int filter, int start_month, int start_year, int end_month, int end_year) {
         return ScoreProcess.getUserDataList(start_month, start_year, end_month, end_year).values().stream()
-                .filter(data -> data.game_count >= filter)
                 .peek(UserGameData::updateAllData)
+                .filter(data -> data.game_count >= filter)
                 .sorted((dataA, dataB) -> (dataB.game_count - dataA.game_count)
                 ).toList();
     }
@@ -202,6 +207,7 @@ public abstract class RankArranger {
 
     protected static List<UserGameData> getSortedUmaList(int filter) {
         return ScoreProcess.getUserDataList().values().stream()
+                .peek(UserGameData::updateAllData)
                 .filter(data -> data.game_count >= filter)
                 .sorted((dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
                 ).toList();
@@ -209,6 +215,7 @@ public abstract class RankArranger {
 
     protected static List<UserGameData> getSortedUmaList(int filter, int month, int year) {
         return ScoreProcess.getUserDataList(month, year).values().stream()
+                .peek(UserGameData::updateAllData)
                 .filter(data -> data.game_count >= filter)
                 .sorted((dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
                 ).toList();
@@ -216,6 +223,7 @@ public abstract class RankArranger {
 
     protected static List<UserGameData> getSortedUmaList(int filter, int start_month, int start_year, int end_month, int end_year) {
         return ScoreProcess.getUserDataList(start_month, start_year, end_month, end_year).values().stream()
+                .peek(UserGameData::updateAllData)
                 .filter(data -> data.game_count >= filter)
                 .sorted((dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
                 ).toList();
@@ -277,9 +285,18 @@ public abstract class RankArranger {
                 || ('\u4E00' <= ch && ch <= '\u9FA5'));
     }
 
-    protected static void pageControl(ButtonClickEvent event, Button[] buttons, int[] page_count, int size, Supplier<String> action) {
+    protected static void pageControl(ButtonInteractionEvent event, Button[] buttons, int[] page_count, int size, Supplier<String> action) {
         if (event.getInteraction().getComponentId().equals(buttons[2].getId())) {
-            if (page_count[0] == 1) {
+            if ((page_count[0] == 1) && page_count[0] == ((size - 1) / 30 + 1)) {
+                event.editMessage(action.get()).setActionRow(
+                        buttons[0].asDisabled(),
+                        buttons[1].asDisabled(),
+                        buttons[2],
+                        buttons[3].asDisabled(),
+                        buttons[4].asDisabled()
+                ).queue();
+            }
+            else if (page_count[0] == 1) {
                 event.editMessage(action.get()).setActionRow(
                         buttons[0].asDisabled(),
                         buttons[1].asDisabled(),
@@ -321,7 +338,7 @@ public abstract class RankArranger {
                         buttons[4]
                 ).queue();
             }
-            else {
+            else if (page_count[0] == ((size - 1) / 30 + 1)) {
                 event.editMessage(action.get()).setActionRow(
                         buttons[0],
                         buttons[1],
@@ -329,6 +346,9 @@ public abstract class RankArranger {
                         buttons[3].asDisabled(),
                         buttons[4].asDisabled()
                 ).queue();
+            }
+            else {
+                event.editMessage(action.get()).setActionRow(buttons).queue();
             }
 
         }

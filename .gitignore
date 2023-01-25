@@ -1,6 +1,5 @@
-/main/resources/token.txt
 /main/resources/sunwi.csv
-/main/resources/log.csv
-/main/resources/data/token.txt
-/main/resources/image/
-/main/resources/data/
+/main/resources/data/credential
+/main/resources/data/userdata
+/main/resources/logs
+/main/resources/data/sunwi.csv

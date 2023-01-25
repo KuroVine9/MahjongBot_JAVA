@@ -53,8 +53,16 @@ public class UserGameData implements Serializable {
 
     @Override
     public String toString() {
+        updateAllData();
         return String.format(
-                "[%s] [T_U : %f] [T_G : %d] [%s]", name, total_uma, game_count, Arrays.toString(rank_count)
+                "{\"name\":\"%s\",\"total_uma\":%f,\"game_count\":%d,\"rank_count\":[%d,%d,%d,%d,%d],\"rank_pp\":[%f,%f,%f,%f,%f],\"avg_rank\":%f,\"avg_uma\":%f}",
+                name,
+                total_uma,
+                game_count,
+                rank_count[0], rank_count[1], rank_count[2], rank_count[3], rank_count[4],
+                rank_pp[0], rank_pp[1], rank_pp[2], rank_pp[3], rank_pp[4],
+                avg_rank,
+                avg_uma
         );
     }
 }

@@ -4,9 +4,9 @@ import com.opencsv.CSVWriter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 
 import java.awt.*;
@@ -28,7 +28,8 @@ public class Logger {
      * @param event JDA의 SlashCommandEvent
      */
     public static void addEvent(GenericInteractionCreateEvent event) {
-        writeLogToCSV(getLogList(event));
+        ArrayList<String> log_list = getLogList(event);
+        writeLogToCSV(log_list);
     }
 
     /**
@@ -70,7 +71,7 @@ public class Logger {
      * @param description 에러 형태에 대한 요약
      * @param admin       관리자의 정보가 담긴 매개변수
      */
-    public static void addErrorEvent(SlashCommandEvent event, String description, RestAction<User> admin) {
+    public static void addErrorEvent(SlashCommandInteractionEvent event, String description, RestAction<User> admin) {
         ArrayList<String> log_list = getLogList(event, description);
 
         writeErrorLogToCSV(log_list);
@@ -103,7 +104,7 @@ public class Logger {
         if (admin == null) return;
         admin.queue(
                 user -> user.openPrivateChannel().queue(
-                        privateChannel -> privateChannel.sendMessage(embed).queue()
+                        privateChannel -> privateChannel.sendMessageEmbeds(embed).queue()
                 )
         );
     }
@@ -140,7 +141,7 @@ public class Logger {
         log_list.add(String.format("%B", event.isFromGuild()));
         log_list.add(event.getUser().getAsTag());
 
-        if (event instanceof SlashCommandEvent s) {
+        if (event instanceof SlashCommandInteractionEvent s) {
             log_list.add(s.getName());
             s.getOptions().forEach(
                     option -> log_list.add(
@@ -159,8 +160,8 @@ public class Logger {
                     )
             );
         }
-        else if (event instanceof ButtonClickEvent b) {
-            log_list.add(b.getButton() == null ? "no-button-found" : b.getButton().getId());
+        else if (event instanceof ButtonInteractionEvent b) {
+            log_list.add(b.getButton().getId());
         }
         return log_list;
     }
@@ -183,7 +184,9 @@ public class Logger {
      * @param log_list 로그 정보가 담긴 리스트
      */
     private static void writeErrorLogToCSV(ArrayList<String> log_list) {
+        while (log_list.size() < 13) log_list.add("<NO_DATA>");
         abstractWriteLogToCSV(log_list, Setting.ERROR_LOG_PATH);
+        System.out.printf("[MahjongBot:Logger] %s %s used %s\n", log_list.get(1), log_list.get(3), log_list.get(4));
     }
 
     /**
@@ -192,7 +195,9 @@ public class Logger {
      * @param log_list 로그 정보가 담긴 리스트
      */
     private static void writeLogToCSV(ArrayList<String> log_list) {
+        while (log_list.size() < 12) log_list.add("<NO_DATA>");
         abstractWriteLogToCSV(log_list, Setting.LOG_PATH);
+        System.out.printf("[MahjongBot:Logger] %s used %s\n", log_list.get(2), log_list.get(3));
     }
 
     /**
@@ -212,4 +217,5 @@ public class Logger {
             throw new RuntimeException(e);
         }
     }
+
 }
