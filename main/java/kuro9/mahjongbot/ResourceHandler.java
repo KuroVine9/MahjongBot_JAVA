@@ -10,14 +10,14 @@ public class ResourceHandler {
     public static ResourceBundle getResource(GenericInteractionCreateEvent event) {
         return ResourceBundle.getBundle(
                 "localization/Instructions",
-                Locale.forLanguageTag(event.getUserLocale().toString())
+                Locale.forLanguageTag(event.getUserLocale().getLocale())
         );
     }
 
     public static ResourceBundle getResource(DiscordLocale locale) {
         return ResourceBundle.getBundle(
                 "localization/Instructions",
-                Locale.forLanguageTag(locale.toString())
+                Locale.forLanguageTag(locale.getLocale())
         );
     }
 }
