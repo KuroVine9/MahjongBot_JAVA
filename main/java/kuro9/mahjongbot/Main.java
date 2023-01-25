@@ -90,9 +90,9 @@ public class Main extends ListenerAdapter {
                         ).queue();
             }
             case "add" -> Add.action(event, ADMIN);
-            case "stat" -> stat[0].action(event);
+            case "stat" -> stat[2].action(event);
             case "month_stat" -> stat[1].action(event);
-            case "entire_stat" -> stat[2].action(event);
+            case "entire_stat" -> stat[0].action(event);
             case "revalid" -> ReValid.action(event, ADMIN);
             case "entire_rank" -> {
                 switch (event.getOption("type") == null ? -1 : (int) event.getOption("type").getAsLong()) {
