@@ -287,7 +287,16 @@ public abstract class RankArranger implements RankInterface {
 
     protected static void pageControl(ButtonInteractionEvent event, Button[] buttons, int[] page_count, int size, Supplier<String> action) {
         if (event.getInteraction().getComponentId().equals(buttons[2].getId())) {
-            if (page_count[0] == 1) {
+            if ((page_count[0] == 1) && page_count[0] == ((size - 1) / 30 + 1)) {
+                event.editMessage(action.get()).setActionRow(
+                        buttons[0].asDisabled(),
+                        buttons[1].asDisabled(),
+                        buttons[2],
+                        buttons[3].asDisabled(),
+                        buttons[4].asDisabled()
+                ).queue();
+            }
+            else if (page_count[0] == 1) {
                 event.editMessage(action.get()).setActionRow(
                         buttons[0].asDisabled(),
                         buttons[1].asDisabled(),

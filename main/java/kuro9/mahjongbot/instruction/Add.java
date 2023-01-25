@@ -27,7 +27,7 @@ public class Add {
             embed.setTitle("403 Forbidden");
             embed.addField(
                     resourceBundle.getString("add.embed.err.403.name"),
-                    resourceBundle.getString("add.embed.err.403"),
+                    resourceBundle.getString("add.embed.err.403.description"),
                     true
             );
             embed.setColor(Color.RED);

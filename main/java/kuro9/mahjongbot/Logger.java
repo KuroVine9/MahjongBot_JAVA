@@ -186,6 +186,7 @@ public class Logger {
     private static void writeErrorLogToCSV(ArrayList<String> log_list) {
         while (log_list.size() < 13) log_list.add("<NO_DATA>");
         abstractWriteLogToCSV(log_list, Setting.ERROR_LOG_PATH);
+        System.out.printf("[MahjongBot:Logger] %s %s used %s\n", log_list.get(1), log_list.get(3), log_list.get(4));
     }
 
     /**
@@ -196,6 +197,7 @@ public class Logger {
     private static void writeLogToCSV(ArrayList<String> log_list) {
         while (log_list.size() < 12) log_list.add("<NO_DATA>");
         abstractWriteLogToCSV(log_list, Setting.LOG_PATH);
+        System.out.printf("[MahjongBot:Logger] %s used %s\n", log_list.get(2), log_list.get(3));
     }
 
     /**

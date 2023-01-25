@@ -8,13 +8,10 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.utils.data.DataObject;
@@ -83,40 +80,14 @@ public class Main extends ListenerAdapter {
     }
 
     @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.isFromType(ChannelType.PRIVATE)) {
-            System.out.printf("[DM] %s: %s\n", event.getAuthor().getName(), event.getMessage().getContentDisplay());
-
-        }
-        else
-            System.out.printf("[%s] [%s] %s: %s\n", event.getGuild().getName(), event.getChannel().getName()
-                    , event.getMember().getEffectiveName(), event.getMessage().getContentDisplay());
-    }
-
-    @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        System.out.printf("[MahjongBot:Main] %s used /%s\n", event.getUser().getAsTag(), event.getName());
         switch (event.getName()) {
-            case "msg" -> {
-                ADMIN.queue(
-                        admin -> admin.openPrivateChannel().queue(
-                                privateChannel -> privateChannel.sendMessage("test").queue()
-                        )
-                );
-            }
             case "ping" -> {
                 long time = System.currentTimeMillis();
                 event.reply("Pong!").setEphemeral(true)
                         .flatMap(
                                 v -> event.getHook().editOriginalFormat("Pong: %d ms", System.currentTimeMillis() - time)
                         ).queue();
-            }
-            case "name" -> {
-                event.reply(
-                        String.format("UserName: %s", event.getOption("user").getAsUser().getAsTag())
-                ).addActionRow(
-                        Button.primary("buttonID", "buttonName")
-                ).queue();
             }
             case "add" -> Add.action(event, ADMIN);
             case "stat" -> stat[0].action(event);
@@ -151,15 +122,12 @@ public class Main extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        System.out.printf("[MahjongBot:Main] %s used BUTTON.%s\n", event.getUser().getAsTag(), event.getComponentId());
-
         if (event.getComponentId().matches("^rank_uma.*")) rank[0].umaPageControl(event);
         else if (event.getComponentId().matches("^rank_totalgame.*")) rank[0].totalGamePageControl(event);
         else if (event.getComponentId().matches("^month_rank_uma.*")) rank[1].umaPageControl(event);
         else if (event.getComponentId().matches("^month_rank_totalgame.*")) rank[1].totalGamePageControl(event);
         else if (event.getComponentId().matches("^season_rank_uma.*")) rank[2].umaPageControl(event);
         else if (event.getComponentId().matches("^season_rank_totalgame.*")) rank[2].totalGamePageControl(event);
-        else if (event.getComponentId().equals("buttonID")) event.editMessage("button!").queue();
     }
 
 }
