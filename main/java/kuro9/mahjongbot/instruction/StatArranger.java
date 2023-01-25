@@ -3,6 +3,7 @@ package kuro9.mahjongbot.instruction;
 import kuro9.mahjongbot.ResourceHandler;
 import kuro9.mahjongbot.Setting;
 import kuro9.mahjongbot.UserGameData;
+import kuro9.mahjongbot.instruction.action.StatInterface;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -12,7 +13,7 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 
-public abstract class StatArranger {
+public abstract class StatArranger implements StatInterface {
 
     /**
      * 유효한 User 값을 반환합니다. <br>

@@ -3,6 +3,7 @@ package kuro9.mahjongbot.instruction;
 import kuro9.mahjongbot.ResourceHandler;
 import kuro9.mahjongbot.ScoreProcess;
 import kuro9.mahjongbot.UserGameData;
+import kuro9.mahjongbot.instruction.action.RankInterface;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -18,7 +19,7 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class RankArranger {
+public abstract class RankArranger implements RankInterface {
 
     protected static int getValidMonth(GenericInteractionCreateEvent event) {
         if (event instanceof SlashCommandInteractionEvent s) {
