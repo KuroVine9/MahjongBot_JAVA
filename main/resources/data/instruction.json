@@ -23,7 +23,7 @@
         },
         "autocomplete": false,
         "name": "1st_name",
-        "description": "디스코드 서버 내에 유저가 존재해야 합니다.",
+        "description": "User has to exist in the Discord server.",
         "description_localizations": {
           "ko": "디스코드 서버 내에 유저가 존재해야 합니다.",
           "ja": "Discordサーバー内にユーザが存在する必要があります。"
@@ -38,7 +38,7 @@
         },
         "autocomplete": false,
         "name": "1st_score",
-        "description": "1위 점수",
+        "description": "First place score",
         "description_localizations": {
           "ko": "1위 점수",
           "ja": "1位の点数"
@@ -53,7 +53,7 @@
         },
         "autocomplete": false,
         "name": "2nd_name",
-        "description": "디스코드 서버 내에 유저가 존재해야 합니다.",
+        "description": "User has to exist in the Discord server.",
         "description_localizations": {
           "ko": "디스코드 서버 내에 유저가 존재해야 합니다.",
           "ja": "Discordサーバー内にユーザが存在する必要があります。"
@@ -68,7 +68,7 @@
         },
         "autocomplete": false,
         "name": "2nd_score",
-        "description": "2위 점수",
+        "description": "Second place score",
         "description_localizations": {
           "ko": "2위 점수",
           "ja": "2位の点数"
@@ -83,7 +83,7 @@
         },
         "autocomplete": false,
         "name": "3rd_name",
-        "description": "디스코드 서버 내에 유저가 존재해야 합니다.",
+        "description": "User has to exist in the Discord server.",
         "description_localizations": {
           "ko": "디스코드 서버 내에 유저가 존재해야 합니다.",
           "ja": "Discordサーバー内にユーザが存在する必要があります。"
@@ -98,7 +98,7 @@
         },
         "autocomplete": false,
         "name": "3rd_score",
-        "description": "3위 점수",
+        "description": "Third place score",
         "description_localizations": {
           "ko": "3위 점수",
           "ja": "3位の点数"
@@ -113,7 +113,7 @@
         },
         "autocomplete": false,
         "name": "4th_name",
-        "description": "디스코드 서버 내에 유저가 존재해야 합니다.",
+        "description": "User has to exist in the Discord server.",
         "description_localizations": {
           "ko": "디스코드 서버 내에 유저가 존재해야 합니다.",
           "ja": "Discordサーバー内にユーザが存在する必要があります。"
@@ -128,7 +128,7 @@
         },
         "autocomplete": false,
         "name": "4th_score",
-        "description": "4위 점수",
+        "description": "Fourth place score",
         "description_localizations": {
           "ko": "4위 점수",
           "ja": "4位の点数"
@@ -137,7 +137,7 @@
         "required": true
       }
     ],
-    "description": "점수 기록을 추가합니다.",
+    "description": "Add new game result.",
     "description_localizations": {
       "ko": "점수 기록을 추가합니다.",
       "ja": "点数記録を追加します。"
@@ -158,7 +158,7 @@
         },
         "autocomplete": false,
         "name": "user",
-        "description": "검색할 유저의 닉네임을 입력해주세요 (미입력==본인).",
+        "description": "Enter the nickname of the user you want to search (not input == you).",
         "description_localizations": {
           "ko": "검색할 유저의 닉네임을 입력해주세요 (미입력==본인).",
           "ja": "見ようとするユーザーのニックネームを入力してください（未入力==本人）。"
@@ -167,7 +167,7 @@
         "required": false
       }
     ],
-    "description": "전체 기간의 플레이어의 통계를 확인합니다.",
+    "description": "Check the statistics of the player for the entire period.",
     "description_localizations": {
       "ko": "전체 기간의 플레이어의 통계를 확인합니다.",
       "ja": "全期間のプレイヤーの統計を確認します。"
@@ -188,7 +188,7 @@
         },
         "autocomplete": false,
         "name": "user",
-        "description": "검색할 유저의 닉네임을 입력해주세요 (미입력==본인).",
+        "description": "Enter the nickname of the user you want to search (not input == you).",
         "description_localizations": {
           "ko": "검색할 유저의 닉네임을 입력해주세요 (미입력==본인).",
           "ja": "見ようとするユーザーのニックネームを入力してください（未入力==本人）。"
@@ -203,7 +203,7 @@
         },
         "autocomplete": false,
         "name": "month",
-        "description": "원하는 기록의 월을 정수로 입력해주세요 (미선택==현재).",
+        "description": "Please enter the month of the desired record as an integer (not selected == present).",
         "description_localizations": {
           "ko": "원하는 기록의 월을 정수로 입력해주세요 (미선택==현재).",
           "ja": "記録の月を正しく入力してください（未選択==現在）。"
@@ -218,7 +218,7 @@
         },
         "autocomplete": false,
         "name": "year",
-        "description": "원하는 기록의 년도를 정수로 입력해주세요 (미선택==현재).",
+        "description": "Enter the year of the desired record as an integer (not selected == present).",
         "description_localizations": {
           "ko": "원하는 기록의 년도를 정수로 입력해주세요 (미선택==현재).",
           "ja": "記録の年度を正しく入力してください（未選択==現在）。"
@@ -227,7 +227,7 @@
         "required": false
       }
     ],
-    "description": "월별 플레이어의 통계를 확인합니다.",
+    "description": "Check the statistics of the player by month.",
     "description_localizations": {
       "ko": "월별 플레이어의 통계를 확인합니다.",
       "ja": "月別プレイヤーの統計を確認します。"
@@ -248,7 +248,7 @@
         },
         "autocomplete": false,
         "name": "user",
-        "description": "검색할 유저의 닉네임을 입력해주세요 (미입력==본인).",
+        "description": "Enter the nickname of the user you want to search (not input == you).",
         "description_localizations": {
           "ko": "검색할 유저의 닉네임을 입력해주세요 (미입력==본인).",
           "ja": "見ようとするユーザーのニックネームを入力してください（未入力==本人）。"
@@ -263,7 +263,7 @@
         },
         "autocomplete": false,
         "name": "season",
-        "description": "원하는 기록의 반기를 선택해주세요 (미선택==현재).",
+        "description": "Please select the desired half of the record (not selected == present).",
         "description_localizations": {
           "ko": "원하는 기록의 반기를 선택해주세요 (미선택==현재).",
           "ja": "希望する記録の半期を選んでください(未選択==現在)。"
@@ -296,7 +296,7 @@
         },
         "autocomplete": false,
         "name": "year",
-        "description": "원하는 기록의 년도를 정수로 입력해주세요 (미선택==현재).",
+        "description": "Please enter the year of the desired record as an integer (not selected == present).",
         "description_localizations": {
           "ko": "원하는 기록의 년도를 정수로 입력해주세요 (미선택==현재).",
           "ja": "記録の年度を正しく入力してください（未選択==現在）。"
@@ -305,7 +305,7 @@
         "required": false
       }
     ],
-    "description": "플레이어의 통계를 확인합니다.",
+    "description": "Check the Player statistics.",
     "description_localizations": {
       "ko": "플레이어의 통계를 확인합니다.",
       "ja": "シーズン別のプレイヤーの統計を確認します。"
@@ -319,7 +319,7 @@
     "nsfw": false,
     "name": "revalid",
     "options": [],
-    "description": "데이터를 새로고침합니다. ",
+    "description": "Reloads the data.",
     "description_localizations": {
       "ko": "데이터를 새로고침합니다. ",
       "ja": "データを更新します。"
@@ -340,7 +340,7 @@
         },
         "autocomplete": false,
         "name": "type",
-        "description": "원하는 통계 목록을 선택해주세요 (미선택==우마).",
+        "description": "Please select the desired statistic list (not selected == Uma).",
         "description_localizations": {
           "ko": "원하는 통계 목록을 선택해주세요 (미선택==우마).",
           "ja": "見ようとする統計リストを選択してください（未選択==ウマ）。"
@@ -381,7 +381,7 @@
         },
         "autocomplete": false,
         "name": "filter",
-        "description": "기준 국 수를 입력해주세요.",
+        "description": "Please enter the reference number.",
         "description_localizations": {
           "ko": "기준 국 수를 입력해주세요.",
           "ja": "基準国数を入力してください。"
@@ -390,7 +390,7 @@
         "required": false
       }
     ],
-    "description": "전체 순위를 확인합니다. ",
+    "description": "Check the overall ranking.",
     "description_localizations": {
       "ko": "전체 순위를 확인합니다. ",
       "ja": "全体の順位を確認します。"
@@ -411,7 +411,7 @@
         },
         "autocomplete": false,
         "name": "type",
-        "description": "원하는 통계 목록을 선택해주세요 (미선택==우마).",
+        "description": "select the desired statistic list (not selected == Uma).",
         "description_localizations": {
           "ko": "원하는 통계 목록을 선택해주세요 (미선택==우마).",
           "ja": "見ようとする統計リストを選択してください（未選択==ウマ）。"
@@ -452,7 +452,7 @@
         },
         "autocomplete": false,
         "name": "month",
-        "description": "원하는 기록의 월을 정수로 입력해주세요 (미선택==현재).",
+        "description": "Please enter the month of the desired record as an integer (not selected == present).",
         "description_localizations": {
           "ko": "원하는 기록의 월을 정수로 입력해주세요 (미선택==현재).",
           "ja": "記録の月を正しく入力してください（未選択==現在）。"
@@ -467,7 +467,7 @@
         },
         "autocomplete": false,
         "name": "year",
-        "description": "원하는 기록의 년도를 정수로 입력해주세요 (미선택==현재).",
+        "description": "Please enter the year of the desired record as an integer (not selected == present).",
         "description_localizations": {
           "ko": "원하는 기록의 년도를 정수로 입력해주세요 (미선택==현재).",
           "ja": "記録の年度を正しく入力してください（未選択==現在）。"
@@ -482,7 +482,7 @@
         },
         "autocomplete": false,
         "name": "filter",
-        "description": "기준 국 수를 입력해주세요.",
+        "description": "Please enter the reference number.",
         "description_localizations": {
           "ko": "기준 국 수를 입력해주세요.",
           "ja": "基準国数を入力してください。"
@@ -491,7 +491,7 @@
         "required": false
       }
     ],
-    "description": "월별 순위를 확인합니다.",
+    "description": "Check the monthly ranking.",
     "description_localizations": {
       "ko": "월별 순위를 확인합니다.",
       "ja": "月別順位を確認します。"
@@ -512,7 +512,7 @@
         },
         "autocomplete": false,
         "name": "type",
-        "description": "원하는 통계 목록을 선택해주세요 (미선택==우마).",
+        "description": "select the desired statistic list (not selected == Uma).",
         "description_localizations": {
           "ko": "원하는 통계 목록을 선택해주세요 (미선택==우마).",
           "ja": "見ようとする統計リストを選択してください（未選択==ウマ）。"
@@ -553,7 +553,7 @@
         },
         "autocomplete": false,
         "name": "season",
-        "description": "원하는 기록의 반기를 선택해주세요 (미선택==현재).",
+        "description": "Please select the desired half of the record (not selected == present).",
         "description_localizations": {
           "ko": "원하는 기록의 반기를 선택해주세요 (미선택==현재).",
           "ja": "希望する記録の半期を選んでください(未選択==現在)。"
@@ -586,7 +586,7 @@
         },
         "autocomplete": false,
         "name": "year",
-        "description": "원하는 기록의 년도를 정수로 입력해주세요 (미선택==현재).",
+        "description": "Please enter the year of the desired record as an integer (not selected == present).",
         "description_localizations": {
           "ko": "원하는 기록의 년도를 정수로 입력해주세요 (미선택==현재).",
           "ja": "記録の年度を正しく入力してください（未選択==現在）。"
@@ -601,7 +601,7 @@
         },
         "autocomplete": false,
         "name": "filter",
-        "description": "기준 국 수를 입력해주세요.",
+        "description": "Please enter the reference number.",
         "description_localizations": {
           "ko": "기준 국 수를 입력해주세요.",
           "ja": "基準国数を入力してください。"
@@ -610,7 +610,7 @@
         "required": false
       }
     ],
-    "description": "시즌별 현재 순위를 확인합니다. ",
+    "description": "Check the current ranking by season.",
     "description_localizations": {
       "ko": "시즌별 현재 순위를 확인합니다. ",
       "ja": "シーズン別の現在の順位を確認します。"
