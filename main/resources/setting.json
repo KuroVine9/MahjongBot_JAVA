@@ -1,0 +1,23 @@
+{
+  "RETURN_POINT": 25000,
+  "UMA": [
+    15,
+    5,
+    -5,
+    -15
+  ],
+  "ADMIN_ID": 400579163959853056,
+  "DATA_PATH": "src/main/resources/data/sunwi.csv",
+  "LOG_PATH": "src/main/resources/logs/log.csv",
+  "ERROR_LOG_PATH": "src/main/resources/logs/error_log.csv",
+  "TOKEN_PATH": "src/main/resources/data/credential/token.txt",
+  "USERDATA_PATH": "src/main/resources/data/userdata/userdata.dat",
+  "MONTH_USERDATA_PATH": "src/main/resources/data/userdata/month_userdata_YYYYMM.dat",
+  "HALF_USERDATA_PATH": "src/main/resources/data/userdata/half_userdata_YYYYHH.dat",
+  "GRAPH_PATH": "src/main/resources/image/score_graph.png",
+  "INST_PATH": "src/main/resources/data/instruction.json",
+  "CREDENTIAL_PATH": "src/main/resources/data/credential/csvsheetformahjong-01cd1878c004.json",
+  "FILE_ID": "1FZi3B-tiUA92LIt0FQhyzYWsjgDeMGC1",
+  "IMAGE_BACKGROUND_PATH": "src/main/resources/image/image_source/score_graph_base.png",
+  "IMAGE_NYANGLASS_PATH": "src/main/resources/image/image_source/nyanglass_nuki.png"
+}

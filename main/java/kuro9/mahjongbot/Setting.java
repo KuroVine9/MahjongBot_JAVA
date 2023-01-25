@@ -33,7 +33,7 @@ public record Setting() {
         JSONParser parser = new JSONParser();
         Object obj = null;
         try {
-            obj = parser.parse(new FileReader("src/main/resources/settings/setting.json"));
+            obj = parser.parse(new FileReader("src/main/resources/setting.json"));
         } catch (IOException | ParseException e) {
             Logger.addSystemErrorEvent("setting-parse-err", null);
             throw new RuntimeException(e);

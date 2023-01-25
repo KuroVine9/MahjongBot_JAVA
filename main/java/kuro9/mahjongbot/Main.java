@@ -34,6 +34,7 @@ public class Main extends ListenerAdapter {
     private static EntireStat entireStat;
     private static MonthStat monthStat;
     private static SeasonStat seasonStat;
+
     public static void main(String[] args) {
         long time = System.currentTimeMillis();
         System.out.println("[MahjongBot:Main] System Initializing...");
@@ -49,10 +50,14 @@ public class Main extends ListenerAdapter {
             throw new RuntimeException(e);
         }
         JDA jda = JDABuilder.createDefault(TOKEN).build();
-        jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-        jda.getPresence().setActivity(Activity.watching("?좊땲붾밾"));
-        jda.addEventListener(new Main());
         ADMIN = jda.retrieveUserById(Setting.ADMIN_ID);
+        jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
+        jda.retrieveUserById(Setting.ADMIN_ID).map(User::getAsTag)
+                .queue(name -> jda.getPresence().setActivity(Activity.competing("DM => " + name))
+                );
+
+        jda.addEventListener(new Main());
+
         System.out.println("[MahjongBot:Main] Initialize Complete!\n");
 
         System.out.println("[MahjongBot:Main] Loading Instructions...");
@@ -62,10 +67,10 @@ public class Main extends ListenerAdapter {
             Object obj = parser.parse(new FileReader(Setting.INST_PATH));
             JSONArray jsonArray = (JSONArray) obj;
             jsonArray.stream().peek(
-                    data -> System.out.printf("[MahjongBot:Main] Loaded Instruction \"%s\"\n", ((JSONObject) data).get("name").toString())
+                    data -> System.out.printf("[MahjongBot:Main] Loaded Instruction \"%s\"\n", ((JSONObject) data).get("name"))
             ).forEach(data -> commands.addCommands(CommandData.fromData(DataObject.fromJson(data.toString()))));
         } catch (IOException | ParseException e) {
-            System.out.println("\n\n[MahjongBot:Main] Runtime Instruction Loding Failure!\n\n");
+            System.out.println("\n\n[MahjongBot:Main] Runtime Instruction Loading Failure!\n\n");
             Logger.addSystemErrorEvent("instruction-load-err", ADMIN);
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -81,7 +86,6 @@ public class Main extends ListenerAdapter {
 
         System.out.printf("[MahjongBot:Main] Bot Started! (%d ms)\n", System.currentTimeMillis() - time);
         Logger.addSystemEvent("system-start");
-
     }
 
     @Override

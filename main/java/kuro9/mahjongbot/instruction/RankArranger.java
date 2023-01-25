@@ -1,15 +1,18 @@
 package kuro9.mahjongbot.instruction;
 
+import kuro9.mahjongbot.ResourceHandler;
 import kuro9.mahjongbot.ScoreProcess;
 import kuro9.mahjongbot.UserGameData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -70,14 +73,15 @@ public abstract class RankArranger {
         else return 0;
     }
 
-    protected static EmbedBuilder getSummaryEmbed(String title, List<UserGameData> sorted_list) {
+    protected static EmbedBuilder getSummaryEmbed(String title, List<UserGameData> sorted_list, DiscordLocale locale) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(locale);
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle(title);
         sorted_list = sorted_list.stream().sorted(
                 (dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
         ).toList();
         embed.addField(
-                "총 우마(상위)",
+                resourceBundle.getString("rank_arranger.embed.total_uma_de"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
                         sorted_list.get(0).name, sorted_list.get(0).total_uma,
                         sorted_list.get(1).name, sorted_list.get(1).total_uma,
@@ -86,7 +90,7 @@ public abstract class RankArranger {
                 true
         );
         embed.addField(
-                "총 우마(하위)",
+                resourceBundle.getString("rank_arranger.embed.total_uma_as"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
                         sorted_list.get(sorted_list.size() - 1).name, sorted_list.get(sorted_list.size() - 1).total_uma,
                         sorted_list.get(sorted_list.size() - 2).name, sorted_list.get(sorted_list.size() - 2).total_uma,
@@ -98,8 +102,8 @@ public abstract class RankArranger {
                 (dataA, dataB) -> (int) (dataB.game_count - dataA.game_count)
         ).toList();
         embed.addField(
-                "총합 국 수",
-                String.format("%s : %d회\n%s : %d회\n%s : %d회",
+                resourceBundle.getString("rank_arranger.embed.total_game_count.title"),
+                String.format(resourceBundle.getString("rank_arranger.embed.total_game_count.field"),
                         sorted_list.get(0).name, sorted_list.get(0).game_count,
                         sorted_list.get(1).name, sorted_list.get(1).game_count,
                         sorted_list.get(2).name, sorted_list.get(2).game_count
@@ -110,7 +114,7 @@ public abstract class RankArranger {
                 (dataA, dataB) -> (int) ((dataB.rank_pp[4] * 100) - (dataA.rank_pp[4] * 100))
         ).toList();
         embed.addField(
-                "들통률",
+                resourceBundle.getString("rank_arranger.embed.tobi"),
                 String.format("%s : %.1f%%\n%s : %.1f%%\n%s : %.1f%%",
                         sorted_list.get(0).name, sorted_list.get(0).rank_pp[4],
                         sorted_list.get(1).name, sorted_list.get(1).rank_pp[4],
@@ -122,7 +126,7 @@ public abstract class RankArranger {
                 (dataA, dataB) -> (int) ((dataA.avg_rank * 100) - (dataB.avg_rank * 100))
         ).toList();
         embed.addField(
-                "평균 순위(상위)",
+                resourceBundle.getString("rank_arranger.embed.avg_rank_de"),
                 String.format("%s : %.2f\n%s : %.2f\n%s : %.2f",
                         sorted_list.get(0).name, sorted_list.get(0).avg_rank,
                         sorted_list.get(1).name, sorted_list.get(1).avg_rank,
@@ -131,7 +135,7 @@ public abstract class RankArranger {
                 true
         );
         embed.addField(
-                "평균 순위(하위)",
+                resourceBundle.getString("rank_arranger.embed.avg_rank_as"),
                 String.format("%s : %.2f\n%s : %.2f\n%s : %.2f",
                         sorted_list.get(sorted_list.size() - 1).name, sorted_list.get(sorted_list.size() - 1).avg_rank,
                         sorted_list.get(sorted_list.size() - 2).name, sorted_list.get(sorted_list.size() - 2).avg_rank,
@@ -143,7 +147,7 @@ public abstract class RankArranger {
                 (dataA, dataB) -> (int) ((dataB.avg_uma * 100) - (dataA.avg_uma * 100))
         ).toList();
         embed.addField(
-                "평균 우마(상위)",
+                resourceBundle.getString("rank_arranger.embed.avg_uma_de"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
                         sorted_list.get(0).name, sorted_list.get(0).avg_uma,
                         sorted_list.get(1).name, sorted_list.get(1).avg_uma,
@@ -152,7 +156,7 @@ public abstract class RankArranger {
                 true
         );
         embed.addField(
-                "평균 우마(하위)",
+                resourceBundle.getString("rank_arranger.embed.avg_uma_as"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
                         sorted_list.get(sorted_list.size() - 1).name, sorted_list.get(sorted_list.size() - 1).avg_uma,
                         sorted_list.get(sorted_list.size() - 2).name, sorted_list.get(sorted_list.size() - 2).avg_uma,

@@ -1,12 +1,15 @@
 package kuro9.mahjongbot.instruction;
 
 import kuro9.mahjongbot.Logger;
+import kuro9.mahjongbot.ResourceHandler;
 import kuro9.mahjongbot.ScoreProcess;
 import kuro9.mahjongbot.UserGameData;
 import kuro9.mahjongbot.instruction.action.RankInterface;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+
+import java.util.ResourceBundle;
 
 /**
  * 1개월 범위의 순위표를 출력합니다.
@@ -30,28 +33,32 @@ public class MonthRank extends RankArranger implements RankInterface {
     };
 
     @Override
-    public void summaryReply(SlashCommandInteractionEvent event){
+    public void summaryReply(SlashCommandInteractionEvent event) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int month = getValidMonth(event);
         int year = getValidYear(event);
         int filter = getValidFilter(event);
 
         event.replyEmbeds(
                 getSummaryEmbed(
-                        String.format("[%d.%02d] VRC 집계마작 순위 (%d국 이상)", year, month, filter),
+                        String.format(resourceBundle.getString("month_rank.embed.summary.title"), year, month, filter),
                         ScoreProcess.getUserDataList(month, year).values().stream().peek(UserGameData::updateAllData)
-                                .filter(data -> data.game_count >= filter).toList()
+                                .filter(data -> data.game_count >= filter).toList(),
+                        event.getUserLocale()
                 ).build()
         ).queue();
         Logger.addEvent(event);
     }
+
     @Override
     public void umaReply(SlashCommandInteractionEvent event) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         var sorted_list = getSortedUmaList(getValidFilter(event), getValidMonth(event), getValidYear(event));
         month_uma_page_count[0] = 1;
         event.reply(
                 getUmaPrintString(
                         sorted_list,
-                        String.format("[%d.%02d] 총 우마 순위 (%d국 이상)", getValidYear(event), getValidMonth(event), getValidFilter(event)),
+                        String.format(resourceBundle.getString("month_rank.embed.uma.title"), getValidYear(event), getValidMonth(event), getValidFilter(event)),
                         month_uma_page_count[0]
                 )
         ).addActionRow(
@@ -63,8 +70,10 @@ public class MonthRank extends RankArranger implements RankInterface {
         ).queue();
         Logger.addEvent(event);
     }
+
     @Override
     public void umaPageControl(ButtonInteractionEvent event) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         var sorted_list = getSortedUmaList(getValidFilter(event), getValidMonth(event), getValidYear(event));
         pageControl(
                 event,
@@ -73,20 +82,22 @@ public class MonthRank extends RankArranger implements RankInterface {
                 sorted_list.size(),
                 () -> getUmaPrintString(
                         sorted_list,
-                        String.format("[%d.%02d] 총 우마 순위 (%d국 이상)", getValidYear(event), getValidMonth(event), getValidFilter(event)),
+                        String.format(resourceBundle.getString("month_rank.embed.uma.title"), getValidYear(event), getValidMonth(event), getValidFilter(event)),
                         month_uma_page_count[0]
                 )
         );
         Logger.addEvent(event);
     }
+
     @Override
     public void totalGameReply(SlashCommandInteractionEvent event) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         var sorted_list = getSortedTotalGameList(getValidFilter(event), getValidMonth(event), getValidYear(event));
         month_total_game_page_count[0] = 1;
         event.reply(
                 getTotalGamePrintString(
                         sorted_list,
-                        String.format("[%d.%02d] 총합 국 수 순위 (%d국 이상)", getValidYear(event), getValidMonth(event), getValidFilter(event)),
+                        String.format(resourceBundle.getString("month_rank.embed.total_game_count.title"), getValidYear(event), getValidMonth(event), getValidFilter(event)),
                         month_total_game_page_count[0]
                 )
         ).addActionRow(
@@ -98,8 +109,10 @@ public class MonthRank extends RankArranger implements RankInterface {
         ).queue();
         Logger.addEvent(event);
     }
+
     @Override
     public void totalGamePageControl(ButtonInteractionEvent event) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         var sorted_list = getSortedTotalGameList(getValidFilter(event), getValidMonth(event), getValidYear(event));
         pageControl(
                 event,
@@ -108,7 +121,7 @@ public class MonthRank extends RankArranger implements RankInterface {
                 sorted_list.size(),
                 () -> getTotalGamePrintString(
                         sorted_list,
-                        String.format("[%d.%02d] 총합 국 수 순위 (%d국 이상)", getValidYear(event), getValidMonth(event), getValidFilter(event)),
+                        String.format(resourceBundle.getString("month_rank.embed.total_game_count.title"), getValidYear(event), getValidMonth(event), getValidFilter(event)),
                         month_total_game_page_count[0]
                 )
         );

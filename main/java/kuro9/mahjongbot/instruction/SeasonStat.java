@@ -13,10 +13,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 public class SeasonStat extends StatArranger implements StatInterface {
     @Override
     public void action(SlashCommandInteractionEvent event) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         HashMap<String, UserGameData> data_list;
 
         int season = ((event.getOption("season") == null) ?
@@ -52,8 +54,9 @@ public class SeasonStat extends StatArranger implements StatInterface {
         event.replyEmbeds(
                 getEmbed(
                         user,
-                        String.format("[#%d] [%d.%dH] %s님의 통계", rank, year, season, user.name),
-                        getValidUser(event).getEffectiveAvatarUrl()
+                        String.format(resourceBundle.getString("season_stat.embed.title"), rank, year, season, user.name),
+                        getValidUser(event).getEffectiveAvatarUrl(),
+                        event.getUserLocale()
                 ).build()
         ).addFiles(FileUpload.fromData(image)).queue();
         Logger.addEvent(event);

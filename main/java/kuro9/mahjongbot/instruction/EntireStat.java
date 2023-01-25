@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 /**
  * 전체 범위의 유저 스탯을 출력합니다.
@@ -18,6 +19,7 @@ import java.util.Optional;
 public class EntireStat extends StatArranger implements StatInterface {
     @Override
     public void action(SlashCommandInteractionEvent event) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         HashMap<String, UserGameData> data_list;
         try {
             ObjectInputStream istream = new ObjectInputStream(new FileInputStream(Setting.USERDATA_PATH));
@@ -40,8 +42,9 @@ public class EntireStat extends StatArranger implements StatInterface {
         event.replyEmbeds(
                 getEmbed(
                         user,
-                        String.format("[#%d] %s님의 통계", rank, user.name),
-                        getValidUser(event).getEffectiveAvatarUrl()
+                        String.format(resourceBundle.getString("entire_stat.embed.title"), rank, user.name),
+                        getValidUser(event).getEffectiveAvatarUrl(),
+                        event.getUserLocale()
                 ).build()
         ).addFiles(FileUpload.fromData(image)).queue();
         Logger.addEvent(event);

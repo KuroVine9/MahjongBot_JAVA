@@ -1,6 +1,7 @@
 package kuro9.mahjongbot.instruction;
 
 import kuro9.mahjongbot.Logger;
+import kuro9.mahjongbot.ResourceHandler;
 import kuro9.mahjongbot.ScoreProcess;
 import kuro9.mahjongbot.UserGameData;
 import kuro9.mahjongbot.instruction.action.RankInterface;
@@ -10,6 +11,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.time.LocalDateTime;
+import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,6 +54,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
 
     @Override
     public void summaryReply(SlashCommandInteractionEvent event) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
@@ -60,15 +63,18 @@ public class SeasonRank extends RankArranger implements RankInterface {
 
         event.replyEmbeds(
                 getSummaryEmbed(
-                        String.format("[%d.%dH] VRC 집계마작 순위 (%d국 이상)", year, season, filter),
+                        String.format(resourceBundle.getString("season_rank.embed.summary.title"), year, season, filter),
                         ScoreProcess.getUserDataList(start_month, year, end_month, year).values().stream().peek(UserGameData::updateAllData)
-                                .filter(data -> data.game_count >= filter).toList()
+                                .filter(data -> data.game_count >= filter).toList(),
+                        event.getUserLocale()
                 ).build()
         ).queue();
         Logger.addEvent(event);
     }
+
     @Override
     public void umaReply(SlashCommandInteractionEvent event) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
@@ -80,7 +86,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
         event.reply(
                 getUmaPrintString(
                         sorted_list,
-                        String.format("[%d.%dH] 총 우마 순위 (%d국 이상)", year, season, filter),
+                        String.format(resourceBundle.getString("season_rank.embed.uma.title"), year, season, filter),
                         season_uma_page_count[0]
                 )
         ).addActionRow(
@@ -92,8 +98,10 @@ public class SeasonRank extends RankArranger implements RankInterface {
         ).queue();
         Logger.addEvent(event);
     }
+
     @Override
     public void umaPageControl(ButtonInteractionEvent event) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
@@ -108,14 +116,16 @@ public class SeasonRank extends RankArranger implements RankInterface {
                 sorted_list.size(),
                 () -> getUmaPrintString(
                         sorted_list,
-                        String.format("[%d.%dH] 총 우마 순위 (%d국 이상)", year, season, filter),
+                        String.format(resourceBundle.getString("season_rank.embed.uma.title"), year, season, filter),
                         season_uma_page_count[0]
                 )
         );
         Logger.addEvent(event);
     }
+
     @Override
     public void totalGameReply(SlashCommandInteractionEvent event) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
@@ -127,7 +137,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
         event.reply(
                 getTotalGamePrintString(
                         sorted_list,
-                        String.format("[%d.%dH] 총합 국 수 순위 (%d국 이상)", year, season, filter),
+                        String.format(resourceBundle.getString("season_rank.embed.total_game_count.title"), year, season, filter),
                         season_total_game_page_count[0]
                 )
         ).addActionRow(
@@ -139,8 +149,10 @@ public class SeasonRank extends RankArranger implements RankInterface {
         ).queue();
         Logger.addEvent(event);
     }
+
     @Override
     public void totalGamePageControl(ButtonInteractionEvent event) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
@@ -155,7 +167,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
                 sorted_list.size(),
                 () -> getTotalGamePrintString(
                         sorted_list,
-                        String.format("[%d.%dH] 총합 국 수 순위 (%d국 이상)", year, season, filter),
+                        String.format(resourceBundle.getString("season_rank.embed.total_game_count.title"), year, season, filter),
                         season_total_game_page_count[0]
                 )
         );

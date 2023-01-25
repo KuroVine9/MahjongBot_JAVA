@@ -1,12 +1,15 @@
 package kuro9.mahjongbot.instruction;
 
 import kuro9.mahjongbot.Logger;
+import kuro9.mahjongbot.ResourceHandler;
 import kuro9.mahjongbot.ScoreProcess;
 import kuro9.mahjongbot.UserGameData;
 import kuro9.mahjongbot.instruction.action.RankInterface;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+
+import java.util.ResourceBundle;
 
 /**
  * 전체 범위의 데이터 순위를 출력합니다.
@@ -31,12 +34,14 @@ public class EntireRank extends RankArranger implements RankInterface {
 
     @Override
     public void summaryReply(SlashCommandInteractionEvent event) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int filter = getValidFilter(event);
         event.replyEmbeds(
                 getSummaryEmbed(
-                        String.format("VRC 집계마작 순위 (%d국 이상)", filter),
+                        String.format(resourceBundle.getString("entire_rank.embed.summary.title"), filter),
                         ScoreProcess.getUserDataList().values().stream().peek(UserGameData::updateAllData)
-                                .filter(data -> data.game_count >= filter).toList()
+                                .filter(data -> data.game_count >= filter).toList(),
+                        event.getUserLocale()
                 ).build()
         ).queue();
         Logger.addEvent(event);
@@ -44,13 +49,14 @@ public class EntireRank extends RankArranger implements RankInterface {
 
     @Override
     public void umaReply(SlashCommandInteractionEvent event) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int filter = getValidFilter(event);
         var sorted_list = getSortedUmaList(filter);
         uma_page_count[0] = 1;
         event.reply(
                 getUmaPrintString(
                         sorted_list,
-                        String.format("총 우마 순위 (%d국 이상)", filter),
+                        String.format(resourceBundle.getString("entire_rank.embed.uma.title"), filter),
                         uma_page_count[0]
                 )
         ).addActionRow(
@@ -65,6 +71,7 @@ public class EntireRank extends RankArranger implements RankInterface {
 
     @Override
     public void umaPageControl(ButtonInteractionEvent event) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int filter = getValidFilter(event);
         var sorted_list = getSortedUmaList(filter);
         pageControl(
@@ -74,7 +81,7 @@ public class EntireRank extends RankArranger implements RankInterface {
                 sorted_list.size(),
                 () -> getUmaPrintString(
                         sorted_list,
-                        String.format("총 우마 순위 (%d국 이상)", filter),
+                        String.format(resourceBundle.getString("entire_rank.embed.uma.title"), filter),
                         uma_page_count[0]
                 )
         );
@@ -83,13 +90,14 @@ public class EntireRank extends RankArranger implements RankInterface {
 
     @Override
     public void totalGameReply(SlashCommandInteractionEvent event) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int filter = getValidFilter(event);
         var sorted_list = getSortedTotalGameList(filter);
         total_game_page_count[0] = 1;
         event.reply(
                 getTotalGamePrintString(
                         sorted_list,
-                        String.format("총합 국 수 순위 (%d국 이상)", filter),
+                        String.format(resourceBundle.getString("entire_rank.embed.total_game_count.title"), filter),
                         total_game_page_count[0]
                 )
         ).addActionRow(
@@ -104,6 +112,7 @@ public class EntireRank extends RankArranger implements RankInterface {
 
     @Override
     public void totalGamePageControl(ButtonInteractionEvent event) {
+        ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int filter = getValidFilter(event);
         var sorted_list = getSortedTotalGameList(filter);
         pageControl(
@@ -113,7 +122,7 @@ public class EntireRank extends RankArranger implements RankInterface {
                 sorted_list.size(),
                 () -> getTotalGamePrintString(
                         sorted_list,
-                        String.format("총합 국 수 순위 (%d국 이상)", filter),
+                        String.format(resourceBundle.getString("entire_rank.embed.total_game_count.title"), filter),
                         total_game_page_count[0]
                 )
         );
