@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.awt.*;
 import java.io.FileWriter;
@@ -100,7 +101,12 @@ public class Logger {
         if (Setting.ADMIN == null) return;
         Setting.ADMIN.queue(
                 user -> user.openPrivateChannel().queue(
-                        privateChannel -> privateChannel.sendMessageEmbeds(embed).queue()
+                        privateChannel -> privateChannel.sendMessageEmbeds(embed)
+                                .addActionRow(
+                                        Button.link(String.format("https://docs.google.com/spreadsheets/d/%s/", Setting.DATA_FILE_ID), "sunwi.csv"),
+                                        Button.link(String.format("https://docs.google.com/spreadsheets/d/%s/", Setting.LOG_FILE_ID), "log.csv"),
+                                        Button.link(String.format("https://docs.google.com/spreadsheets/d/%s/", Setting.ERROR_LOG_FILE_ID), "error_log.csv")
+                                ).queue()
                 )
         );
     }
