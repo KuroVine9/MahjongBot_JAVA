@@ -54,6 +54,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
 
     @Override
     public void summaryReply(SlashCommandInteractionEvent event) {
+        event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
@@ -61,7 +62,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
         int year = getValidYear(event);
         int filter = getValidFilter(event);
 
-        event.replyEmbeds(
+        event.getHook().sendMessageEmbeds(
                 getSummaryEmbed(
                         String.format(resourceBundle.getString("season_rank.embed.summary.title"), year, season, filter),
                         ScoreProcess.getUserDataList(start_month, year, end_month, year).values().stream().peek(UserGameData::updateAllData)
@@ -74,6 +75,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
 
     @Override
     public void umaReply(SlashCommandInteractionEvent event) {
+        event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
@@ -83,7 +85,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
 
         var sorted_list = getSortedUmaList(filter, start_month, year, end_month, year);
         season_uma_page_count[0] = 1;
-        event.reply(
+        event.getHook().sendMessage(
                 getUmaPrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("season_rank.embed.uma.title"), year, season, filter),
@@ -125,6 +127,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
 
     @Override
     public void totalGameReply(SlashCommandInteractionEvent event) {
+        event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
@@ -134,7 +137,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
 
         var sorted_list = getSortedTotalGameList(filter, start_month, year, end_month, year);
         season_total_game_page_count[0] = 1;
-        event.reply(
+        event.getHook().sendMessage(
                 getTotalGamePrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("season_rank.embed.total_game_count.title"), year, season, filter),

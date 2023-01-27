@@ -285,10 +285,22 @@ public abstract class RankArranger implements RankInterface {
                 || ('\u4E00' <= ch && ch <= '\u9FA5'));
     }
 
+    /**
+     * Rank의 message page를 버튼으로 컨트롤하는 메소드입니다.
+     * 연산 시간을 위해 deferEdit() 메소드를 사용합니다.
+     *
+     * @param event      버튼 인터렉션 이벤트
+     * @param buttons    추가할 버튼 배열(0: 맨 앞, 1: 앞으로, 2: 새로고침, 3: 뒤로, 4: 맨 뒤로)
+     * @param page_count 현재 페이지 인덱스.
+     * @param size       전체 리스트의 항목 수 (30줄마다 한 페이지로 생성)
+     * @param action     출력할 페이지의 String을 리턴하는 함수
+     */
     protected static void pageControl(ButtonInteractionEvent event, Button[] buttons, int[] page_count, int size, Supplier<String> action) {
+        event.deferEdit().queue();
+
         if (event.getInteraction().getComponentId().equals(buttons[2].getId())) {
             if ((page_count[0] == 1) && page_count[0] == ((size - 1) / 30 + 1)) {
-                event.editMessage(action.get()).setActionRow(
+                event.getHook().editOriginal(action.get()).setActionRow(
                         buttons[0].asDisabled(),
                         buttons[1].asDisabled(),
                         buttons[2],
@@ -297,7 +309,7 @@ public abstract class RankArranger implements RankInterface {
                 ).queue();
             }
             else if (page_count[0] == 1) {
-                event.editMessage(action.get()).setActionRow(
+                event.getHook().editOriginal(action.get()).setActionRow(
                         buttons[0].asDisabled(),
                         buttons[1].asDisabled(),
                         buttons[2],
@@ -306,7 +318,7 @@ public abstract class RankArranger implements RankInterface {
                 ).queue();
             }
             else if (page_count[0] == ((size - 1) / 30 + 1)) {
-                event.editMessage(action.get()).setActionRow(
+                event.getHook().editOriginal(action.get()).setActionRow(
                         buttons[0],
                         buttons[1],
                         buttons[2],
@@ -314,12 +326,12 @@ public abstract class RankArranger implements RankInterface {
                         buttons[4].asDisabled()
                 ).queue();
             }
-            else event.editMessage(action.get()).setActionRow(buttons).queue();
+            else event.getHook().editOriginal(action.get()).setActionRow(buttons).queue();
             return;
         }
         else if (event.getInteraction().getComponentId().equals(buttons[0].getId())) {
             page_count[0] = 1;
-            event.editMessage(action.get()).setActionRow(
+            event.getHook().editOriginal(action.get()).setActionRow(
                     buttons[0].asDisabled(),
                     buttons[1].asDisabled(),
                     buttons[2],
@@ -330,7 +342,7 @@ public abstract class RankArranger implements RankInterface {
         else if (event.getInteraction().getComponentId().equals(buttons[1].getId())) {
             if ((page_count[0] != 1)) --page_count[0];
             if (page_count[0] < 2) {
-                event.editMessage(action.get()).setActionRow(
+                event.getHook().editOriginal(action.get()).setActionRow(
                         buttons[0].asDisabled(),
                         buttons[1].asDisabled(),
                         buttons[2],
@@ -339,7 +351,7 @@ public abstract class RankArranger implements RankInterface {
                 ).queue();
             }
             else if (page_count[0] == ((size - 1) / 30 + 1)) {
-                event.editMessage(action.get()).setActionRow(
+                event.getHook().editOriginal(action.get()).setActionRow(
                         buttons[0],
                         buttons[1],
                         buttons[2],
@@ -348,14 +360,14 @@ public abstract class RankArranger implements RankInterface {
                 ).queue();
             }
             else {
-                event.editMessage(action.get()).setActionRow(buttons).queue();
+                event.getHook().editOriginal(action.get()).setActionRow(buttons).queue();
             }
 
         }
         else if (event.getInteraction().getComponentId().equals(buttons[3].getId())) {
             if (page_count[0] < ((size - 1) / 30 + 1)) ++page_count[0];
             if (page_count[0] > ((size - 1) / 30)) {
-                event.editMessage(action.get()).setActionRow(
+                event.getHook().editOriginal(action.get()).setActionRow(
                         buttons[0],
                         buttons[1],
                         buttons[2],
@@ -364,13 +376,13 @@ public abstract class RankArranger implements RankInterface {
                 ).queue();
             }
             else {
-                event.editMessage(action.get()).setActionRow(buttons).queue();
+                event.getHook().editOriginal(action.get()).setActionRow(buttons).queue();
             }
 
         }
         else if (event.getInteraction().getComponentId().equals(buttons[4].getId())) {
             page_count[0] = ((size - 1) / 30 + 1);
-            event.editMessage(action.get()).setActionRow(
+            event.getHook().editOriginal(action.get()).setActionRow(
                     buttons[0],
                     buttons[1],
                     buttons[2],

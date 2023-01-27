@@ -1,5 +1,7 @@
 package kuro9.mahjongbot;
 
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.requests.RestAction;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -14,6 +16,7 @@ public record Setting() {
     public static int RETURN_POINT;
     public static int[] UMA;
     public static long ADMIN_ID;
+    public static RestAction<User> ADMIN;
     public static String DATA_PATH;
     public static String LOG_PATH;
     public static String ERROR_LOG_PATH;
@@ -25,7 +28,9 @@ public record Setting() {
     public static String GRAPH_NAME;
     public static String INST_PATH;
     public static String CREDENTIAL_PATH;
-    public static String FILE_ID;
+    public static String DATA_FILE_ID;
+    public static String LOG_FILE_ID;
+    public static String ERROR_LOG_FILE_ID;
     public static String IMAGE_BACKGROUND_PATH;
     public static String IMAGE_NYANGLASS_PATH;
 
@@ -35,7 +40,7 @@ public record Setting() {
         try {
             obj = parser.parse(new FileReader("src/main/resources/setting.json"));
         } catch (IOException | ParseException e) {
-            Logger.addSystemErrorEvent("setting-parse-err", null);
+            Logger.addSystemErrorEvent("setting-parse-err");
             throw new RuntimeException(e);
         }
         JSONObject jsonObject = (JSONObject) obj;
@@ -51,7 +56,9 @@ public record Setting() {
         GRAPH_PATH = jsonObject.get("GRAPH_PATH").toString();
         INST_PATH = jsonObject.get("INST_PATH").toString();
         CREDENTIAL_PATH = jsonObject.get("CREDENTIAL_PATH").toString();
-        FILE_ID = jsonObject.get("FILE_ID").toString();
+        DATA_FILE_ID = jsonObject.get("DATA_FILE_ID").toString();
+        LOG_FILE_ID = jsonObject.get("LOG_FILE_ID").toString();
+        ERROR_LOG_FILE_ID = jsonObject.get("ERROR_LOG_FILE_ID").toString();
         IMAGE_BACKGROUND_PATH = jsonObject.get("IMAGE_BACKGROUND_PATH").toString();
         IMAGE_NYANGLASS_PATH = jsonObject.get("IMAGE_NYANGLASS_PATH").toString();
 
@@ -96,5 +103,9 @@ public record Setting() {
                 "YYYYHH",
                 String.format("%dH%d", year, half)
         );
+    }
+
+    public static void setAdmin(RestAction<User> ADMIN) {
+        Setting.ADMIN = ADMIN;
     }
 }

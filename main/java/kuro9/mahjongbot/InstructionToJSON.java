@@ -31,6 +31,11 @@ public class InstructionToJSON {
 
         command_list.add(new String(Commands.slash("ping", "calc ping time of the bot")
                 .setLocalizationFunction(localizationFunction).toData().toJson()));
+        command_list.add(
+                new String(
+                        Commands.slash("file", "get file link").toData().toJson()
+                )
+        );
         command_list.add(new String(Commands.slash("name", "print name")
                 .setLocalizationFunction(localizationFunction)
                 .addOptions(new OptionData(USER, "user", "user name to print", true))
