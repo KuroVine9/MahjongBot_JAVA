@@ -6,9 +6,7 @@ import kuro9.mahjongbot.ScoreProcess;
 import kuro9.mahjongbot.Setting;
 import kuro9.mahjongbot.gdrive.GDrive;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.requests.RestAction;
 
 import java.awt.*;
 import java.time.LocalDateTime;
@@ -20,7 +18,8 @@ import java.util.ResourceBundle;
  */
 public class Add {
 
-    public static void action(SlashCommandInteractionEvent event, RestAction<User> ADMIN) {
+    public static void action(SlashCommandInteractionEvent event) {
+        event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         if (!event.isFromGuild()) {
             EmbedBuilder embed = new EmbedBuilder();
@@ -31,9 +30,9 @@ public class Add {
                     true
             );
             embed.setColor(Color.RED);
-            event.replyEmbeds(embed.build()).queue();
+            event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-            Logger.addErrorEvent(event, "not-guild-msg", ADMIN);
+            Logger.addErrorEvent(event, "not-guild-msg");
             return;
         }
 
@@ -57,9 +56,9 @@ public class Add {
                         true
                 );
                 embed.setColor(Color.RED);
-                event.replyEmbeds(embed.build()).setEphemeral(true).queue();
+                event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
 
-                Logger.addErrorEvent(event, "parameter-err", ADMIN);
+                Logger.addErrorEvent(event, "parameter-err");
             }
             case -2 -> {    // IOEXCEPTION
                 EmbedBuilder embed = new EmbedBuilder();
@@ -71,9 +70,9 @@ public class Add {
                         true
                 );
                 embed.setColor(Color.RED);
-                event.replyEmbeds(embed.build()).setEphemeral(true).queue();
+                event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
 
-                Logger.addErrorEvent(event, "file-not-found", ADMIN);
+                Logger.addErrorEvent(event, "file-not-found");
             }
             default -> {     // NO ERR
                 EmbedBuilder embed = new EmbedBuilder();
@@ -93,10 +92,10 @@ public class Add {
                         )
                 );
                 embed.setColor(Color.BLACK);
-                event.replyEmbeds(embed.build()).queue();
+                event.getHook().sendMessageEmbeds(embed.build()).queue();
                 Logger.addEvent(event);
                 ScoreProcess.revalidData();
-                GDrive.upload(Setting.FILE_ID, ADMIN);
+                GDrive.upload(Setting.DATA_FILE_ID, Setting.DATA_PATH);
             }
         }
     }

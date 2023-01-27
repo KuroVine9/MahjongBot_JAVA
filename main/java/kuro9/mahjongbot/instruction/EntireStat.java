@@ -19,6 +19,7 @@ import java.util.ResourceBundle;
 public class EntireStat extends StatArranger implements StatInterface {
     @Override
     public void action(SlashCommandInteractionEvent event) {
+        event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         HashMap<String, UserGameData> data_list;
         try {
@@ -39,7 +40,7 @@ public class EntireStat extends StatArranger implements StatInterface {
         int rank = getRank(data_list, finalName);
 
         File image = new File(Setting.GRAPH_PATH);
-        event.replyEmbeds(
+        event.getHook().sendMessageEmbeds(
                 getEmbed(
                         user,
                         String.format(resourceBundle.getString("entire_stat.embed.title"), rank, user.name),

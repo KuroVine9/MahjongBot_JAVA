@@ -14,6 +14,17 @@
     "dm_permission": true,
     "name_localizations": {},
     "nsfw": false,
+    "name": "file",
+    "options": [],
+    "description": "get file link",
+    "description_localizations": {},
+    "default_member_permissions": null,
+    "type": 1
+  },
+  {
+    "dm_permission": true,
+    "name_localizations": {},
+    "nsfw": false,
     "name": "add",
     "options": [
       {

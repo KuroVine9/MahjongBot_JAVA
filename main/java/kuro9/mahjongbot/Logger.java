@@ -1,13 +1,12 @@
 package kuro9.mahjongbot;
 
 import com.opencsv.CSVWriter;
+import kuro9.mahjongbot.gdrive.GDrive;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.requests.RestAction;
 
 import java.awt.*;
 import java.io.FileWriter;
@@ -15,6 +14,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * 이벤트 로깅을 위한 클래스입니다.
@@ -28,8 +28,7 @@ public class Logger {
      * @param event JDA의 SlashCommandEvent
      */
     public static void addEvent(GenericInteractionCreateEvent event) {
-        ArrayList<String> log_list = getLogList(event);
-        writeLogToCSV(log_list);
+        writeLogToCSV(getLogList(event));
     }
 
     /**
@@ -48,9 +47,8 @@ public class Logger {
      * {@code callAdmin()}을 호출합니다.
      *
      * @param description 에러 형태에 대한 요약
-     * @param admin       관리자의 정보가 담긴 매개변수
      */
-    public static void addSystemErrorEvent(String description, RestAction<User> admin) {
+    public static void addSystemErrorEvent(String description) {
         ArrayList<String> log_list = getSystemLogList(description);
         writeErrorLogToCSV(log_list);
 
@@ -59,7 +57,7 @@ public class Logger {
         embed.setDescription(description);
         embed.setFooter(log_list.get(0));
         embed.setColor(Color.RED);
-        callAdmin(embed.build(), admin);
+        callAdmin(embed.build());
     }
 
 
@@ -69,9 +67,8 @@ public class Logger {
      *
      * @param event       JDA의 SlashCommandEvent
      * @param description 에러 형태에 대한 요약
-     * @param admin       관리자의 정보가 담긴 매개변수
      */
-    public static void addErrorEvent(SlashCommandInteractionEvent event, String description, RestAction<User> admin) {
+    public static void addErrorEvent(SlashCommandInteractionEvent event, String description) {
         ArrayList<String> log_list = getLogList(event, description);
 
         writeErrorLogToCSV(log_list);
@@ -91,18 +88,17 @@ public class Logger {
         );
         embed.setFooter(log_list.get(0));
         embed.setColor(Color.RED);
-        callAdmin(embed.build(), admin);
+        callAdmin(embed.build());
     }
 
     /**
      * 관리자를 다이렉트 메시지로 호출합니다.
      *
      * @param embed 전달할 메시지
-     * @param admin 관리자의 정보가 담긴 매개변수
      */
-    private static void callAdmin(MessageEmbed embed, RestAction<User> admin) {
-        if (admin == null) return;
-        admin.queue(
+    private static void callAdmin(MessageEmbed embed) {
+        if (Setting.ADMIN == null) return;
+        Setting.ADMIN.queue(
                 user -> user.openPrivateChannel().queue(
                         privateChannel -> privateChannel.sendMessageEmbeds(embed).queue()
                 )
@@ -187,6 +183,7 @@ public class Logger {
         while (log_list.size() < 13) log_list.add("<NO_DATA>");
         abstractWriteLogToCSV(log_list, Setting.ERROR_LOG_PATH);
         System.out.printf("[MahjongBot:Logger] %s %s used %s\n", log_list.get(1), log_list.get(3), log_list.get(4));
+        GDrive.upload(Setting.ERROR_LOG_FILE_ID, Setting.ERROR_LOG_PATH);
     }
 
     /**
@@ -198,6 +195,7 @@ public class Logger {
         while (log_list.size() < 12) log_list.add("<NO_DATA>");
         abstractWriteLogToCSV(log_list, Setting.LOG_PATH);
         System.out.printf("[MahjongBot:Logger] %s used %s\n", log_list.get(2), log_list.get(3));
+        GDrive.upload(Setting.LOG_FILE_ID, Setting.LOG_PATH);
     }
 
     /**
@@ -214,6 +212,33 @@ public class Logger {
             csv.writeNext(log_list.toArray(log));
             csv.close();
         } catch (IOException e) {
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setTitle("NEW SYSTEM ERR OCC.");
+            embed.setDescription("From Logger#abstractWriteLogToCSV(ArrayList<String>, String)");
+            int count = 0;
+            int page = 1;
+            ArrayList<String> stack_msg = new ArrayList<>(10);
+            for (StackTraceElement trace : e.getStackTrace()) {
+                stack_msg.add(trace.toString());
+                if (++count % 10 == 0) {
+                    embed.addField(
+                            String.format("Trace#%d", page++),
+                            stack_msg.stream().collect(Collectors.joining("\n", "```\n", "```")),
+                            false
+                    );
+                    stack_msg.clear();
+                }
+            }
+            if (!stack_msg.isEmpty()) {
+                embed.addField(
+                        String.format("Trace#%d", page),
+                        stack_msg.stream().collect(Collectors.joining("\n", "```\n", "```")),
+                        false
+                );
+            }
+            embed.setFooter("IOException");
+            embed.setColor(Color.RED);
+            callAdmin(embed.build());
             throw new RuntimeException(e);
         }
     }

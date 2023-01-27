@@ -34,9 +34,10 @@ public class EntireRank extends RankArranger implements RankInterface {
 
     @Override
     public void summaryReply(SlashCommandInteractionEvent event) {
+        event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int filter = getValidFilter(event);
-        event.replyEmbeds(
+        event.getHook().sendMessageEmbeds(
                 getSummaryEmbed(
                         String.format(resourceBundle.getString("entire_rank.embed.summary.title"), filter),
                         ScoreProcess.getUserDataList().values().stream().peek(UserGameData::updateAllData)
@@ -49,11 +50,12 @@ public class EntireRank extends RankArranger implements RankInterface {
 
     @Override
     public void umaReply(SlashCommandInteractionEvent event) {
+        event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int filter = getValidFilter(event);
         var sorted_list = getSortedUmaList(filter);
         uma_page_count[0] = 1;
-        event.reply(
+        event.getHook().sendMessage(
                 getUmaPrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("entire_rank.embed.uma.title"), filter),
@@ -90,11 +92,12 @@ public class EntireRank extends RankArranger implements RankInterface {
 
     @Override
     public void totalGameReply(SlashCommandInteractionEvent event) {
+        event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int filter = getValidFilter(event);
         var sorted_list = getSortedTotalGameList(filter);
         total_game_page_count[0] = 1;
-        event.reply(
+        event.getHook().sendMessage(
                 getTotalGamePrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("entire_rank.embed.total_game_count.title"), filter),
