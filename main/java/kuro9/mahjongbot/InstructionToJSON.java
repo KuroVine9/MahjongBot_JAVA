@@ -14,8 +14,7 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-import static net.dv8tion.jda.api.interactions.commands.OptionType.INTEGER;
-import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
+import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
 
 public class InstructionToJSON {
     public static void main(String[] args) throws IOException {
@@ -34,6 +33,14 @@ public class InstructionToJSON {
         command_list.add(
                 new String(
                         Commands.slash("file", "get file link").toData().toJson()
+                )
+        );
+        command_list.add(
+                new String(
+                        Commands.slash("machi", "test")
+                                .addOptions(
+                                        new OptionData(STRING, "hand", "hand", true)
+                                ).toData().toJson()
                 )
         );
         command_list.add(new String(Commands.slash("name", "print name")

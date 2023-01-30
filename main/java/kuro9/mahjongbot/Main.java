@@ -123,6 +123,7 @@ public class Main extends ListenerAdapter {
                     case 2 -> rank[2].totalGameReply(event);
                 }
             }
+            case "machi" -> MachiCalculator.action(event);
 
             default -> throw new IllegalStateException("Unexpected value: " + event.getName());
         }
