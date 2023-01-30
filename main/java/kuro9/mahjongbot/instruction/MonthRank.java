@@ -34,12 +34,13 @@ public class MonthRank extends RankArranger implements RankInterface {
 
     @Override
     public void summaryReply(SlashCommandInteractionEvent event) {
+        event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int month = getValidMonth(event);
         int year = getValidYear(event);
         int filter = getValidFilter(event);
 
-        event.replyEmbeds(
+        event.getHook().sendMessageEmbeds(
                 getSummaryEmbed(
                         String.format(resourceBundle.getString("month_rank.embed.summary.title"), year, month, filter),
                         ScoreProcess.getUserDataList(month, year).values().stream().peek(UserGameData::updateAllData)
@@ -52,10 +53,11 @@ public class MonthRank extends RankArranger implements RankInterface {
 
     @Override
     public void umaReply(SlashCommandInteractionEvent event) {
+        event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         var sorted_list = getSortedUmaList(getValidFilter(event), getValidMonth(event), getValidYear(event));
         month_uma_page_count[0] = 1;
-        event.reply(
+        event.getHook().sendMessage(
                 getUmaPrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("month_rank.embed.uma.title"), getValidYear(event), getValidMonth(event), getValidFilter(event)),
@@ -91,10 +93,11 @@ public class MonthRank extends RankArranger implements RankInterface {
 
     @Override
     public void totalGameReply(SlashCommandInteractionEvent event) {
+        event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         var sorted_list = getSortedTotalGameList(getValidFilter(event), getValidMonth(event), getValidYear(event));
         month_total_game_page_count[0] = 1;
-        event.reply(
+        event.getHook().sendMessage(
                 getTotalGamePrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("month_rank.embed.total_game_count.title"), getValidYear(event), getValidMonth(event), getValidFilter(event)),

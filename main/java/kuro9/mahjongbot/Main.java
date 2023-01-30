@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.utils.data.DataObject;
 import org.json.simple.JSONArray;
@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class Main extends ListenerAdapter {
-    private static RestAction<User> ADMIN;
     private static RankInterface[] rank;
     private static StatInterface[] stat;
 
@@ -45,7 +44,7 @@ public class Main extends ListenerAdapter {
             throw new RuntimeException(e);
         }
         JDA jda = JDABuilder.createDefault(TOKEN).build();
-        ADMIN = jda.retrieveUserById(Setting.ADMIN_ID);
+        Setting.setAdmin(jda.retrieveUserById(Setting.ADMIN_ID));
         jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
         jda.retrieveUserById(Setting.ADMIN_ID).map(User::getAsTag)
                 .queue(name -> jda.getPresence().setActivity(Activity.competing("DM => " + name))
@@ -66,7 +65,7 @@ public class Main extends ListenerAdapter {
             ).forEach(data -> commands.addCommands(CommandData.fromData(DataObject.fromJson(data.toString()))));
         } catch (IOException | ParseException e) {
             System.out.println("\n\n[MahjongBot:Main] Runtime Instruction Loading Failure!\n\n");
-            Logger.addSystemErrorEvent("instruction-load-err", ADMIN);
+            Logger.addSystemErrorEvent("instruction-load-err");
             e.printStackTrace();
             throw new RuntimeException(e);
         }
@@ -88,12 +87,21 @@ public class Main extends ListenerAdapter {
                         .flatMap(
                                 v -> event.getHook().editOriginalFormat("Pong: %d ms", System.currentTimeMillis() - time)
                         ).queue();
+                Logger.addEvent(event);
             }
-            case "add" -> Add.action(event, ADMIN);
+            case "file" -> {
+                Logger.addEvent(event);
+                event.reply("Uploaded Files").setEphemeral(true).addActionRow(
+                        Button.link(String.format("https://docs.google.com/spreadsheets/d/%s/", Setting.DATA_FILE_ID), "sunwi.csv"),
+                        Button.link(String.format("https://docs.google.com/spreadsheets/d/%s/", Setting.LOG_FILE_ID), "log.csv"),
+                        Button.link(String.format("https://docs.google.com/spreadsheets/d/%s/", Setting.ERROR_LOG_FILE_ID), "error_log.csv")
+                ).queue();
+            }
+            case "add" -> Add.action(event);
             case "stat" -> stat[2].action(event);
             case "month_stat" -> stat[1].action(event);
             case "entire_stat" -> stat[0].action(event);
-            case "revalid" -> ReValid.action(event, ADMIN);
+            case "revalid" -> ReValid.action(event);
             case "entire_rank" -> {
                 switch (event.getOption("type") == null ? -1 : (int) event.getOption("type").getAsLong()) {
                     case 0 -> rank[0].summaryReply(event);

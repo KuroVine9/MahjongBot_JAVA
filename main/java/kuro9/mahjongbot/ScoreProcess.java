@@ -79,7 +79,7 @@ public class ScoreProcess {
             ostream.writeObject(getUserDataList((((month - 1) / 6) + 1), year, month, year));
             ostream.close();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            Logger.addSystemErrorEvent("revalid-io-err");
         }
     }
 
@@ -116,7 +116,7 @@ public class ScoreProcess {
             }
 
         } catch (IOException | CsvException e) {
-            throw new RuntimeException(e);
+            Logger.addSystemErrorEvent("process-data-io-err");
         }
 
         return uma_table;
