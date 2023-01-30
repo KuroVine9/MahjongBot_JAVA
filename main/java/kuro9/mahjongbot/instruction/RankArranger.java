@@ -63,7 +63,7 @@ public abstract class RankArranger implements RankInterface {
                     0 : (int) s.getOption("filter").getAsLong());
         }
         else if (event instanceof ButtonInteractionEvent b) {
-            String pattern = "\\((\\d+)";
+            String pattern = "\\([A-Za-z ]*(\\d+)";
             Pattern r = Pattern.compile(pattern);
             Matcher m = r.matcher(b.getMessage().getContentDisplay());
             if (m.find()) {
