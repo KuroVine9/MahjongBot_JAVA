@@ -37,20 +37,12 @@ public class InstructionToJSON {
         );
         command_list.add(
                 new String(
-                        Commands.slash("machi", "test")
+                        Commands.slash("machi", resourceEN.getString("machi.description"))
                                 .addOptions(
-                                        new OptionData(STRING, "hand", "hand", true)
-                                ).toData().toJson()
+                                        new OptionData(STRING, "hand", resourceEN.getString("machi.options.hand.description"), true)
+                                ).setLocalizationFunction(localizationFunction).toData().toJson()
                 )
         );
-        command_list.add(new String(Commands.slash("name", "print name")
-                .setLocalizationFunction(localizationFunction)
-                .addOptions(new OptionData(USER, "user", "user name to print", true))
-                .toData().toJson()));
-        command_list.add(new String(
-                Commands.slash("msg", "msgtest")
-                        .setLocalizationFunction(localizationFunction)
-                        .toData().toJson()));
         command_list.add(new String(
                 Commands.slash("add", resourceEN.getString("add.description"))
                         .setLocalizationFunction(localizationFunction)

@@ -1,28 +1,11 @@
 package kuro9.mahjongbot;
 
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class MachiCalculator {
-
-    public static void action(SlashCommandInteractionEvent event) {
-        event.deferReply().queue();
-        CustomEmoji manzu1 = Emoji.fromCustom("manzu1", 1069705556522172539L, false);
-        String hand = event.getOption("hand").getAsString();
-        HashMap<Character, int[]> result = getMachi(hand);
-        EmbedBuilder embed = new EmbedBuilder();
-        embed.setTitle(String.format("%s 대기패 계산결과", hand));
-        embed.setDescription(MachiCalculator.getString(result));
-        event.getHook().sendMessageEmbeds(embed.build()).queue();
-    }
-
     public static String getString(HashMap<Character, int[]> machi) {
         StringBuilder result = new StringBuilder();
         for (char pai : new char[]{'m', 'p', 's', 'z'}) {
@@ -35,7 +18,44 @@ public class MachiCalculator {
     }
 
     /**
-     * 패의 대기패를 반환합니다.
+     * 타패 후 패의 대기패 해시맵을 반환합니다. 패의 개수는 3n+2 개 이어야 합니다.
+     * 예시: 234만 23456통 234삭 서서 쯔모 5삭
+     * <pre><code>
+     *     getMachi("234m23456p2345s33z")
+     * </code></pre>
+     *
+     * @param te_hai 손패 (m=만수, p=통수, s=삭수, z=자패)
+     * @return 대기패
+     */
+    public static List<PaiDiscardMachiData> getTenpaiMachi(String te_hai) {
+        LinkedList<PaiDiscardMachiData> result = new LinkedList<>();
+        ArrayList<Integer> te_hai_int = getIntList(te_hai);
+        te_hai_int.stream().distinct().forEach(
+                pai -> {
+                    var get_hand_list = getIntList(te_hai);
+                    get_hand_list.remove(pai);
+                    var machi_list = getMachiList(get_hand_list);
+                    if (!machi_list.isEmpty()) {
+                        var data = new PaiDiscardMachiData(pai);
+                        data.machi = intListToMap(machi_list);
+                        data.nokoru_pai = machi_list.size() * 4;
+                        machi_list.forEach(
+                                machi -> {
+                                    data.nokoru_pai -= te_hai_int.stream().filter(i -> Objects.equals(i, machi)).count();
+                                }
+                        );
+                        result.add(data);
+                    }
+                }
+        );
+//        for (var entry : result.entrySet()) {
+//            if(entry.getValue().entrySet().stream().allMatch(value->value.getValue().length==0)
+//        }
+        return result;
+    }
+
+    /**
+     * 패의 대기패를 반환합니다. 패의 개수는 3n+1 개 이어야 합니다.
      * 예시: 234만 23456통 234삭 서서
      * <pre><code>
      *     getMachi("234m23456p234s33z")
@@ -45,7 +65,24 @@ public class MachiCalculator {
      * @return 대기패
      */
     public static HashMap<Character, int[]> getMachi(String te_hai) {
-        HashMap<Character, int[]> result = new HashMap<>();
+        return intListToMap(getMachiList(getIntList(te_hai)));
+    }
+
+    /**
+     * 패의 대기패를 반환합니다. 패의 개수는 3n+1 개 이어야 합니다.
+     * 예시: 234만 23456통 234삭 서서
+     * <pre><code>
+     *     getMachi("234m23456p234s33z")
+     * </code></pre>
+     *
+     * @param te_hai 손패 (m=만수, p=통수, s=삭수, z=자패)
+     * @return 대기패
+     */
+    public static HashMap<Character, int[]> getMachi(List<Integer> te_hai) {
+        return intListToMap(getMachiList(te_hai));
+    }
+
+    public static ArrayList<Integer> getIntList(String hand) {
         ArrayList<Integer> te_hai_int = new ArrayList<>();
         Pattern[] reg = new Pattern[]{
                 Pattern.compile("(\\d*)m"),
@@ -54,27 +91,33 @@ public class MachiCalculator {
                 Pattern.compile("(\\d*)z")
         };
         for (int i = 0; i < 3; i++) {
-            Matcher m = reg[i].matcher(te_hai);
+            Matcher m = reg[i].matcher(hand);
             if (m.find()) {
                 int finalI = i;
                 m.group(1).chars().map(ch -> (ch - '0' + (10 * finalI))).forEach(te_hai_int::add);
             }
         }
-        Matcher m = reg[3].matcher(te_hai);
+        Matcher m = reg[3].matcher(hand);
         if (m.find()) m.group(1).chars().map(ch -> ((ch - '0' + 2) * 10 + 1)).forEach(te_hai_int::add);
+        return te_hai_int;
+    }
 
-        ArrayList<Integer> machi = (ArrayList<Integer>) getMachi(te_hai_int);
-        machi.forEach(data -> System.out.printf("%d ", data));
-
-        result.put('m', machi.stream().filter(data -> data < 10).mapToInt(i -> i).toArray());
-        result.put('p', machi.stream().filter(data -> 10 < data && data < 20).mapToInt(i -> i - 10).toArray());
-        result.put('s', machi.stream().filter(data -> 20 < data && data < 30).mapToInt(i -> i - 20).toArray());
-        result.put('z', machi.stream().filter(data -> 30 < data).mapToInt(i -> i / 10 - 2).toArray());
-
+    /**
+     * 계산 결과를 맵으로 변환합니다.
+     *
+     * @param list int로 이루어진 패 정보
+     * @return 키가 m, p, s, z인 대기패 정보
+     */
+    private static HashMap<Character, int[]> intListToMap(List<Integer> list) {
+        HashMap<Character, int[]> result = new HashMap<>();
+        result.put('m', list.stream().filter(data -> data < 10).mapToInt(i -> i).toArray());
+        result.put('p', list.stream().filter(data -> 10 < data && data < 20).mapToInt(i -> i - 10).toArray());
+        result.put('s', list.stream().filter(data -> 20 < data && data < 30).mapToInt(i -> i - 20).toArray());
+        result.put('z', list.stream().filter(data -> 30 < data).mapToInt(i -> i / 10 - 2).toArray());
         return result;
     }
 
-    private static List<Integer> getMachi(List<Integer> te_hai) {
+    private static List<Integer> getMachiList(List<Integer> te_hai) {
         LinkedList<Integer> result = new LinkedList<>();
         LinkedList<Integer> black_list = new LinkedList<>();
         te_hai.sort(Comparator.naturalOrder());
@@ -91,7 +134,7 @@ public class MachiCalculator {
             }
             if (add) black_list.add(i);
         }
-        for (int i = 30; i <= 90; i++) {
+        for (int i = 30; i <= 91; i++) {
             if (i % 10 != 1) black_list.add(i);
             else if (!te_hai.contains(i)) black_list.add(i);
         }
@@ -108,7 +151,7 @@ public class MachiCalculator {
                     break;
                 }
             }
-            if (temp_tehai.size() == 13) temp_tehai.add(i);
+            if (temp_tehai.size() == te_hai.size()) temp_tehai.add(i);
             for (int atama : getDuplicated(temp_tehai)) {
                 LinkedList<Integer> no_atama_tehai = new LinkedList<>(temp_tehai);
                 no_atama_tehai.remove((Object) atama);

@@ -33,13 +33,15 @@ public record Setting() {
     public static String ERROR_LOG_FILE_ID;
     public static String IMAGE_BACKGROUND_PATH;
     public static String IMAGE_NYANGLASS_PATH;
+    public static String MAHJONG_BASE_PATH;
 
     public static void init() {
         JSONParser parser = new JSONParser();
         Object obj = null;
         try {
             obj = parser.parse(new FileReader("src/main/resources/setting.json"));
-        } catch (IOException | ParseException e) {
+        }
+        catch (IOException | ParseException e) {
             Logger.addSystemErrorEvent("setting-parse-err");
             throw new RuntimeException(e);
         }
@@ -61,6 +63,7 @@ public record Setting() {
         ERROR_LOG_FILE_ID = jsonObject.get("ERROR_LOG_FILE_ID").toString();
         IMAGE_BACKGROUND_PATH = jsonObject.get("IMAGE_BACKGROUND_PATH").toString();
         IMAGE_NYANGLASS_PATH = jsonObject.get("IMAGE_NYANGLASS_PATH").toString();
+        MAHJONG_BASE_PATH = jsonObject.get("MAHJONG_BASE_PATH").toString();
 
 
         JSONArray jsonArray = (JSONArray) jsonObject.get("UMA");
