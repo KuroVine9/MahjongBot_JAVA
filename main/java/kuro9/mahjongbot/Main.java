@@ -39,7 +39,8 @@ public class Main extends ListenerAdapter {
             Scanner scan = new Scanner(new File(Setting.TOKEN_PATH));
             TOKEN = scan.next();
             scan.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             System.out.println("\n\n[MahjongBot:Main] Initialize Failure!\n\n");
             throw new RuntimeException(e);
         }
@@ -63,7 +64,8 @@ public class Main extends ListenerAdapter {
             jsonArray.stream().peek(
                     data -> System.out.printf("[MahjongBot:Main] Loaded Instruction \"%s\"\n", ((JSONObject) data).get("name"))
             ).forEach(data -> commands.addCommands(CommandData.fromData(DataObject.fromJson(data.toString()))));
-        } catch (IOException | ParseException e) {
+        }
+        catch (IOException | ParseException e) {
             System.out.println("\n\n[MahjongBot:Main] Runtime Instruction Loading Failure!\n\n");
             Logger.addSystemErrorEvent("instruction-load-err");
             e.printStackTrace();
@@ -123,6 +125,7 @@ public class Main extends ListenerAdapter {
                     case 2 -> rank[2].totalGameReply(event);
                 }
             }
+            case "machi" -> MahjongCalc.getAllMachi(event);
 
             default -> throw new IllegalStateException("Unexpected value: " + event.getName());
         }

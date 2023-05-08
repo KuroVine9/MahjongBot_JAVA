@@ -25,6 +25,36 @@
     "dm_permission": true,
     "name_localizations": {},
     "nsfw": false,
+    "name": "machi",
+    "options": [
+      {
+        "name_localizations": {
+          "ko": "손패",
+          "ja": "手牌"
+        },
+        "autocomplete": false,
+        "name": "hand",
+        "description": "Do not write m,p,s,z multiple times. m=Man-zu, p=Pin-zu, s=Sou-zu, z=Honors ex) 234m34455p234s44z",
+        "description_localizations": {
+          "ko": "m, p, s, z를 여러 번 쓰지 마십시오. m=만수, p=통수, s=삭수, z=자패 ex) 234m34455p234s44z ",
+          "ja": "m、 p、 s、 z は一度だけ書いてください。m=萬子, p=筒子, s=索子, z=字牌 ex) 234m34455p234s44z"
+        },
+        "type": 3,
+        "required": true
+      }
+    ],
+    "description": "Calculates winning hands. Calculate winning hands for 3n+1 input/every discard cases for 3n+2 input.",
+    "description_localizations": {
+      "ko": "대기패를 계산합니다. 3n+1장의 입력에는 대기패를, 3n+2장의 입력에는 타패의 경우의 수를 계산합니다.",
+      "ja": "待ち牌を計算します。3n + 1 枚の入力には待ち牌を、3n + 2 枚の入力には打牌の場合の数を計算します。"
+    },
+    "default_member_permissions": null,
+    "type": 1
+  },
+  {
+    "dm_permission": true,
+    "name_localizations": {},
+    "nsfw": false,
     "name": "add",
     "options": [
       {
