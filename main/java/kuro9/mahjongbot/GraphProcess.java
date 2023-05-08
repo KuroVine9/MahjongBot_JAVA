@@ -10,7 +10,10 @@ import java.io.IOException;
 
 /**
  * 그래프 이미지를 생성하기 위한 클래스입니다.
+ *
+ * @deprecated headless 모드를 지원하기 위해 대체됨. {@link HeadlessGraphProcess}
  */
+@Deprecated
 public class GraphProcess extends JFrame {
     /**
      * 그림이 그려질 패널을 호출 후 저장합니다.
@@ -23,7 +26,6 @@ public class GraphProcess extends JFrame {
         setSize(847, 290);
         setVisible(true);
         pn.scoreGraphGen();
-        dispose();
     }
 
     class MyPanel extends JPanel {
@@ -84,7 +86,8 @@ public class GraphProcess extends JFrame {
             paint(graphics2D);
             try {
                 ImageIO.write(image, "png", new File(Setting.GRAPH_PATH));
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 Logger.addSystemErrorEvent("image-generate-err");
                 throw new RuntimeException(e);
             }

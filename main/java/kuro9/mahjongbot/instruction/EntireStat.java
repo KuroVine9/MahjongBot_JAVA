@@ -25,7 +25,8 @@ public class EntireStat extends StatArranger implements StatInterface {
         try {
             ObjectInputStream istream = new ObjectInputStream(new FileInputStream(Setting.USERDATA_PATH));
             data_list = (HashMap<String, UserGameData>) istream.readObject();
-        } catch (IOException | ClassNotFoundException e) {
+        }
+        catch (IOException | ClassNotFoundException e) {
             data_list = ScoreProcess.getUserDataList();
         }
 
@@ -34,12 +35,9 @@ public class EntireStat extends StatArranger implements StatInterface {
         UserGameData user = Optional.ofNullable(data_list.get(finalName)).orElseGet(() -> new UserGameData(finalName));
         user.updateAllData();
 
-        GraphProcess graph = new GraphProcess();
-        graph.scoreGraphGen(ScoreProcess.recentGameResult(finalName));
-
         int rank = getRank(data_list, finalName);
 
-        File image = new File(Setting.GRAPH_PATH);
+        File image = generateGraph(ScoreProcess.recentGameResult(finalName));
         event.getHook().sendMessageEmbeds(
                 getEmbed(
                         user,

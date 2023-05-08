@@ -22,5 +22,6 @@
   "ERROR_LOG_FILE_ID": "1pn_57h77q4fF23s-A25F8TX4CC-vQyH-",
   "IMAGE_BACKGROUND_PATH": "src/main/resources/image/image_source/score_graph_base.png",
   "IMAGE_NYANGLASS_PATH": "src/main/resources/image/image_source/nyanglass_nuki.png",
-  "MAHJONG_BASE_PATH": "src/main/resources/image/image_source/mahjong/"
+  "MAHJONG_BASE_PATH": "src/main/resources/image/image_source/mahjong/",
+  "FALLBACK_GRAPH_PATH": "src/main/resources/image/image_source/fallback_graph.png"
 }
