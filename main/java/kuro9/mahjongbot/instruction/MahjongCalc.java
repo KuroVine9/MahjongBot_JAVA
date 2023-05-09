@@ -16,20 +16,21 @@ import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 public class MahjongCalc {
-
     public static void getAllMachi(SlashCommandInteractionEvent event) {
-        event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         String hand = event.getOption("hand").getAsString();
 
         // 파라미터 검사
         if (
-                !Pattern.matches("^([1-9]+[mspz]?)+$", hand)
+                (!Pattern.matches("^([1-9]+[mspz]?)+$", hand))
                         || (hand.indexOf('m') != hand.lastIndexOf('m'))
                         || (hand.indexOf('s') != hand.lastIndexOf('s'))
                         || (hand.indexOf('p') != hand.lastIndexOf('p'))
                         || (hand.indexOf('z') != hand.lastIndexOf('z'))
+                        || (hand.indexOf('m') == -1 && hand.indexOf('s') == -1 &&
+                        hand.indexOf('p') == -1 && hand.indexOf('z') == -1)
         ) {
+            event.deferReply(true).queue();
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle("400 Bad Request");
             embed.setDescription("Parameter Err.");
@@ -39,7 +40,7 @@ public class MahjongCalc {
                     true
             );
             embed.setColor(Color.RED);
-            event.getHook().sendMessageEmbeds(embed.build()).queue();
+            event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
             Logger.addErrorEvent(event, "parameter-err");
             return;
         }
@@ -47,6 +48,7 @@ public class MahjongCalc {
 
         // 이미지 생성 실패
         if (getHandPicture(hand) == -1) {
+            event.deferReply(true).queue();
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle("503 Service Unavailable");
             embed.setDescription("Image Generate Err.");
@@ -56,11 +58,11 @@ public class MahjongCalc {
                     true
             );
             embed.setColor(Color.RED);
-            event.getHook().sendMessageEmbeds(embed.build()).queue();
+            event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
             Logger.addErrorEvent(event, "hand-img-gen-err");
             return;
         }
-
+        event.deferReply().queue();
         if (hand_list.size() % 3 == 1) {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle(hand);

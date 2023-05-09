@@ -34,6 +34,7 @@ public record Setting() {
     public static String IMAGE_BACKGROUND_PATH;
     public static String IMAGE_NYANGLASS_PATH;
     public static String MAHJONG_BASE_PATH;
+    public static String FALLBACK_GRAPH_PATH;
 
     public static void init() {
         JSONParser parser = new JSONParser();
@@ -64,6 +65,7 @@ public record Setting() {
         IMAGE_BACKGROUND_PATH = jsonObject.get("IMAGE_BACKGROUND_PATH").toString();
         IMAGE_NYANGLASS_PATH = jsonObject.get("IMAGE_NYANGLASS_PATH").toString();
         MAHJONG_BASE_PATH = jsonObject.get("MAHJONG_BASE_PATH").toString();
+        FALLBACK_GRAPH_PATH = jsonObject.get("FALLBACK_GRAPH_PATH").toString();
 
 
         JSONArray jsonArray = (JSONArray) jsonObject.get("UMA");

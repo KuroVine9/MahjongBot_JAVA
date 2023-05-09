@@ -37,7 +37,8 @@ public class SeasonStat extends StatArranger implements StatInterface {
         try {
             ObjectInputStream istream = new ObjectInputStream(new FileInputStream(Setting.getValidHalfDataPath(season, year)));
             data_list = (HashMap<String, UserGameData>) istream.readObject();
-        } catch (IOException | ClassNotFoundException e) {
+        }
+        catch (IOException | ClassNotFoundException e) {
             data_list = ScoreProcess.getUserDataList(start_month, year, end_month, year);
         }
 
@@ -46,12 +47,9 @@ public class SeasonStat extends StatArranger implements StatInterface {
         UserGameData user = Optional.ofNullable(data_list.get(finalName)).orElseGet(() -> new UserGameData(finalName));
         user.updateAllData();
 
-        GraphProcess graph = new GraphProcess();
-        graph.scoreGraphGen(ScoreProcess.recentGameResult(finalName, start_month, year, end_month, year));
-
         int rank = getRank(data_list, finalName);
 
-        File image = new File(Setting.GRAPH_PATH);
+        File image = generateGraph(ScoreProcess.recentGameResult(finalName, start_month, year, end_month, year));
         event.getHook().sendMessageEmbeds(
                 getEmbed(
                         user,

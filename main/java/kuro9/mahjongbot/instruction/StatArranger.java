@@ -1,5 +1,6 @@
 package kuro9.mahjongbot.instruction;
 
+import kuro9.mahjongbot.HeadlessGraphProcess;
 import kuro9.mahjongbot.ResourceHandler;
 import kuro9.mahjongbot.Setting;
 import kuro9.mahjongbot.UserGameData;
@@ -10,6 +11,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 
 import java.awt.*;
+import java.io.File;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 
@@ -94,6 +96,11 @@ public abstract class StatArranger implements StatInterface {
         embed.setImage(String.format("attachment://%s", Setting.GRAPH_NAME));
         embed.setThumbnail(thumb_url);
         return embed;
+    }
+
+    protected static File generateGraph(int[][] recent_data) {
+        HeadlessGraphProcess graph = new HeadlessGraphProcess();
+        return new File(graph.scoreGraphGen(recent_data) ? Setting.GRAPH_PATH : Setting.FALLBACK_GRAPH_PATH);
     }
 
 }
