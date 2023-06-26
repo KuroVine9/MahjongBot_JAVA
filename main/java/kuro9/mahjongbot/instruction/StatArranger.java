@@ -98,6 +98,12 @@ public abstract class StatArranger implements StatInterface {
         return embed;
     }
 
+    /**
+     * 그래프 이미지를 반환합니다. 에러 등으로 인해 생성되지 않았을 경우에는 fall-back 이미지를 반환합니다.
+     *
+     * @param recent_data {@link HeadlessGraphProcess#scoreGraphGen(int[][])}의 파라미터
+     * @return 그래프 이미지
+     */
     protected static File generateGraph(int[][] recent_data) {
         HeadlessGraphProcess graph = new HeadlessGraphProcess();
         return new File(graph.scoreGraphGen(recent_data) ? Setting.GRAPH_PATH : Setting.FALLBACK_GRAPH_PATH);

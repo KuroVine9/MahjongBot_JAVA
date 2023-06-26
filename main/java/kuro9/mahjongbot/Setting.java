@@ -35,6 +35,9 @@ public record Setting() {
     public static String IMAGE_NYANGLASS_PATH;
     public static String MAHJONG_BASE_PATH;
     public static String FALLBACK_GRAPH_PATH;
+    public static String DB_URL;
+    public static String DB_USER;
+    public static String DB_PASSWORD;
 
     public static void init() {
         JSONParser parser = new JSONParser();
@@ -66,6 +69,9 @@ public record Setting() {
         IMAGE_NYANGLASS_PATH = jsonObject.get("IMAGE_NYANGLASS_PATH").toString();
         MAHJONG_BASE_PATH = jsonObject.get("MAHJONG_BASE_PATH").toString();
         FALLBACK_GRAPH_PATH = jsonObject.get("FALLBACK_GRAPH_PATH").toString();
+        DB_URL = jsonObject.get("DB_URL").toString();
+        DB_USER = jsonObject.get("DB_USER").toString();
+        DB_PASSWORD = jsonObject.get("DB_PASSWORD").toString();
 
 
         JSONArray jsonArray = (JSONArray) jsonObject.get("UMA");

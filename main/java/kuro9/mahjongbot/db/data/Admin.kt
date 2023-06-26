@@ -4,6 +4,6 @@ import kuro9.mahjongbot.annotation.GuildRes
 import kuro9.mahjongbot.annotation.UserRes
 
 data class Admin(
-    @UserRes val userID: ULong,
-    @GuildRes val guildID: ULong
+    @UserRes val userID: Long,
+    @GuildRes val guildID: Long
 )

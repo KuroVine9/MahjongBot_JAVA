@@ -1,7 +1,5 @@
 package kuro9.mahjongbot.annotation
 
-import jdk.internal.org.objectweb.asm.TypeReference.LOCAL_VARIABLE
-
 
 @Target(
     AnnotationTarget.FIELD,
