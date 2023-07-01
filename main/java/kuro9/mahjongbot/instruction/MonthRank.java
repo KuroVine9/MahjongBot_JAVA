@@ -3,7 +3,7 @@ package kuro9.mahjongbot.instruction;
 import kuro9.mahjongbot.Logger;
 import kuro9.mahjongbot.ResourceHandler;
 import kuro9.mahjongbot.ScoreProcess;
-import kuro9.mahjongbot.UserGameData;
+import kuro9.mahjongbot.data.UserGameData;
 import kuro9.mahjongbot.instruction.action.RankInterface;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;

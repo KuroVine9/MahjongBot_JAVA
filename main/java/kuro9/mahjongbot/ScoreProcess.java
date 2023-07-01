@@ -3,6 +3,7 @@ package kuro9.mahjongbot;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvException;
+import kuro9.mahjongbot.data.UserGameData;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -18,6 +19,7 @@ import java.util.stream.IntStream;
 /**
  * 게임 데이터를 처리하기 위한 핸들러 클래스입니다.
  */
+@Deprecated(forRemoval = true)
 public class ScoreProcess {
 
     /**
@@ -52,7 +54,8 @@ public class ScoreProcess {
 
             csv.writeNext(str);
             csv.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             return -2;
         }
         return (int) line_count;
@@ -78,7 +81,8 @@ public class ScoreProcess {
             ostream = new ObjectOutputStream(new FileOutputStream(Setting.getValidHalfDataPath()));
             ostream.writeObject(getUserDataList((((month - 1) / 6) + 1), year, month, year));
             ostream.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             Logger.addSystemErrorEvent("revalid-io-err");
         }
     }
@@ -91,10 +95,10 @@ public class ScoreProcess {
      * @param end_month    끝 월
      * @param end_year     끝 년도
      * @param isdatesearch 코드 재사용을 위한 내부 매개변수
-     * @return {@link UserGameData}     형 유저 데이터 리스트
+     * @return {@link kuro9.mahjongbot.data.UserGameData}     형 유저 데이터 리스트
      */
-    private static HashMap<String, UserGameData> processUserData(int start_month, int start_year, int end_month, int end_year, boolean isdatesearch) {
-        HashMap<String, UserGameData> uma_table = new HashMap<>();
+    private static HashMap<String, kuro9.mahjongbot.data.UserGameData> processUserData(int start_month, int start_year, int end_month, int end_year, boolean isdatesearch) {
+        HashMap<String, kuro9.mahjongbot.data.UserGameData> uma_table = new HashMap<>();
         try {
             CSVReader csv = new CSVReader(new FileReader(Setting.DATA_PATH));
             csv.skip(1);
@@ -104,7 +108,7 @@ public class ScoreProcess {
                 if (!isdatesearch || ((start_year <= search_year && search_year <= end_year) && (start_month <= search_month && search_month <= end_month))) {
                     for (int i = 2; i < 10; i += 2) {
                         if (!uma_table.containsKey(line[i])) {
-                            UserGameData user = new UserGameData(line[i]);
+                            kuro9.mahjongbot.data.UserGameData user = new kuro9.mahjongbot.data.UserGameData(line[i]);
                             user.addGameData(Integer.parseInt(line[i + 1]), (i / 2));
                             uma_table.put(line[i], user);
                         }
@@ -115,7 +119,8 @@ public class ScoreProcess {
                 }
             }
 
-        } catch (IOException | CsvException e) {
+        }
+        catch (IOException | CsvException e) {
             Logger.addSystemErrorEvent("process-data-io-err");
         }
 
@@ -125,9 +130,9 @@ public class ScoreProcess {
     /**
      * 전체 기간 동안의 유저 데이터 리스트를 반환합니다.
      *
-     * @return {@link UserGameData} 형 유저 데이터 리스트
+     * @return {@link kuro9.mahjongbot.data.UserGameData} 형 유저 데이터 리스트
      */
-    public static HashMap<String, UserGameData> getUserDataList() {
+    public static HashMap<String, kuro9.mahjongbot.data.UserGameData> getUserDataList() {
         return processUserData(0, 0, 0, 0, false);
     }
 
@@ -136,9 +141,9 @@ public class ScoreProcess {
      *
      * @param month 검색할 월
      * @param year  검색할 년도
-     * @return {@link UserGameData} 형 유저 데이터 리스트
+     * @return {@link kuro9.mahjongbot.data.UserGameData} 형 유저 데이터 리스트
      */
-    public static HashMap<String, UserGameData> getUserDataList(int month, int year) {
+    public static HashMap<String, kuro9.mahjongbot.data.UserGameData> getUserDataList(int month, int year) {
         return processUserData(month, year, month, year, true);
     }
 
@@ -149,7 +154,7 @@ public class ScoreProcess {
      * @param start_year  시작 년도
      * @param end_month   끝 월
      * @param end_year    끝 년도
-     * @return {@link UserGameData}     형 유저 데이터 리스트
+     * @return {@link kuro9.mahjongbot.data.UserGameData}     형 유저 데이터 리스트
      */
     public static HashMap<String, UserGameData> getUserDataList(int start_month, int start_year, int end_month, int end_year) {
         return processUserData(start_month, start_year, end_month, end_year, true);
@@ -175,7 +180,8 @@ public class ScoreProcess {
 
             }
 
-        } catch (IOException | CsvException e) {
+        }
+        catch (IOException | CsvException e) {
             throw new RuntimeException(e);
         }
 

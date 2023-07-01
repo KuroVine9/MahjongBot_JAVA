@@ -1,6 +1,10 @@
 package kuro9.mahjongbot.instruction;
 
-import kuro9.mahjongbot.*;
+import kuro9.mahjongbot.Logger;
+import kuro9.mahjongbot.ResourceHandler;
+import kuro9.mahjongbot.ScoreProcess;
+import kuro9.mahjongbot.Setting;
+import kuro9.mahjongbot.data.UserGameData;
 import kuro9.mahjongbot.instruction.action.StatInterface;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
@@ -20,7 +24,7 @@ public class SeasonStat extends StatArranger implements StatInterface {
     public void action(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
-        HashMap<String, UserGameData> data_list;
+        HashMap<String, kuro9.mahjongbot.data.UserGameData> data_list;
 
         int season = ((event.getOption("season") == null) ?
                 ((LocalDateTime.now().getMonthValue() - 1) / 6) + 1 :
@@ -36,7 +40,7 @@ public class SeasonStat extends StatArranger implements StatInterface {
 
         try {
             ObjectInputStream istream = new ObjectInputStream(new FileInputStream(Setting.getValidHalfDataPath(season, year)));
-            data_list = (HashMap<String, UserGameData>) istream.readObject();
+            data_list = (HashMap<String, kuro9.mahjongbot.data.UserGameData>) istream.readObject();
         }
         catch (IOException | ClassNotFoundException e) {
             data_list = ScoreProcess.getUserDataList(start_month, year, end_month, year);
@@ -44,7 +48,7 @@ public class SeasonStat extends StatArranger implements StatInterface {
 
         String finalName = getValidUser(event).getName();
 
-        UserGameData user = Optional.ofNullable(data_list.get(finalName)).orElseGet(() -> new UserGameData(finalName));
+        kuro9.mahjongbot.data.UserGameData user = Optional.ofNullable(data_list.get(finalName)).orElseGet(() -> new UserGameData(finalName));
         user.updateAllData();
 
         int rank = getRank(data_list, finalName);

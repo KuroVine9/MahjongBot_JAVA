@@ -3,7 +3,7 @@ package kuro9.mahjongbot.instruction;
 import kuro9.mahjongbot.HeadlessGraphProcess;
 import kuro9.mahjongbot.ResourceHandler;
 import kuro9.mahjongbot.Setting;
-import kuro9.mahjongbot.UserGameData;
+import kuro9.mahjongbot.data.UserGameData;
 import kuro9.mahjongbot.instruction.action.StatInterface;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;

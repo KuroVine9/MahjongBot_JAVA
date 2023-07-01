@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kuro9.mahjongbot.Setting
 import kuro9.mahjongbot.annotation.GuildRes
+import kuro9.mahjongbot.annotation.UserRes
 import kuro9.mahjongbot.db.data.Game
 import kuro9.mahjongbot.db.data.GameResult
 import java.sql.SQLException
@@ -24,6 +25,7 @@ object DBHandler {
     private const val addScoreQuery = "CALL add_score(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
     private const val addGameGroupQuery = "CALL add_group(?, ?, ?)"
     private const val selectGameResultQuery = "CALL select_record(?, ?, ?, ?, ?)"
+    private const val selectRecentGameResultQuery = "CALL recent_ten_record(?, ?, ?, ?, ?)"
 
 
     /**
@@ -106,8 +108,8 @@ object DBHandler {
      * @return 게임 결과 List. db connection error시 null
      */
     fun selectGameResult(
-        startDate: Timestamp = Timestamp.valueOf("2002-10-24 00:00:00"),
-        endDate: Timestamp = Timestamp(System.currentTimeMillis()),
+        startDate: Timestamp? = null,
+        endDate: Timestamp? = null,
         @GuildRes guildID: Long,
         gameGroup: String = "",
         filterGameCount: Int = 0
@@ -121,8 +123,8 @@ object DBHandler {
             dataSource.connection.use { connection ->
                 connection.prepareCall(selectGameResultQuery).use { call ->
                     with(call) {
-                        setTimestamp(1, startDate)
-                        setTimestamp(2, endDate)
+                        setTimestamp(1, startDate ?: Timestamp.valueOf("2002-10-24 00:00:00"))
+                        setTimestamp(2, endDate ?: Timestamp(System.currentTimeMillis()))
                         setLong(3, guildID)
                         setString(4, gameGroup)
                         setInt(5, filterGameCount)
@@ -136,6 +138,59 @@ object DBHandler {
                                             userID = getLong(2),
                                             rank = getInt(3),
                                             score = getInt(4)
+                                        )
+                                    )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (e: SQLException) {
+            e.printStackTrace()
+            return null
+        }
+
+        return gameResultList
+    }
+
+    /**
+     * 게임 결과를 조회합니다.
+     * @param guildID 조회할 서버 ID
+     * @param userID 조회할 유저 ID
+     * @param startDate 조회 날짜 범위 시작
+     * @param endDate 조회 날짜 범위 끝
+     * @param gameGroup 조회할 게임 그룹
+     * @return 게임 결과 List. db connection error시 null
+     */
+    fun selectRecentGameResult(
+        @GuildRes guildID: Long,
+        @UserRes userID: Long,
+        startDate: Timestamp? = null,
+        endDate: Timestamp? = null,
+        gameGroup: String = "",
+    ): List<GameResult>? {
+        val gameResultList = mutableListOf<GameResult>()
+
+        try {
+            dataSource.connection.use { connection ->
+                connection.prepareCall(selectRecentGameResultQuery).use { call ->
+                    with(call) {
+                        setTimestamp(1, startDate ?: Timestamp.valueOf("2002-10-24 00:00:00"))
+                        setTimestamp(2, endDate ?: Timestamp(System.currentTimeMillis()))
+                        setLong(3, guildID)
+                        setLong(4, userID)
+                        setString(5, gameGroup)
+
+                        executeQuery().use { resultSet ->
+                            with(resultSet) {
+                                while (next())
+                                    gameResultList.add(
+                                        GameResult(
+                                            gameID = getInt("game_id"),
+                                            userID = getLong("user_id"),
+                                            rank = getInt("rank"),
+                                            score = getInt("score")
                                         )
                                     )
                             }
