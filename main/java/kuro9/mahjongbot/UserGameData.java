@@ -3,6 +3,7 @@ package kuro9.mahjongbot;
 import java.io.Serializable;
 import java.util.Arrays;
 
+@Deprecated(forRemoval = true)
 public class UserGameData implements Serializable {
     public final String name;
     public double total_uma;

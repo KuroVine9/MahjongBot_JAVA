@@ -141,37 +141,38 @@ public class InstructionToJSON {
                         ).toData().toJson()
         ));
         command_list.add(new String(
-                Commands.slash("rank", resourceEN.getString("rank.description"))
+                Commands.slash("season_rank", resourceEN.getString("season_rank.description"))
                         .setLocalizationFunction(localizationFunction)
                         .addOptions(
                                 new OptionData(
-                                        INTEGER, "type", resourceEN.getString("rank.options.type.description")
+                                        INTEGER, "type", resourceEN.getString("season_rank.options.type.description")
                                 ).addChoices(
                                         new Command.Choice("summary", 0)
-                                                .setNameLocalization(DiscordLocale.KOREAN, resourceKR.getString("rank.options.type.choices.summary.name"))
-                                                .setNameLocalization(DiscordLocale.JAPANESE, resourceJP.getString("rank.options.type.choices.summary.name"))
+                                                .setNameLocalization(DiscordLocale.KOREAN, resourceKR.getString("season_rank.options.type.choices.summary.name"))
+                                                .setNameLocalization(DiscordLocale.JAPANESE, resourceJP.getString("season_rank.options.type.choices.summary.name"))
                                         ,
                                         new Command.Choice("uma", 1)
-                                                .setNameLocalization(DiscordLocale.KOREAN, resourceKR.getString("rank.options.type.choices.uma.name"))
-                                                .setNameLocalization(DiscordLocale.JAPANESE, resourceJP.getString("rank.options.type.choices.uma.name"))
+                                                .setNameLocalization(DiscordLocale.KOREAN, resourceKR.getString("season_rank.options.type.choices.uma.name"))
+                                                .setNameLocalization(DiscordLocale.JAPANESE, resourceJP.getString("season_rank.options.type.choices.uma.name"))
                                         ,
                                         new Command.Choice("total_game_count", 2)
-                                                .setNameLocalization(DiscordLocale.KOREAN, resourceKR.getString("rank.options.type.choices.total_game_count.name"))
-                                                .setNameLocalization(DiscordLocale.JAPANESE, resourceJP.getString("rank.options.type.choices.total_game_count.name"))
+                                                .setNameLocalization(DiscordLocale.KOREAN, resourceKR.getString("season_rank.options.type.choices.total_game_count.name"))
+                                                .setNameLocalization(DiscordLocale.JAPANESE, resourceJP.getString("season_rank.options.type.choices.total_game_count.name"))
                                 ),
-                                new OptionData(INTEGER, "season", resourceEN.getString("rank.options.season.description"))
+                                new OptionData(INTEGER, "season", resourceEN.getString("season_rank.options.season.description"))
                                         .addChoices(
                                                 new Command.Choice("1-6", 1)
-                                                        .setNameLocalization(DiscordLocale.KOREAN, resourceKR.getString("rank.options.season.choices.1-6.name"))
-                                                        .setNameLocalization(DiscordLocale.JAPANESE, resourceJP.getString("rank.options.season.choices.1-6.name"))
+                                                        .setNameLocalization(DiscordLocale.KOREAN, resourceKR.getString("season_rank.options.season.choices.1-6.name"))
+                                                        .setNameLocalization(DiscordLocale.JAPANESE, resourceJP.getString("season_rank.options.season.choices.1-6.name"))
                                                 ,
                                                 new Command.Choice("7-12", 2)
-                                                        .setNameLocalization(DiscordLocale.KOREAN, resourceKR.getString("rank.options.season.choices.7-12.name"))
-                                                        .setNameLocalization(DiscordLocale.JAPANESE, resourceJP.getString("rank.options.season.choices.7-12.name"))
+                                                        .setNameLocalization(DiscordLocale.KOREAN, resourceKR.getString("season_rank.options.season.choices.7-12.name"))
+                                                        .setNameLocalization(DiscordLocale.JAPANESE, resourceJP.getString("season_rank.options.season.choices.7-12.name"))
 
                                         ),
-                                new OptionData(INTEGER, "year", resourceEN.getString("rank.options.year.description")),
-                                new OptionData(INTEGER, "filter", resourceEN.getString("rank.options.filter.description"))
+                                new OptionData(INTEGER, "year", resourceEN.getString("season_rank.options.year.description")),
+                                new OptionData(STRING, "game_group", resourceEN.getString("season_rank.options.game_group.description")),
+                                new OptionData(INTEGER, "filter", resourceEN.getString("season_rank.options.filter.description"))
                         ).toData().toJson()
         ));
         Setting.init();

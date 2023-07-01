@@ -32,6 +32,6 @@ data class UserGameData(@UserRes val id: Long) {
         get() = round(totalUma / gameCount, 2)
 
     fun addGameData(score: Int, @IntRange(1, 4) rank: Int) {
-        _totalUma += (kotlin.math.round((score - Setting.RETURN_POINT) / 1000.0 + Setting.UMA[rank - 1]) * 10).toLong()
+        _totalUma += (((score - Setting.RETURN_POINT) / 1000.0 + Setting.UMA[rank - 1]) * 10).toLong()
     }
 }
