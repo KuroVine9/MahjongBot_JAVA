@@ -5,7 +5,7 @@ import kuro9.mahjongbot.annotation.UserRes
 
 
 data class GameResult(
-    val gameID: Long = 0,
+    val gameID: Int = 0,
     @UserRes val userID: Long,
     @IntRange(1, 4) val rank: Int,
     val score: Int

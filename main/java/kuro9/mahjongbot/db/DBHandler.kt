@@ -1,89 +1,71 @@
 package kuro9.mahjongbot.db
 
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import kuro9.mahjongbot.Setting
 import kuro9.mahjongbot.annotation.GuildRes
 import kuro9.mahjongbot.db.data.Game
 import kuro9.mahjongbot.db.data.GameResult
-import java.sql.CallableStatement
-import java.sql.Connection
-import java.sql.DriverManager
+import java.sql.SQLException
+import java.sql.Timestamp
 import java.sql.Types
 
 
 object DBHandler {
-
-    private var db: Connection? = null
-    private lateinit var addScorePS: CallableStatement
-    private lateinit var addGameGroupPS: CallableStatement
-
-    private val isConnected: Boolean
-        get() = (db !== null) && (db?.isValid(1) ?: false)
-
-    @Volatile
-    private var isConnecting: Boolean = false
-
-
-    init {
-        connect()
-    }
-
-    private fun connect() {
-        if (isConnecting || isConnected) return
-        isConnecting = true
-
-        kotlin.runCatching {
-            Class.forName("com.mysql.cj.jdbc.Driver")
-            db = DriverManager.getConnection(
-                Setting.DB_URL,
-                Setting.DB_USER,
-                Setting.DB_PASSWORD
-            )
-        }.onFailure {
-            println("[DBHandler] Connect Fail.")
-        }.onSuccess {
-            println("[DBHandler] Connected!")
-            isConnecting = false
-            db!!.apply {
-                addScorePS = prepareCall("CALL add_score(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-                addGameGroupPS = prepareCall("CALL add_group(?, ?, ?)")
-            }
+    private var dataSource: HikariDataSource = HikariDataSource(
+        HikariConfig().apply {
+            jdbcUrl = Setting.DB_URL
+            username = Setting.DB_USER
+            password = Setting.DB_PASSWORD
+            maximumPoolSize = 8
         }
+    )
 
-    }
+    private const val addScoreQuery = "CALL add_score(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    private const val addGameGroupQuery = "CALL add_group(?, ?, ?)"
+    private const val selectGameResultQuery = "CALL select_record(?, ?, ?, ?, ?)"
+
 
     /**
      * 점수를 추가합니다.
      * @param game [Game] 객체
      * @param result size가 4인 [GameResult] 객체 배열
-     * @return 현재 guild && game group에서의 국 수, SQL INSERT 에러 시 -1, game group가 존재하지 않을 시 -2, DB 연결에러 시 -100, 파라미터 에러 시 -101
+     * @return 현재 guild && game group에서의 국 수, SQL INSERT 에러 시 -1, game group가 존재하지 않을 시 -2, DB 연결에러 시 -100, 파라미터 에러 시 <= -101
+     * (4명이 아닐 시 -101, 점수별 정렬되어있지 않을 시 -102, 점수 합이 10만점이 아닐 시 -103)
      */
-    fun addScore(game: Game, result: Array<GameResult>): Int {
-        connect()
-        if (!isConnected) return -100
+    fun addScore(game: Game, result: Collection<GameResult>): Int {
         if (result.size != 4) return -101 //파라미터 에러
-        if (result.withIndex().all { (index, gameResult) -> gameResult.rank != index + 1 }) return -101
-        if (result.map { it.score }.reduce { acc, now -> acc + now } != 100000) return -101
+        if (result.withIndex().all { (index, gameResult) -> gameResult.rank != index + 1 }) return -102
+        if (result.map { it.score }.reduce { acc, now -> acc + now } != 100000) return -103
         // statement에 따라 다른 에러코드 return
 
+        try {
+            dataSource.connection.use { connection ->
+                connection.prepareCall(addScoreQuery).use { call ->
+                    with(call) {
+                        setLong(1, game.guildID)
+                        setString(2, game.gameGroup)
+                        setLong(3, game.addedBy)
 
-        addScorePS.apply {
-            setLong(1, game.guildID)
-            setString(2, game.gameGroup)
-            setLong(3, game.addedBy)
+                        result.forEach {
+                            setLong(it.rank * 2 + 2, it.userID)
+                            setInt(it.rank * 2 + 3, it.score)
+                        }
 
-            result.forEach {
-                setLong(it.rank * 2 + 2, it.userID)
-                setInt(it.rank * 2 + 3, it.score)
+                        registerOutParameter(12, Types.INTEGER)
+
+                        executeUpdate()
+                        return getInt(12)
+                    }
+                }
             }
-
-            registerOutParameter(12, Types.INTEGER)
         }
-
-        addScorePS.executeUpdate()
-        val gameCount: Int = addScorePS.getInt(12)
-        print(gameCount)
-        return gameCount
+        catch (e: SQLException) {
+            e.printStackTrace()
+            return -100
+        }
     }
+
 
     /**
      * 새 게임 그룹을 추가합니다.
@@ -92,16 +74,85 @@ object DBHandler {
      * @return 성공여부. 성공 시 0, 실패 시 -1, DB 연결에러 시 -100, 파라미터 에러 시 -101
      */
     fun addGameGroup(@GuildRes guildID: Long, groupName: String): Int {
-        connect()
-        if (!isConnected) return -100
-        if (Regex("^[A-Za-z0-9_]{1,15}$").matchEntire(groupName) === null) return -101
+        if (!checkGameGroup(groupName)) return -101
 
-        addGameGroupPS.apply {
-            setLong(1, guildID)
-            setString(2, groupName)
-            registerOutParameter(3, Types.INTEGER)
+        try {
+            dataSource.connection.use { connection ->
+                connection.prepareCall(addGameGroupQuery).use { call ->
+                    with(call) {
+                        setLong(1, guildID)
+                        setString(2, groupName)
+                        registerOutParameter(3, Types.INTEGER)
+
+                        executeUpdate()
+                        return getInt(3)
+                    }
+                }
+            }
         }
-        addGameGroupPS.executeUpdate()
-        return addGameGroupPS.getInt(3)
+        catch (e: SQLException) {
+            e.printStackTrace()
+            return -100
+        }
     }
+
+    /**
+     * 게임 결과를 조회합니다.
+     * @param startDate 조회 날짜 범위 시작
+     * @param endDate 조회 날짜 범위 끝
+     * @param guildID 조회할 서버 ID
+     * @param gameGroup 조회할 게임 그룹
+     * @param filterGameCount 필터링할 국 수
+     * @return 게임 결과 List. db connection error시 null
+     */
+    fun selectGameResult(
+        startDate: Timestamp = Timestamp.valueOf("2002-10-24 00:00:00"),
+        endDate: Timestamp = Timestamp(System.currentTimeMillis()),
+        @GuildRes guildID: Long,
+        gameGroup: String = "",
+        filterGameCount: Int = 0
+    ): List<GameResult>? {
+        val gameResultList = mutableListOf<GameResult>()
+
+        // 파라미터 체크
+        if (!checkGameGroup(gameGroup)) return gameResultList
+
+        try {
+            dataSource.connection.use { connection ->
+                connection.prepareCall(selectGameResultQuery).use { call ->
+                    with(call) {
+                        setTimestamp(1, startDate)
+                        setTimestamp(2, endDate)
+                        setLong(3, guildID)
+                        setString(4, gameGroup)
+                        setInt(5, filterGameCount)
+
+                        executeQuery().use { resultSet ->
+                            with(resultSet) {
+                                while (next())
+                                    gameResultList.add(
+                                        GameResult(
+                                            gameID = getInt(1),
+                                            userID = getLong(2),
+                                            rank = getInt(3),
+                                            score = getInt(4)
+                                        )
+                                    )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (e: SQLException) {
+            e.printStackTrace()
+            return null
+        }
+
+        return gameResultList
+    }
+
+    private fun checkGameGroup(gameGroup: String): Boolean =
+        Regex("^[A-Za-z0-9_]{0,15}$").matchEntire(gameGroup) !== null
+
 }
