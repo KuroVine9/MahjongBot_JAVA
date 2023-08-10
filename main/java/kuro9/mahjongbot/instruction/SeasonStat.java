@@ -1,5 +1,6 @@
 package kuro9.mahjongbot.instruction;
 
+import kuro9.mahjongbot.exception.DBConnectException;
 import kuro9.mahjongbot.DBScoreProcess;
 import kuro9.mahjongbot.Logger;
 import kuro9.mahjongbot.ResourceHandler;
@@ -45,7 +46,14 @@ public class SeasonStat extends StatArranger implements StatInterface {
         }
         else guildID = event.getOption("guild").getAsLong();
 
-        data_list = DBScoreProcess.INSTANCE.getSelectedUserData(guildID, start_month, year, end_month, year, gameGroup, 0);
+        try {
+            data_list = DBScoreProcess.INSTANCE.getSelectedUserData(guildID, start_month, year, end_month, year, gameGroup, 0);
+        }
+        catch (DBConnectException e) {
+            e.printStackTrace();
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).queue();
+            return;
+        }
 
 
         UserGameData user = Optional.ofNullable(data_list.get(userID)).orElseGet(() -> new UserGameData(userID));
@@ -56,7 +64,7 @@ public class SeasonStat extends StatArranger implements StatInterface {
         event.getHook().sendMessageEmbeds(
                 getEmbed(
                         user,
-                        String.format(resourceBundle.getString("season_stat.embed.title"), rank, year, season, getValidUser(event).getAsMention()),
+                        String.format(resourceBundle.getString("season_stat.embed.title"), rank, year, season, getValidUser(event).getEffectiveName()),
                         getValidUser(event).getEffectiveAvatarUrl(),
                         event.getUserLocale()
                 ).build()

@@ -73,10 +73,11 @@ public class InstructionToJSON {
                                 new OptionData(INTEGER, "year", resourceEN.getString("month_stat.options.year.description"))
                         ).toData().toJson()));
         command_list.add(new String(
-                Commands.slash("stat", resourceEN.getString("stat.description"))
+                Commands.slash("season_stat", resourceEN.getString("stat.description"))
                         .setLocalizationFunction(localizationFunction)
                         .addOptions(
                                 new OptionData(USER, "user", resourceEN.getString("stat.options.user.description")),
+                                new OptionData(STRING, "game_group", resourceEN.getString("season_rank.options.game_group.description")),
                                 new OptionData(INTEGER, "season", resourceEN.getString("stat.options.season.description"))
                                         .addChoices(
                                                 new Command.Choice("1-6", 1)
@@ -175,7 +176,7 @@ public class InstructionToJSON {
                                 new OptionData(INTEGER, "filter", resourceEN.getString("season_rank.options.filter.description"))
                         ).toData().toJson()
         ));
-        Setting.init();
+        Setting.parseString();
         PrintWriter ostream = new PrintWriter(new FileWriter(Setting.INST_PATH));
         ostream.println(
                 command_list.stream().collect(Collectors.joining(",\n\t", "[\n\t", "\n]"))

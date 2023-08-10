@@ -7,6 +7,9 @@ import kuro9.mahjongbot.annotation.GuildRes
 import kuro9.mahjongbot.annotation.UserRes
 import kuro9.mahjongbot.db.data.Game
 import kuro9.mahjongbot.db.data.GameResult
+import kuro9.mahjongbot.exception.DBConnectException
+import kuro9.mahjongbot.exception.GameGroupNotFoundException
+import kuro9.mahjongbot.exception.ParameterErrorException
 import java.sql.SQLException
 import java.sql.Timestamp
 import java.sql.Types
@@ -32,14 +35,20 @@ object DBHandler {
      * 점수를 추가합니다.
      * @param game [Game] 객체
      * @param result size가 4인 [GameResult] 객체 배열
-     * @return 현재 guild && game group에서의 국 수, SQL INSERT 에러 시 -1, game group가 존재하지 않을 시 -2, DB 연결에러 시 -100, 파라미터 에러 시 <= -101
-     * (4명이 아닐 시 -101, 점수별 정렬되어있지 않을 시 -102, 점수 합이 10만점이 아닐 시 -103)
+     * @return 현재 guild && game group에서의 국 수
+     *
+     * @throws ParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
+     * @throws GameGroupNotFoundException 등록된 game group가 아닐 때
+     * @throws DBConnectException DB 처리 중 에러가 발생할 때
      */
+    @Throws(ParameterErrorException::class, GameGroupNotFoundException::class, DBConnectException::class)
     fun addScore(game: Game, result: Collection<GameResult>): Int {
-        if (result.size != 4) return -101 //파라미터 에러
-        if (result.withIndex().all { (index, gameResult) -> gameResult.rank != index + 1 }) return -102
-        if (result.map { it.score }.reduce { acc, now -> acc + now } != 100000) return -103
-        // statement에 따라 다른 에러코드 return
+        if (result.size != 4) throw ParameterErrorException("Size is not 4!")
+        if (result.withIndex()
+                .all { (index, gameResult) -> gameResult.rank != index + 1 }
+        ) throw ParameterErrorException("Not Sorted!")
+        if (result.map { it.score }
+                .reduce { acc, now -> acc + now } != 100000) throw ParameterErrorException("Score sum is invalid!")
 
         try {
             dataSource.connection.use { connection ->
@@ -57,15 +66,19 @@ object DBHandler {
                         registerOutParameter(12, Types.INTEGER)
 
                         executeUpdate()
-                        return getInt(12)
+                        when (val gameCount: Int = getInt(12)) {
+                            -2 -> throw GameGroupNotFoundException()
+                            -1 -> throw DBConnectException("Procedure Error!")
+                            else -> return gameCount
+                        }
                     }
                 }
             }
         }
         catch (e: SQLException) {
-            e.printStackTrace()
-            return -100
+            throw DBConnectException()
         }
+
     }
 
 
@@ -73,10 +86,13 @@ object DBHandler {
      * 새 게임 그룹을 추가합니다.
      * @param guildID 길드의 id
      * @param groupName 알파벳, 숫자, 언더바로 구성된 최대 15글자의 게임그룹명
-     * @return 성공여부. 성공 시 0, 실패 시 -1, DB 연결에러 시 -100, 파라미터 에러 시 -101
+     * @return 성공 여부
+     * @throws ParameterErrorException [guildID]가 형식에 맞지 않을 때
+     * @throws DBConnectException DB 처리 중 에러가 발생할 때
      */
-    fun addGameGroup(@GuildRes guildID: Long, groupName: String): Int {
-        if (!checkGameGroup(groupName)) return -101
+    @Throws(ParameterErrorException::class, DBConnectException::class)
+    fun addGameGroup(@GuildRes guildID: Long, groupName: String): Boolean {
+        if (!checkGameGroup(groupName)) throw ParameterErrorException("Invalid form of game group name!")
 
         try {
             dataSource.connection.use { connection ->
@@ -87,14 +103,13 @@ object DBHandler {
                         registerOutParameter(3, Types.INTEGER)
 
                         executeUpdate()
-                        return getInt(3)
+                        return if (getInt(3) == 0) true else throw DBConnectException("Procedure Error!")
                     }
                 }
             }
         }
         catch (e: SQLException) {
-            e.printStackTrace()
-            return -100
+            throw DBConnectException()
         }
     }
 
@@ -105,15 +120,17 @@ object DBHandler {
      * @param guildID 조회할 서버 ID
      * @param gameGroup 조회할 게임 그룹
      * @param filterGameCount 필터링할 국 수
-     * @return 게임 결과 List. db connection error시 null
+     * @return 게임 결과 List
+     * @throws DBConnectException DB 처리 에러
      */
+    @Throws(DBConnectException::class)
     fun selectGameResult(
         startDate: Timestamp? = null,
         endDate: Timestamp? = null,
         @GuildRes guildID: Long,
         gameGroup: String = "",
         filterGameCount: Int = 0
-    ): List<GameResult>? {
+    ): List<GameResult> {
         val gameResultList = mutableListOf<GameResult>()
 
         // 파라미터 체크
@@ -147,8 +164,7 @@ object DBHandler {
             }
         }
         catch (e: SQLException) {
-            e.printStackTrace()
-            return null
+            throw DBConnectException()
         }
 
         return gameResultList
@@ -161,15 +177,17 @@ object DBHandler {
      * @param startDate 조회 날짜 범위 시작
      * @param endDate 조회 날짜 범위 끝
      * @param gameGroup 조회할 게임 그룹
-     * @return 게임 결과 List. db connection error시 null
+     * @return 게임 결과 List
+     * @throws DBConnectException DB 처리 에러
      */
+    @Throws(DBConnectException::class)
     fun selectRecentGameResult(
         @GuildRes guildID: Long,
         @UserRes userID: Long,
         startDate: Timestamp? = null,
         endDate: Timestamp? = null,
         gameGroup: String = "",
-    ): List<GameResult>? {
+    ): List<GameResult> {
         val gameResultList = mutableListOf<GameResult>()
 
         try {
@@ -200,8 +218,7 @@ object DBHandler {
             }
         }
         catch (e: SQLException) {
-            e.printStackTrace()
-            return null
+            throw DBConnectException()
         }
 
         return gameResultList

@@ -32,7 +32,7 @@ public class Add {
             embed.setColor(Color.RED);
             event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-            Logger.addErrorEvent(event, "not-guild-msg");
+            Logger.addErrorEvent(event, Logger.NOT_GUILD_MSG);
             return;
         }
 
@@ -58,7 +58,7 @@ public class Add {
                 embed.setColor(Color.RED);
                 event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
 
-                Logger.addErrorEvent(event, "parameter-err");
+                Logger.addErrorEvent(event, Logger.PARAM_ERR);
             }
             case -2 -> {    // IOEXCEPTION
                 EmbedBuilder embed = new EmbedBuilder();

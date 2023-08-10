@@ -88,7 +88,7 @@ public class GraphProcess extends JFrame {
                 ImageIO.write(image, "png", new File(Setting.GRAPH_PATH));
             }
             catch (IOException e) {
-                Logger.addSystemErrorEvent("image-generate-err");
+                Logger.addSystemErrorEvent(Logger.IMAGE_GEN_ERR);
                 throw new RuntimeException(e);
             }
         }

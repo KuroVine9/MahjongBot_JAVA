@@ -41,7 +41,7 @@ public class MahjongCalc {
             );
             embed.setColor(Color.RED);
             event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
-            Logger.addErrorEvent(event, "parameter-err");
+            Logger.addErrorEvent(event, Logger.PARAM_ERR);
             return;
         }
         ArrayList<Integer> hand_list = MachiCalculator.getIntList(hand);
@@ -59,7 +59,7 @@ public class MahjongCalc {
             );
             embed.setColor(Color.RED);
             event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
-            Logger.addErrorEvent(event, "hand-img-gen-err");
+            Logger.addErrorEvent(event, Logger.HAND_IMG_GEN_ERR);
             return;
         }
         event.deferReply().queue();

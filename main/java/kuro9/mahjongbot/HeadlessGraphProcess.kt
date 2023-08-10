@@ -1,5 +1,6 @@
 package kuro9.mahjongbot
 
+import com.mysql.cj.log.Log
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.geom.Line2D
@@ -33,7 +34,7 @@ class HeadlessGraphProcess() {
             background =
                 ImageIO.read(File(Setting.IMAGE_BACKGROUND_PATH))
         } catch (e: IOException) {
-            Logger.addSystemErrorEvent("image-generate-err");
+            Logger.addSystemErrorEvent(Logger.IMAGE_GEN_ERR);
             e.printStackTrace();
             return false;
         }
@@ -69,7 +70,7 @@ class HeadlessGraphProcess() {
             val outputFile = File(Setting.GRAPH_PATH)
             ImageIO.write(image, "png", outputFile)
         } catch (e: IOException) {
-            Logger.addSystemErrorEvent("image-generate-err");
+            Logger.addSystemErrorEvent(Logger.IMAGE_GEN_ERR);
             e.printStackTrace()
             return false;
         }

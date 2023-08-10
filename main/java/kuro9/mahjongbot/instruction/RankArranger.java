@@ -1,9 +1,13 @@
 package kuro9.mahjongbot.instruction;
 
-import kuro9.mahjongbot.ResourceHandler;
-import kuro9.mahjongbot.ScoreProcess;
+import kuro9.mahjongbot.*;
+import kuro9.mahjongbot.annotation.GuildRes;
+import kuro9.mahjongbot.annotation.IntRange;
 import kuro9.mahjongbot.data.UserGameData;
+import kuro9.mahjongbot.data.UserGameDataComparatorKt;
+import kuro9.mahjongbot.exception.DBConnectException;
 import kuro9.mahjongbot.instruction.action.RankInterface;
+import kuro9.mahjongbot.instruction.util.GameDataParse;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -12,6 +16,7 @@ import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Function;
@@ -19,7 +24,7 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class RankArranger implements RankInterface {
+public abstract class RankArranger extends GameDataParse implements RankInterface {
 
     protected static int getValidMonth(GenericInteractionCreateEvent event) {
         if (event instanceof SlashCommandInteractionEvent s) {
@@ -78,122 +83,84 @@ public abstract class RankArranger implements RankInterface {
         ResourceBundle resourceBundle = ResourceHandler.getResource(locale);
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle(title);
-        sorted_list = sorted_list.stream().sorted(
-                (dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
-        ).toList();
+        sorted_list.sort(UserGameDataComparatorKt::compareWithUma);
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.total_uma_de"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
-                        sorted_list.get(0).name, sorted_list.get(0).total_uma,
-                        sorted_list.get(1).name, sorted_list.get(1).total_uma,
-                        sorted_list.get(2).name, sorted_list.get(2).total_uma
+                        sorted_list.get(0).getUserName(), sorted_list.get(0).getTotalUma(),
+                        sorted_list.get(1).getUserName(), sorted_list.get(1).getTotalUma(),
+                        sorted_list.get(2).getUserName(), sorted_list.get(2).getTotalUma()
                 ),
                 true
         );
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.total_uma_as"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
-                        sorted_list.get(sorted_list.size() - 1).name, sorted_list.get(sorted_list.size() - 1).total_uma,
-                        sorted_list.get(sorted_list.size() - 2).name, sorted_list.get(sorted_list.size() - 2).total_uma,
-                        sorted_list.get(sorted_list.size() - 3).name, sorted_list.get(sorted_list.size() - 3).total_uma
+                        sorted_list.get(sorted_list.size() - 1).getUserName(), sorted_list.get(sorted_list.size() - 1).getTotalUma(),
+                        sorted_list.get(sorted_list.size() - 2).getUserName(), sorted_list.get(sorted_list.size() - 2).getTotalUma(),
+                        sorted_list.get(sorted_list.size() - 3).getUserName(), sorted_list.get(sorted_list.size() - 3).getTotalUma()
                 ),
                 true
         );
-        sorted_list = sorted_list.stream().sorted(
-                (dataA, dataB) -> (int) (dataB.game_count - dataA.game_count)
-        ).toList();
+        sorted_list.sort(UserGameDataComparatorKt::compareWithGameCount);
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.total_game_count.title"),
                 String.format(resourceBundle.getString("rank_arranger.embed.total_game_count.field"),
-                        sorted_list.get(0).name, sorted_list.get(0).game_count,
-                        sorted_list.get(1).name, sorted_list.get(1).game_count,
-                        sorted_list.get(2).name, sorted_list.get(2).game_count
+                        sorted_list.get(0).getUserName(), sorted_list.get(0).getGameCount(),
+                        sorted_list.get(1).getUserName(), sorted_list.get(1).getGameCount(),
+                        sorted_list.get(2).getUserName(), sorted_list.get(2).getGameCount()
                 ),
                 true
         );
-        sorted_list = sorted_list.stream().sorted(
-                (dataA, dataB) -> (int) ((dataB.rank_pp[4] * 100) - (dataA.rank_pp[4] * 100))
-        ).toList();
+        sorted_list.sort(UserGameDataComparatorKt::compareWithTobi);
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.tobi"),
                 String.format("%s : %.1f%%\n%s : %.1f%%\n%s : %.1f%%",
-                        sorted_list.get(0).name, sorted_list.get(0).rank_pp[4],
-                        sorted_list.get(1).name, sorted_list.get(1).rank_pp[4],
-                        sorted_list.get(2).name, sorted_list.get(2).rank_pp[4]
+                        sorted_list.get(0).getUserName(), sorted_list.get(0).getRankPercentage()[4],
+                        sorted_list.get(1).getUserName(), sorted_list.get(1).getRankPercentage()[4],
+                        sorted_list.get(2).getUserName(), sorted_list.get(2).getRankPercentage()[4]
                 ),
                 true
         );
-        sorted_list = sorted_list.stream().sorted(
-                (dataA, dataB) -> (int) ((dataA.avg_rank * 100) - (dataB.avg_rank * 100))
-        ).toList();
+        sorted_list.sort(UserGameDataComparatorKt::compareWithAvgRank);
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.avg_rank_de"),
                 String.format("%s : %.2f\n%s : %.2f\n%s : %.2f",
-                        sorted_list.get(0).name, sorted_list.get(0).avg_rank,
-                        sorted_list.get(1).name, sorted_list.get(1).avg_rank,
-                        sorted_list.get(2).name, sorted_list.get(2).avg_rank
+                        sorted_list.get(0).getUserName(), sorted_list.get(0).getAvgRank(),
+                        sorted_list.get(1).getUserName(), sorted_list.get(1).getAvgRank(),
+                        sorted_list.get(2).getUserName(), sorted_list.get(2).getAvgRank()
                 ),
                 true
         );
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.avg_rank_as"),
                 String.format("%s : %.2f\n%s : %.2f\n%s : %.2f",
-                        sorted_list.get(sorted_list.size() - 1).name, sorted_list.get(sorted_list.size() - 1).avg_rank,
-                        sorted_list.get(sorted_list.size() - 2).name, sorted_list.get(sorted_list.size() - 2).avg_rank,
-                        sorted_list.get(sorted_list.size() - 3).name, sorted_list.get(sorted_list.size() - 3).avg_rank
+                        sorted_list.get(sorted_list.size() - 1).getUserName(), sorted_list.get(sorted_list.size() - 1).getAvgRank(),
+                        sorted_list.get(sorted_list.size() - 2).getUserName(), sorted_list.get(sorted_list.size() - 2).getAvgRank(),
+                        sorted_list.get(sorted_list.size() - 3).getUserName(), sorted_list.get(sorted_list.size() - 3).getAvgRank()
                 ),
                 true
         );
-        sorted_list = sorted_list.stream().sorted(
-                (dataA, dataB) -> (int) ((dataB.avg_uma * 100) - (dataA.avg_uma * 100))
-        ).toList();
+        sorted_list.sort(UserGameDataComparatorKt::compareWithAvgUma);
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.avg_uma_de"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
-                        sorted_list.get(0).name, sorted_list.get(0).avg_uma,
-                        sorted_list.get(1).name, sorted_list.get(1).avg_uma,
-                        sorted_list.get(2).name, sorted_list.get(2).avg_uma
+                        sorted_list.get(0).getUserName(), sorted_list.get(0).getAvgUma(),
+                        sorted_list.get(1).getUserName(), sorted_list.get(1).getAvgUma(),
+                        sorted_list.get(2).getUserName(), sorted_list.get(2).getAvgUma()
                 ),
                 true
         );
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.avg_uma_as"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
-                        sorted_list.get(sorted_list.size() - 1).name, sorted_list.get(sorted_list.size() - 1).avg_uma,
-                        sorted_list.get(sorted_list.size() - 2).name, sorted_list.get(sorted_list.size() - 2).avg_uma,
-                        sorted_list.get(sorted_list.size() - 3).name, sorted_list.get(sorted_list.size() - 3).avg_uma
+                        sorted_list.get(sorted_list.size() - 1).getUserName(), sorted_list.get(sorted_list.size() - 1).getAvgUma(),
+                        sorted_list.get(sorted_list.size() - 2).getUserName(), sorted_list.get(sorted_list.size() - 2).getAvgUma(),
+                        sorted_list.get(sorted_list.size() - 3).getUserName(), sorted_list.get(sorted_list.size() - 3).getAvgUma()
                 ),
                 true
         );
         return embed;
-    }
-
-    protected static List<UserGameData> getSortedTotalGameList(int filter) {
-        return ScoreProcess.getUserDataList().values().stream()
-                .peek(UserGameData::updateAllData)
-                .filter(data -> data.game_count >= filter)
-                .sorted((dataA, dataB) -> (dataB.game_count - dataA.game_count)
-                ).toList();
-    }
-
-    protected static List<UserGameData> getSortedTotalGameList(int filter, int month, int year) {
-        return ScoreProcess.getUserDataList(month, year).values().stream()
-                .peek(UserGameData::updateAllData)
-                .filter(data -> data.game_count >= filter)
-                .sorted((dataA, dataB) -> (dataB.game_count - dataA.game_count)
-                ).toList();
-    }
-
-    protected static List<UserGameData> getSortedTotalGameList(int filter, int start_month, int start_year, int end_month, int end_year) {
-        return ScoreProcess.getUserDataList(start_month, start_year, end_month, end_year).values().stream()
-                .peek(UserGameData::updateAllData)
-                .filter(data -> data.game_count >= filter)
-                .sorted((dataA, dataB) -> (dataB.game_count - dataA.game_count)
-                ).toList();
-    }
-
-    protected static List<UserGameData> getSortedTotalGameList() {
-        return getSortedTotalGameList(0);
     }
 
     protected static String getTotalGamePrintString(List<UserGameData> data_list, String title, int page) {
@@ -201,36 +168,52 @@ public abstract class RankArranger implements RankInterface {
                 data_list,
                 title,
                 page,
-                data -> String.format("%d\n", data.game_count)
+                data -> String.format("%d\n", data.getGameCount())
         );
     }
 
-    protected static List<UserGameData> getSortedUmaList(int filter) {
-        return ScoreProcess.getUserDataList().values().stream()
-                .peek(UserGameData::updateAllData)
-                .filter(data -> data.game_count >= filter)
-                .sorted((dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
-                ).toList();
+    protected static List<UserGameData> getAllSortedList(
+            @GuildRes Long guildID,
+            String gameGroup,
+            int filterGameCount,
+            Comparator<UserGameData> comparator
+    ) throws DBConnectException {
+        return DBScoreProcess.INSTANCE.getAllUserData(guildID, gameGroup, filterGameCount)
+                .values().stream().sorted(comparator).toList();
+
     }
 
-    protected static List<UserGameData> getSortedUmaList(int filter, int month, int year) {
-        return ScoreProcess.getUserDataList(month, year).values().stream()
-                .peek(UserGameData::updateAllData)
-                .filter(data -> data.game_count >= filter)
-                .sorted((dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
-                ).toList();
+    protected static List<UserGameData> getMonthSortedList(
+            @GuildRes Long guildID,
+            String gameGroup,
+            @IntRange(inclusiveStart = 1, inclusiveEnd = 12) int month,
+            int year,
+            int filterGameCount,
+            Comparator<UserGameData> comparator
+    ) throws DBConnectException {
+        return DBScoreProcess.INSTANCE.getMonthUserData(guildID, month, year, gameGroup, filterGameCount)
+                .values().stream().sorted(comparator).toList();
     }
 
-    protected static List<UserGameData> getSortedUmaList(int filter, int start_month, int start_year, int end_month, int end_year) {
-        return ScoreProcess.getUserDataList(start_month, start_year, end_month, end_year).values().stream()
-                .peek(UserGameData::updateAllData)
-                .filter(data -> data.game_count >= filter)
-                .sorted((dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
-                ).toList();
-    }
-
-    protected static List<UserGameData> getSortedUmaList() {
-        return getSortedUmaList(0);
+    protected static List<UserGameData> getSelectedSortedList(
+            @GuildRes Long guildID,
+            @IntRange(inclusiveStart = 1, inclusiveEnd = 12) int startMonth,
+            int startYear,
+            @IntRange(inclusiveStart = 1, inclusiveEnd = 12) int endMonth,
+            int endYear,
+            String gameGroup,
+            int filterGameCount,
+            Comparator<UserGameData> comparator
+    ) throws DBConnectException {
+        return DBScoreProcess.INSTANCE.getSelectedUserData(
+                guildID,
+                startMonth,
+                startYear,
+                endMonth,
+                endYear,
+                gameGroup,
+                filterGameCount
+        ).values().stream().sorted(comparator).toList();
     }
 
     protected static String getUmaPrintString(List<UserGameData> data_list, String title, int page) {
@@ -238,7 +221,7 @@ public abstract class RankArranger implements RankInterface {
                 data_list,
                 title,
                 page,
-                data -> String.format("%+.1f\n", data.total_uma)
+                data -> String.format("%+.1f\n", data.getTotalUma())
         );
     }
 
@@ -247,7 +230,7 @@ public abstract class RankArranger implements RankInterface {
         page_block.append("```ansi\n").append(String.format("\u001B[1;34m%s (%d/%d)\u001B[0m\n\n", title, page, ((data_list.size() - 1) / 30) + 1));
         for (int i = (page - 1) * 30; i < Math.min(data_list.size(), page * 30); i++) {
             page_block.append(String.format("%-5d", i + 1)).append("\u001B[1;32m");
-            page_block.append(getConstantWidthName(data_list.get(i).name));
+            page_block.append(getConstantWidthName(data_list.get(i).getUserName()));
             page_block.append("\u001B[0m");
             page_block.append(get_data.apply(data_list.get(i)));
         }

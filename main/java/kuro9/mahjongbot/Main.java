@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.Set;
 
 public class Main extends ListenerAdapter {
     private static RankInterface[] rank;
@@ -32,10 +33,9 @@ public class Main extends ListenerAdapter {
     public static void main(String[] args) {
         long time = System.currentTimeMillis();
         System.out.println("[MahjongBot:Main] System Initializing...");
-        Setting.init();
+
         final String TOKEN;
         try {
-
             Scanner scan = new Scanner(new File(Setting.TOKEN_PATH));
             TOKEN = scan.next();
             scan.close();
@@ -44,12 +44,18 @@ public class Main extends ListenerAdapter {
             System.out.println("\n\n[MahjongBot:Main] Initialize Failure!\n\n");
             throw new RuntimeException(e);
         }
-        JDA jda = JDABuilder.createDefault(TOKEN).build();
+        Setting.init(TOKEN);
+
+        JDA jda = Setting.JDA;
+        if(jda == null) {
+            System.out.println("\n\n[MahjongBot:Main] JDA Cannot be Null!\n\n");
+            throw new NullPointerException(JDA.class.getName());
+        }
+
         Setting.setAdmin(jda.retrieveUserById(Setting.ADMIN_ID));
         jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-        jda.retrieveUserById(Setting.ADMIN_ID).map(User::getAsTag)
-                .queue(name -> jda.getPresence().setActivity(Activity.competing("DM => " + name))
-                );
+        jda.retrieveUserById(Setting.ADMIN_ID).map(User::getName)
+                .queue(name -> jda.getPresence().setActivity(Activity.competing("DM => " + name)));
 
         jda.addEventListener(new Main());
 
@@ -67,7 +73,7 @@ public class Main extends ListenerAdapter {
         }
         catch (IOException | ParseException e) {
             System.out.println("\n\n[MahjongBot:Main] Runtime Instruction Loading Failure!\n\n");
-            Logger.addSystemErrorEvent("instruction-load-err");
+            Logger.addSystemErrorEvent(Logger.INSTRUCTION_LOAD_ERR);
             e.printStackTrace();
             throw new RuntimeException(e);
         }
@@ -77,7 +83,7 @@ public class Main extends ListenerAdapter {
         System.out.println("[MahjongBot:Main] Instructions Loaded!");
 
         System.out.printf("[MahjongBot:Main] Bot Started! (%d ms)\n", System.currentTimeMillis() - time);
-        Logger.addSystemEvent("system-start");
+        Logger.addSystemEvent(Logger.SYS_START);
     }
 
     @Override

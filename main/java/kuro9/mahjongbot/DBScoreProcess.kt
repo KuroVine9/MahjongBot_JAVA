@@ -7,6 +7,7 @@ import kuro9.mahjongbot.data.UserGameData
 import kuro9.mahjongbot.db.DBHandler
 import kuro9.mahjongbot.db.data.Game
 import kuro9.mahjongbot.db.data.GameResult
+import kuro9.mahjongbot.exception.DBConnectException
 import java.sql.Timestamp
 import java.util.*
 
@@ -14,6 +15,10 @@ object DBScoreProcess {
 
     data class TimePeriod(val startDate: Timestamp, val endDate: Timestamp)
 
+    /**
+     * 데이터 캐싱을 위한 싱글톤 클래스입니다.
+     * second-chance를 적용하였습니다.
+     */
     object DataCache {
         private const val QUEUE_SIZE = 8
 
@@ -33,6 +38,11 @@ object DBScoreProcess {
         }
         private var ptr: Int = 0
 
+        /**
+         * 캐시에서 데이터를 탐색합니다.
+         * @param query 쿼리
+         * @return 쿼리에 따른 결과, 캐싱되어 있지 않은 쿼리는 null 반환
+         */
         private fun findData(query: Query): HashMap<Long, UserGameData>? {
             val result: HashMap<Long, UserGameData>
             for (i in cacheQueue.indices) {
@@ -48,6 +58,11 @@ object DBScoreProcess {
             return null
         }
 
+        /**
+         * 데이터를 캐시화 합니다.
+         * @param query 쿼리
+         * @param data 쿼리에 따른 데이터
+         */
         private fun insertData(query: Query, data: HashMap<Long, UserGameData>) {
             while (true) {
                 if (cacheQueue[ptr].state == STATE.REFFED) {
@@ -65,9 +80,11 @@ object DBScoreProcess {
         /**
          * 데이터를 가져옵니다. 캐싱된 데이터가 있다면 캐싱된 데이터를, 아니라면 DB에 연결합니다.
          * @param query 쿼리
-         * @return 데이터, DB연결 에러 시 null
+         * @return 데이터
+         * @throws DBConnectException DB연결 에러
          */
-        fun getData(query: Query): HashMap<Long, UserGameData>? {
+        @Throws(DBConnectException::class)
+        fun getData(query: Query): HashMap<Long, UserGameData> {
             findData(query)?.let { return it }
 
             val dataList = DBHandler.selectGameResult(
@@ -78,7 +95,7 @@ object DBScoreProcess {
                 query.filterGameCount
             )
 
-            if (dataList === null) return null
+            if (dataList === null) throw DBConnectException()
             val data = HashMap<Long, UserGameData>()
 
             dataList.forEach { userData ->
@@ -104,6 +121,14 @@ object DBScoreProcess {
                     cacheQueue[i].state = STATE.INVALID
             }
         }
+
+        /**
+         * 캐시를 모두 무효화 처리합니다.
+         */
+        fun invalidAllData() {
+            cacheQueue.forEach { it.state = STATE.INVALID }
+            //TODO 캐시 상태 확인 메시지 or DM
+        }
     }
 
     /**
@@ -128,14 +153,16 @@ object DBScoreProcess {
      * @param year 검색할 년
      * @param gameGroup 검색할 게임 그룹
      * @param filterGameCount 필터링할 국 수
+     * @throws DBConnectException DB 연결 에러시
      */
+    @Throws(DBConnectException::class)
     fun getMonthUserData(
         @GuildRes id: Long,
         @IntRange(1, 12) month: Int,
         year: Int,
         gameGroup: String = "",
         filterGameCount: Int = 0
-    ): HashMap<Long, UserGameData>? {
+    ): HashMap<Long, UserGameData> {
         val (startDate, endDate) = getTimestampForOneMonth(month, year)
         return DataCache.getData(DataCache.Query(id, startDate, endDate, gameGroup, filterGameCount))
     }
@@ -149,7 +176,9 @@ object DBScoreProcess {
      * @param endYear 종료 년도
      * @param gameGroup 검색할 게임 그룹
      * @param filterGameCount 필터링할 국 수
+     * @throws DBConnectException DB 연결 에러시
      */
+    @Throws(DBConnectException::class)
     fun getSelectedUserData(
         @GuildRes id: Long,
         @IntRange(1, 12) startMonth: Int,
@@ -158,7 +187,7 @@ object DBScoreProcess {
         endYear: Int,
         gameGroup: String = "",
         filterGameCount: Int = 0
-    ): HashMap<Long, UserGameData>? {
+    ): HashMap<Long, UserGameData> {
         val (startDate, endDate) = getTimestampFromMonthAndYear(startMonth, startYear, endMonth, endYear)
         return DataCache.getData(DataCache.Query(id, startDate, endDate, gameGroup, filterGameCount))
     }
@@ -168,12 +197,14 @@ object DBScoreProcess {
      * @param id 서버 id
      * @param gameGroup 검색할 게임 그룹
      * @param filterGameCount 필터링할 국 수
+     * @throws DBConnectException DB 연결 에러시
      */
+    @Throws(DBConnectException::class)
     fun getAllUserData(
         @GuildRes id: Long,
         gameGroup: String = "",
         filterGameCount: Int = 0
-    ): HashMap<Long, UserGameData>? {
+    ): HashMap<Long, UserGameData> {
         return DataCache.getData(DataCache.Query(id = id, gameGroup = gameGroup, filterGameCount = filterGameCount))
     }
 

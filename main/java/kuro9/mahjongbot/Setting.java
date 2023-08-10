@@ -1,5 +1,7 @@
 package kuro9.mahjongbot;
 
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.json.simple.JSONArray;
@@ -38,15 +40,21 @@ public record Setting() {
     public static String DB_URL;
     public static String DB_USER;
     public static String DB_PASSWORD;
+    public static JDA JDA;
 
-    public static void init() {
+    public static void init(String token) {
+        parseString();
+        JDA = JDABuilder.createDefault(token).build();
+    }
+
+    public static void parseString() {
         JSONParser parser = new JSONParser();
         Object obj = null;
         try {
             obj = parser.parse(new FileReader("src/main/resources/setting.json"));
         }
         catch (IOException | ParseException e) {
-            Logger.addSystemErrorEvent("setting-parse-err");
+            Logger.addSystemErrorEvent(Logger.SETTING_JSON_PARSE_ERR);
             throw new RuntimeException(e);
         }
         JSONObject jsonObject = (JSONObject) obj;
@@ -72,7 +80,6 @@ public record Setting() {
         DB_URL = jsonObject.get("DB_URL").toString();
         DB_USER = jsonObject.get("DB_USER").toString();
         DB_PASSWORD = jsonObject.get("DB_PASSWORD").toString();
-
 
         JSONArray jsonArray = (JSONArray) jsonObject.get("UMA");
         UMA = new int[jsonArray.size()];

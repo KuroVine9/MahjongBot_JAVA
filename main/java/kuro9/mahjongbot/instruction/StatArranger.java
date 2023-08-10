@@ -4,18 +4,21 @@ import kuro9.mahjongbot.HeadlessGraphProcess;
 import kuro9.mahjongbot.ResourceHandler;
 import kuro9.mahjongbot.Setting;
 import kuro9.mahjongbot.data.UserGameData;
+import kuro9.mahjongbot.data.UserGameDataComparatorKt;
 import kuro9.mahjongbot.instruction.action.StatInterface;
+import kuro9.mahjongbot.instruction.util.GameDataParse;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.io.File;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 
-public abstract class StatArranger implements StatInterface {
+public abstract class StatArranger extends GameDataParse implements StatInterface {
 
     /**
      * 유효한 User 값을 반환합니다. <br>
@@ -24,6 +27,7 @@ public abstract class StatArranger implements StatInterface {
      * @param event 이벤트 매개변수
      * @return null이 아닌 유저 데이터
      */
+    @NotNull
     protected static User getValidUser(SlashCommandInteractionEvent event) {
         return ((event.getOption("user") == null) ?
                 event.getUser() : event.getOption("user").getAsUser());
@@ -37,9 +41,7 @@ public abstract class StatArranger implements StatInterface {
      * @return 유저의 순위
      */
     protected static int getRank(HashMap<Long, UserGameData> data_list, long userID) {
-        var sorted_list = data_list.values().stream().sorted(
-                (dataA, dataB) -> (int) ((dataB.getTotalUma() * 10) - (dataA.getTotalUma() * 10))
-        ).toList();
+        var sorted_list = data_list.values().stream().sorted(UserGameDataComparatorKt::compareWithUma).toList();
 
         int rank = 0;
         for (; rank < sorted_list.size(); rank++) {
