@@ -8,6 +8,8 @@ import kuro9.mahjongbot.db.DBHandler
 import kuro9.mahjongbot.db.data.Game
 import kuro9.mahjongbot.db.data.GameResult
 import kuro9.mahjongbot.exception.DBConnectException
+import kuro9.mahjongbot.exception.GameGroupNotFoundException
+import kuro9.mahjongbot.exception.ParameterErrorException
 import java.sql.Timestamp
 import java.util.*
 
@@ -71,7 +73,7 @@ object DBScoreProcess {
                     continue
                 }
                 else {
-                    cacheQueue[ptr] = Cache(query = query, data = data)
+                    cacheQueue[ptr++] = Cache(query = query, data = data)
                     break
                 }
             }
@@ -138,9 +140,12 @@ object DBScoreProcess {
      *
      * @param game 게임의 결과 객체
      * @param gameResult 1위부터 4위의 점수가 기록된 리스트
-     * @return 현재 guild && game group에서의 국 수, SQL INSERT 에러 시 -1, game group가 존재하지 않을 시 -2, DB 연결에러 시 -100, 파라미터 에러 시 <= -101
-     * (4명이 아닐 시 -101, 점수별 정렬되어있지 않을 시 -102, 점수 합이 10만점이 아닐 시 -103)
+     * @return 현재 guild && game group에서의 국 수
+     * @throws ParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
+     * @throws GameGroupNotFoundException 등록된 game group가 아닐 때
+     * @throws DBConnectException DB 처리 중 에러가 발생할 때
      */
+    @Throws(ParameterErrorException::class, GameGroupNotFoundException::class, DBConnectException::class)
     fun addScore(game: Game, gameResult: Collection<GameResult>): Int {
         DataCache.markDataToInvalid(game.guildID, game.gameGroup)
         return DBHandler.addScore(game, gameResult)
@@ -217,7 +222,9 @@ object DBScoreProcess {
      * @param year 검색할 년
      * @param gameGroup 검색할 게임 그룹
      * @return [0][] : 최근 10국의 순위(범위 : [1, 4]), [1][] : 냥글라스 여부(범위 : [0, 1])
+     * @throws DBConnectException DB 연결 에러시
      */
+    @Throws(DBConnectException::class)
     fun recentMonthGameResult(
         @GuildRes guildId: Long,
         @UserRes userId: Long,
@@ -226,10 +233,7 @@ object DBScoreProcess {
         gameGroup: String = "",
     ): Array<IntArray> {
         val (startDate, endDate) = getTimestampForOneMonth(month, year)
-        DBHandler.selectRecentGameResult(guildId, userId, startDate, endDate, gameGroup)?.let {
-            return scoreDataToNyanArray(it)
-        }
-        return emptyArray()
+        return scoreDataToNyanArray(DBHandler.selectRecentGameResult(guildId, userId, startDate, endDate, gameGroup))
     }
 
     /**
@@ -243,7 +247,9 @@ object DBScoreProcess {
      * @param endYear 종료 년도
      * @param gameGroup 검색할 게임 그룹
      * @return [0][] : 최근 10국의 순위(범위 : [1, 4]), [1][] : 냥글라스 여부(범위 : [0, 1])
+     * @throws DBConnectException DB 연결 에러시
      */
+    @Throws(DBConnectException::class)
     fun recentSelectedGameResult(
         @GuildRes guildId: Long,
         @UserRes userId: Long,
@@ -254,10 +260,7 @@ object DBScoreProcess {
         gameGroup: String = "",
     ): Array<IntArray> {
         val (startDate, endDate) = getTimestampFromMonthAndYear(startMonth, startYear, endMonth, endYear)
-        DBHandler.selectRecentGameResult(guildId, userId, startDate, endDate, gameGroup)?.let {
-            return scoreDataToNyanArray(it)
-        }
-        return emptyArray()
+        return scoreDataToNyanArray(DBHandler.selectRecentGameResult(guildId, userId, startDate, endDate, gameGroup))
     }
 
     /**
@@ -267,16 +270,15 @@ object DBScoreProcess {
      * @param userId 검색할 유저의 id
      * @param gameGroup 검색할 게임 그룹
      * @return [0][] : 최근 10국의 순위(범위 : [1, 4]), [1][] : 냥글라스 여부(범위 : [0, 1])
+     * @throws DBConnectException DB 연결 에러시
      */
+    @Throws(DBConnectException::class)
     fun recentAllGameResult(
         @GuildRes guildId: Long,
         @UserRes userId: Long,
         gameGroup: String = "",
     ): Array<IntArray> {
-        DBHandler.selectRecentGameResult(guildId, userId, null, null, gameGroup)?.let {
-            return scoreDataToNyanArray(it)
-        }
-        return emptyArray()
+        return scoreDataToNyanArray(DBHandler.selectRecentGameResult(guildId, userId, null, null, gameGroup))
     }
 
     private fun getTimestampForOneMonth(@IntRange(1, 12) month: Int, year: Int): TimePeriod {
