@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import java.util.Objects;
 
 public class GameDataParse {
-    protected long getGuildID(GenericCommandInteractionEvent event) {
+    protected static long getGuildID(GenericCommandInteractionEvent event) {
         long guildID;
         if (event.getOption("guild") == null) {
             if (event.getGuild() == null) {
@@ -19,16 +19,16 @@ public class GameDataParse {
         return guildID;
     }
 
-    protected String getGameGroup(GenericCommandInteractionEvent event) {
+    protected static String getGameGroup(GenericCommandInteractionEvent event) {
         return ((event.getOption("game_group") == null) ?
                 "" : event.getOption("game_group").getAsString());
     }
 
-    protected long getButtonGuildID(ButtonInteractionEvent event) {
+    protected static long getButtonGuildID(ButtonInteractionEvent event) {
         return Objects.requireNonNull(event.getGuild()).getIdLong();
     }
 
-    protected String getButtonGameGroup(ButtonInteractionEvent event) {
+    protected static String getButtonGameGroup(ButtonInteractionEvent event) {
         //TODO 게임그룹 파싱 구현
     }
 }

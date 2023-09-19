@@ -97,7 +97,6 @@ object DBScoreProcess {
                 query.filterGameCount
             )
 
-            if (dataList === null) throw DBConnectException()
             val data = HashMap<Long, UserGameData>()
 
             dataList.forEach { userData ->
@@ -129,7 +128,7 @@ object DBScoreProcess {
          */
         fun invalidAllData() {
             cacheQueue.forEach { it.state = STATE.INVALID }
-            //TODO 캐시 상태 확인 메시지 or DM
+            //TODO 캐시 상태 확인 메시지 or DM -> Log 클래스 만들어서 접두사(클래스, 시간 등 정보 표시) 붙여주는 클래스..?
         }
     }
 

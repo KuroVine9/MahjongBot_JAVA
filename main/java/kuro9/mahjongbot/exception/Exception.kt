@@ -48,7 +48,17 @@ class ParameterErrorException(message: String = "Param Error!") : EmbeddableExce
 
 class GameGroupNotFoundException(message: String = "Game Group Not Found!") : EmbeddableException(message) {
     override fun getErrorEmbed(locale: DiscordLocale): EmbedBuilder {
-        TODO("Not yet implemented")
+        val resourceBundle = ResourceHandler.getResource(locale)
+        val embed = EmbedBuilder()
+        embed.setTitle("404 Not Found")
+        embed.setDescription("Game Group Not Found")
+        embed.addField(
+            resourceBundle.getString("add.embed.err.404.name"),
+            resourceBundle.getString("add.embed.err.404.description"),
+            true
+        )
+        embed.setColor(Color.RED)
+        return embed
     }
 
 }

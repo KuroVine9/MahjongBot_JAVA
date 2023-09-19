@@ -24,11 +24,12 @@ public class Logger {
     public static final String SYS_START = "system-start";
     public static final String NOT_GUILD_MSG = "not-guild-msg";
     public static final String DB_CONN_ERR = "db-connect-err";
+    public static final String HAND_IMG_GEN_ERR = "hand-img-gen-err";
     public static String IMAGE_GEN_ERR = "image-generate-err";
     public static String INSTRUCTION_LOAD_ERR = "instruction-load-err";
-    public static String SETTING_JSON_PARSE_ERR= "setting-parse-err";
+    public static String SETTING_JSON_PARSE_ERR = "setting-parse-err";
     public static String PARAM_ERR = "parameter-err";
-    public static final String HAND_IMG_GEN_ERR = "hand-img-gen-err";
+    public static String UNKNOWN_GAMEGROUP = "unknown-gamegroup";
 
     /**
      * 일반 이벤트를 로깅합니다.
@@ -219,7 +220,8 @@ public class Logger {
             String[] log = new String[log_list.size()];
             csv.writeNext(log_list.toArray(log));
             csv.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle("NEW SYSTEM ERR OCC.");
             embed.setDescription("From Logger#abstractWriteLogToCSV(ArrayList<String>, String)");
