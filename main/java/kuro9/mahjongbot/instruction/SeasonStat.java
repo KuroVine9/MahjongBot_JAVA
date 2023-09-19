@@ -10,8 +10,6 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.utils.FileUpload;
 
 import java.io.File;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -23,35 +21,22 @@ public class SeasonStat extends StatArranger implements StatInterface {
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         HashMap<Long, UserGameData> data_list;
 
-        int season = ((event.getOption("season") == null) ?
-                ((LocalDateTime.now().getMonthValue() - 1) / 6) + 1 :
-                (int) event.getOption("season").getAsLong());
+        int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
-        int year = ((event.getOption("year") == null) ?
-                LocalDate.now().getYear() :
-                (int) event.getOption("year").getAsLong());
+        int year = getValidYear(event);
 
-        String gameGroup = ((event.getOption("game_group") == null) ?
-                "" : event.getOption("game_group").getAsString());
+        String gameGroup = getGameGroup(event);
 
         long userID = getValidUser(event).getIdLong();
 
-        long guildID;
-        if (event.getOption("guild") == null) {
-            if (event.getGuild() == null) {
-                throw new RuntimeException("Unexpected Condition!! - guildID parse");
-            }
-            else guildID = event.getGuild().getIdLong();
-        }
-        else guildID = event.getOption("guild").getAsLong();
+        long guildID = getGuildID(event);
 
         try {
             data_list = DBScoreProcess.INSTANCE.getSelectedUserData(guildID, start_month, year, end_month, year, gameGroup, 0);
         }
         catch (DBConnectException e) {
-            e.printStackTrace();
-            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).queue();
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).setEphemeral(true).queue();
             return;
         }
 

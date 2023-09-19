@@ -139,7 +139,6 @@ object DBScoreProcess {
          */
         fun invalidAllData() {
             cacheQueue.forEach { it.state = STATE.INVALID }
-            //TODO 캐시 상태 확인 메시지 or DM -> Log 클래스 만들어서 접두사(클래스, 시간 등 정보 표시) 붙여주는 클래스..?
         }
     }
 
@@ -297,6 +296,11 @@ object DBScoreProcess {
         return scoreDataToNyanArray(DBHandler.selectRecentGameResult(guildId, userId, null, null, gameGroup))
     }
 
+    fun invalidAllData() {
+        DataCache.invalidAllData()
+        //TODO 캐시 상태 확인 메시지 or DM -> Log 클래스 만들어서 접두사(클래스, 시간 등 정보 표시) 붙여주는 클래스..?
+    }
+
     private fun getTimestampForOneMonth(@IntRange(1, 12) month: Int, year: Int): TimePeriod {
         val calender = Calendar.getInstance().apply {
             clear()
@@ -343,4 +347,6 @@ object DBScoreProcess {
 
         return result
     }
+
+
 }

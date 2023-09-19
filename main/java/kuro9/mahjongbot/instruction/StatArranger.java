@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.*;
 import java.io.File;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 public abstract class StatArranger extends GameDataParse implements StatInterface {
@@ -30,7 +31,7 @@ public abstract class StatArranger extends GameDataParse implements StatInterfac
     @NotNull
     protected static User getValidUser(SlashCommandInteractionEvent event) {
         return ((event.getOption("user") == null) ?
-                event.getUser() : event.getOption("user").getAsUser());
+                event.getUser() : Objects.requireNonNull(event.getOption("user")).getAsUser());
     }
 
     /**

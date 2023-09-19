@@ -37,6 +37,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
     public void summaryReply(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
+
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
@@ -56,8 +57,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
             ).queue();
         }
         catch (DBConnectException e) {
-            e.printStackTrace();
-            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).queue();
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).setEphemeral(true).queue();
             return;
         }
         Logger.addEvent(event);
@@ -67,6 +67,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
     public void umaReply(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
+
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
@@ -89,8 +90,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
             );
         }
         catch (DBConnectException e) {
-            e.printStackTrace();
-            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).queue();
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).setEphemeral(true).queue();
             return;
         }
 
@@ -114,6 +114,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
     @Override
     public void umaPageControl(ButtonInteractionEvent event) {
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
+
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
@@ -136,8 +137,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
             );
         }
         catch (DBConnectException e) {
-            e.printStackTrace();
-            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).queue();
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).setEphemeral(true).queue();
             return;
         }
 
@@ -159,6 +159,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
     public void totalGameReply(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
+
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
@@ -181,8 +182,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
             );
         }
         catch (DBConnectException e) {
-            e.printStackTrace();
-            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).queue();
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).setEphemeral(true).queue();
             return;
         }
 
@@ -206,6 +206,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
     @Override
     public void totalGamePageControl(ButtonInteractionEvent event) {
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
+
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
@@ -228,8 +229,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
             );
         }
         catch (DBConnectException e) {
-            e.printStackTrace();
-            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).queue();
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).setEphemeral(true).queue();
             return;
         }
 

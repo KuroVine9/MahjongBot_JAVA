@@ -17,18 +17,19 @@ public class GameDataParse {
         long guildID;
         if (event.getOption("guild") == null) {
             if (event.getGuild() == null) {
+                // 상호작용이 guild 내에서 이루어지던가, 파라미터에 guild 키로 된 값이 존재하여야 함.
                 throw new RuntimeException("Unexpected Condition!! - guildID parse");
             }
             else guildID = event.getGuild().getIdLong();
         }
-        else guildID = event.getOption("guild").getAsLong();
+        else guildID = Objects.requireNonNull(event.getOption("guild")).getAsLong();
 
         return guildID;
     }
 
     protected static String getGameGroup(GenericCommandInteractionEvent event) {
         return ((event.getOption("game_group") == null) ?
-                "" : event.getOption("game_group").getAsString());
+                "" : Objects.requireNonNull(event.getOption("game_group")).getAsString());
     }
 
     protected static long getButtonGuildID(ButtonInteractionEvent event) {
@@ -45,7 +46,7 @@ public class GameDataParse {
         if (event instanceof SlashCommandInteractionEvent s) {
             return ((s.getOption("month") == null) ?
                     LocalDate.now().getMonthValue() :
-                    (int) s.getOption("month").getAsLong());
+                    (int) Objects.requireNonNull(s.getOption("month")).getAsLong());
         }
         else if (event instanceof ButtonInteractionEvent b) {
             String pattern = "\\[\\d{4}.(\\d{2})";
@@ -63,7 +64,7 @@ public class GameDataParse {
         if (event instanceof SlashCommandInteractionEvent s) {
             return ((s.getOption("year") == null) ?
                     LocalDate.now().getYear() :
-                    (int) s.getOption("year").getAsLong());
+                    (int) Objects.requireNonNull(s.getOption("year")).getAsLong());
         }
         else if (event instanceof ButtonInteractionEvent b) {
             String pattern = "\\[(\\d{4})";
@@ -80,7 +81,7 @@ public class GameDataParse {
     protected static int getValidFilter(GenericInteractionCreateEvent event) {
         if (event instanceof SlashCommandInteractionEvent s) {
             return ((s.getOption("filter") == null) ?
-                    0 : (int) s.getOption("filter").getAsLong());
+                    0 : (int) Objects.requireNonNull(s.getOption("filter")).getAsLong());
         }
         else if (event instanceof ButtonInteractionEvent b) {
             String pattern = "\\([A-Za-z ]*(\\d+)";
@@ -99,7 +100,7 @@ public class GameDataParse {
         if (event instanceof SlashCommandInteractionEvent s) {
             return ((s.getOption("season") == null) ?
                     ((LocalDateTime.now().getMonthValue() - 1) / 6) + 1 :
-                    (int) s.getOption("season").getAsLong());
+                    (int) Objects.requireNonNull(s.getOption("season")).getAsLong());
         }
         else if (event instanceof ButtonInteractionEvent b) {
             String pattern = "\\[\\d{4}.(\\d)";

@@ -12,7 +12,7 @@ public class ReValid {
     public static void action(SlashCommandInteractionEvent event) {
         event.deferReply(true).queue();
         long time = System.currentTimeMillis();
-        DBScoreProcess.DataCache.INSTANCE.invalidAllData();
+        DBScoreProcess.INSTANCE.invalidAllData();
         Logger.addEvent(event);
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("PROCESSED");
