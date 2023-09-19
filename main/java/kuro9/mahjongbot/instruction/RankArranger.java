@@ -14,6 +14,10 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -106,12 +110,13 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
         return embed;
     }
 
-    protected static String getTotalGamePrintString(List<UserGameData> data_list, String title, int page) {
+    protected static String getTotalGamePrintString(List<UserGameData> data_list, String title, int page, String base64Key) {
         return getPrintString(
                 data_list,
                 title,
                 page,
-                data -> String.format("%d\n", data.getGameCount())
+                data -> String.format("%d\n", data.getGameCount()),
+                base64Key
         );
     }
 
@@ -159,16 +164,27 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
         ).values().stream().sorted(comparator).toList();
     }
 
-    protected static String getUmaPrintString(List<UserGameData> data_list, String title, int page) {
+    protected static String getUmaPrintString(List<UserGameData> data_list, String title, int page, String base64Key) {
         return getPrintString(
                 data_list,
                 title,
                 page,
-                data -> String.format("%+.1f\n", data.getTotalUma())
+                data -> String.format("%+.1f\n", data.getTotalUma()),
+                base64Key
         );
     }
 
-    private static String getPrintString(List<UserGameData> data_list, String title, int page, Function<UserGameData, String> get_data) {
+    /**
+     * @param data_list
+     * @param title
+     * @param page
+     * @param get_data
+     * @param base64Key yyyy-mm-s-{game-type}-{filter}-{page}-{game-group}
+     *                  y = 년도(null시 0000), m = 월(null시 00), s = 시즌(null시 0),
+     *                  game-type = {"SUM" | "UMA" | "GMC"} (요약, 우마, 총합 국 수),
+     *                  filter = 국 수 필터, page = 현재 페이지, game-group = 게임 그룹(null시 "")
+     */
+    private static String getPrintString(List<UserGameData> data_list, String title, int page, Function<UserGameData, String> get_data, String base64Key) {
         StringBuilder page_block = new StringBuilder();
         page_block.append("```ansi\n").append(String.format("\u001B[1;34m%s (%d/%d)\u001B[0m\n\n", title, page, ((data_list.size() - 1) / 30) + 1));
         for (int i = (page - 1) * 30; i < Math.min(data_list.size(), page * 30); i++) {
@@ -177,6 +193,7 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
             page_block.append("\u001B[0m");
             page_block.append(get_data.apply(data_list.get(i)));
         }
+        page_block.append(String.format("\n\n\u001B[0;30key=%s", base64Key));
         page_block.append("```");
         return page_block.toString();
     }
@@ -318,4 +335,34 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
         }
         else return;
     }
+
+    /**
+     * @return yyyy-mm-s-{game-type}-{filter}-{page}-{game-group}
+     * y = 년도(null시 0000), m = 월(null시 00), s = 시즌(null시 0),
+     * game-type = {"SUM" | "UMA" | "GMC"} (요약, 우마, 총합 국 수),
+     * filter = 국 수 필터, page = 현재 페이지, game-group = 게임 그룹(null시 "")
+     */
+    protected String base64KeyGen(
+            @Nullable Integer year,
+            @Nullable Integer month,
+            @Nullable Integer season,
+            @Nonnull GameType gameType,
+            @Nullable Integer filter,
+            @Nullable Integer page,
+            @Nullable String gameGroup
+    ) {
+        String original = String.format(
+                "%s-%s-%s-%s-%s-%s-%s",
+                (year == null) ? "0000" : year.toString(),
+                (month == null) ? "00" : month.toString(),
+                (season == null) ? "0" : season.toString(),
+                gameType.name(),
+                (filter == null) ? "0" : filter.toString(),
+                (page == null) ? "1" : page.toString(),
+                (gameGroup == null) ? "" : filter
+        );
+        return Base64.getEncoder().encodeToString(original.getBytes(StandardCharsets.US_ASCII));
+    }
+
+    enum GameType {SUM, UMA, GMC}
 }

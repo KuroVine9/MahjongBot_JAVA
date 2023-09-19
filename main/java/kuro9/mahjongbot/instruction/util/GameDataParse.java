@@ -37,7 +37,13 @@ public class GameDataParse {
     }
 
     protected static String getButtonGameGroup(ButtonInteractionEvent event) {
-        //TODO 게임그룹 파싱 구현
+        String pattern = "key=\\d{1,4}-\\d{1,2}-\\d-[A-Z]{3}-\\d+-\\d+-([A-Za-z0-9_]{0,15})=";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(event.getMessage().getContentDisplay());
+        if (m.find()) {
+            return m.group(1);
+        }
+        else return "";
     }
 
     //TODO 페이지 표시 때 월, 년, 기록모드, 게임그룹 등 데이터 base64 encode/decode로 파싱하기?

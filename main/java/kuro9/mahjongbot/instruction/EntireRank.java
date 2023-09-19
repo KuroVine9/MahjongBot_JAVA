@@ -100,7 +100,8 @@ public class EntireRank extends RankArranger implements RankInterface {
                 getUmaPrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("entire_rank.embed.uma.title"), filter),
-                        uma_page_count[0]
+                        uma_page_count[0],
+                        base64KeyGen(null, null, null, GameType.UMA, filter, null, gameGroup)
                 )
         ).addActionRow(
                 uma_button[0].asDisabled(),
@@ -145,7 +146,8 @@ public class EntireRank extends RankArranger implements RankInterface {
                 () -> getUmaPrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("entire_rank.embed.uma.title"), filter),
-                        uma_page_count[0]
+                        uma_page_count[0],
+                        base64KeyGen(null, null, null, GameType.UMA, filter, uma_page_count[0], gameGroup)
                 )
         );
         Logger.addEvent(event);
@@ -182,7 +184,8 @@ public class EntireRank extends RankArranger implements RankInterface {
                 getTotalGamePrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("entire_rank.embed.total_game_count.title"), filter),
-                        total_game_page_count[0]
+                        total_game_page_count[0],
+                        base64KeyGen(null, null, null, GameType.GMC, filter, null, gameGroup)
                 )
         ).addActionRow(
                 total_game_button[0].asDisabled(),
@@ -227,7 +230,8 @@ public class EntireRank extends RankArranger implements RankInterface {
                 () -> getTotalGamePrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("entire_rank.embed.total_game_count.title"), filter),
-                        total_game_page_count[0]
+                        total_game_page_count[0],
+                        base64KeyGen(null, null, null, GameType.GMC, filter, total_game_page_count[0], gameGroup)
                 )
         );
         Logger.addEvent(event);

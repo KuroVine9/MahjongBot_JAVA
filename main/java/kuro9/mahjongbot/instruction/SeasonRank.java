@@ -99,7 +99,8 @@ public class SeasonRank extends RankArranger implements RankInterface {
                 getUmaPrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("season_rank.embed.uma.title"), year, season, filter),
-                        season_uma_page_count[0]
+                        season_uma_page_count[0],
+                        base64KeyGen(year, null, season, GameType.UMA, filter, null, gameGroup)
                 )
         ).addActionRow(
                 season_uma_button[0].asDisabled(),
@@ -149,7 +150,8 @@ public class SeasonRank extends RankArranger implements RankInterface {
                 () -> getUmaPrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("season_rank.embed.uma.title"), year, season, filter),
-                        season_uma_page_count[0]
+                        season_uma_page_count[0],
+                        base64KeyGen(year, null, season, GameType.UMA, filter, season_uma_page_count[0], gameGroup)
                 )
         );
         Logger.addEvent(event);
@@ -191,7 +193,8 @@ public class SeasonRank extends RankArranger implements RankInterface {
                 getTotalGamePrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("season_rank.embed.total_game_count.title"), year, season, filter),
-                        season_total_game_page_count[0]
+                        season_total_game_page_count[0],
+                        base64KeyGen(year, null, season, GameType.GMC, filter, null, gameGroup)
                 )
         ).addActionRow(
                 season_total_game_button[0].asDisabled(),
@@ -241,7 +244,8 @@ public class SeasonRank extends RankArranger implements RankInterface {
                 () -> getTotalGamePrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("season_rank.embed.total_game_count.title"), year, season, filter),
-                        season_total_game_page_count[0]
+                        season_total_game_page_count[0],
+                        base64KeyGen(year, null, season, GameType.GMC, filter, season_total_game_page_count[0], gameGroup)
                 )
         );
         Logger.addEvent(event);

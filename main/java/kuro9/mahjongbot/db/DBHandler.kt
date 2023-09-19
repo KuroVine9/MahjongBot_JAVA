@@ -224,7 +224,7 @@ object DBHandler {
         return gameResultList
     }
 
-    private fun checkGameGroup(gameGroup: String): Boolean =
+    fun checkGameGroup(gameGroup: String): Boolean =
         Regex("^[A-Za-z0-9_]{0,15}$").matchEntire(gameGroup) !== null
 
 }
