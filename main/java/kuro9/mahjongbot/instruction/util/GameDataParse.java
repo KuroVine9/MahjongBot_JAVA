@@ -39,6 +39,7 @@ public class GameDataParse {
         //TODO 게임그룹 파싱 구현
     }
 
+    //TODO 페이지 표시 때 월, 년, 기록모드, 게임그룹 등 데이터 base64 encode/decode로 파싱하기?
     @IntRange(inclusiveStart = 1, inclusiveEnd = 12)
     protected static int getValidMonth(GenericInteractionCreateEvent event) {
         if (event instanceof SlashCommandInteractionEvent s) {

@@ -1,14 +1,18 @@
 package kuro9.mahjongbot.instruction;
 
+import kuro9.mahjongbot.DBScoreProcess;
 import kuro9.mahjongbot.Logger;
 import kuro9.mahjongbot.ResourceHandler;
-import kuro9.mahjongbot.ScoreProcess;
 import kuro9.mahjongbot.data.UserGameData;
+import kuro9.mahjongbot.data.UserGameDataComparatorKt;
+import kuro9.mahjongbot.exception.DBConnectException;
 import kuro9.mahjongbot.instruction.action.RankInterface;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -39,12 +43,26 @@ public class MonthRank extends RankArranger implements RankInterface {
         int month = getValidMonth(event);
         int year = getValidYear(event);
         int filter = getValidFilter(event);
+        long guildId = getGuildID(event);
+        String gameGroup = getGameGroup(event);
+
+        HashMap<Long, UserGameData> userDataList;
+
+        try {
+            userDataList = DBScoreProcess.INSTANCE.getMonthUserData(guildId, month, year, gameGroup, filter);
+        }
+        catch (DBConnectException e) {
+            event.getHook()
+                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
 
         event.getHook().sendMessageEmbeds(
                 getSummaryEmbed(
                         String.format(resourceBundle.getString("month_rank.embed.summary.title"), year, month, filter),
-                        ScoreProcess.getUserDataList(month, year).values().stream().peek(UserGameData::updateAllData)
-                                .filter(data -> data.game_count >= filter).toList(),
+                        userDataList.values().stream().toList(),
                         event.getUserLocale()
                 ).build()
         ).queue();
@@ -55,12 +73,38 @@ public class MonthRank extends RankArranger implements RankInterface {
     public void umaReply(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
-        var sorted_list = getSortedUmaList(getValidFilter(event), getValidMonth(event), getValidYear(event));
+
+        int month = getValidMonth(event);
+        int year = getValidYear(event);
+        int filter = getValidFilter(event);
+        long guildId = getGuildID(event);
+        String gameGroup = getGameGroup(event);
+
+        List<UserGameData> sorted_list = null;
+
+        try {
+            sorted_list = getMonthSortedList(
+                    guildId,
+                    gameGroup,
+                    month,
+                    year,
+                    filter,
+                    UserGameDataComparatorKt::compareWithUma
+            );
+        }
+        catch (DBConnectException e) {
+            event.getHook()
+                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
         month_uma_page_count[0] = 1;
         event.getHook().sendMessage(
                 getUmaPrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("month_rank.embed.uma.title"), getValidYear(event), getValidMonth(event), getValidFilter(event)),
+                        String.format(resourceBundle.getString("month_rank.embed.uma.title"), year, month, filter),
                         month_uma_page_count[0]
                 )
         ).addActionRow(
@@ -76,7 +120,33 @@ public class MonthRank extends RankArranger implements RankInterface {
     @Override
     public void umaPageControl(ButtonInteractionEvent event) {
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
-        var sorted_list = getSortedUmaList(getValidFilter(event), getValidMonth(event), getValidYear(event));
+
+        int month = getValidMonth(event);
+        int year = getValidYear(event);
+        int filter = getValidFilter(event);
+        long guildId = getButtonGuildID(event);
+        String gameGroup = getButtonGameGroup(event);
+
+        List<UserGameData> sorted_list;
+
+        try {
+            sorted_list = getMonthSortedList(
+                    guildId,
+                    gameGroup,
+                    month,
+                    year,
+                    filter,
+                    UserGameDataComparatorKt::compareWithUma
+            );
+        }
+        catch (DBConnectException e) {
+            event.getHook()
+                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
         pageControl(
                 event,
                 month_uma_button,
@@ -84,7 +154,7 @@ public class MonthRank extends RankArranger implements RankInterface {
                 sorted_list.size(),
                 () -> getUmaPrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("month_rank.embed.uma.title"), getValidYear(event), getValidMonth(event), getValidFilter(event)),
+                        String.format(resourceBundle.getString("month_rank.embed.uma.title"), year, month, filter),
                         month_uma_page_count[0]
                 )
         );
@@ -95,12 +165,38 @@ public class MonthRank extends RankArranger implements RankInterface {
     public void totalGameReply(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
-        var sorted_list = getSortedTotalGameList(getValidFilter(event), getValidMonth(event), getValidYear(event));
+
+        int month = getValidMonth(event);
+        int year = getValidYear(event);
+        int filter = getValidFilter(event);
+        long guildId = getGuildID(event);
+        String gameGroup = getGameGroup(event);
+
+        List<UserGameData> sorted_list = null;
+
+        try {
+            sorted_list = getMonthSortedList(
+                    guildId,
+                    gameGroup,
+                    month,
+                    year,
+                    filter,
+                    UserGameDataComparatorKt::compareWithGameCount
+            );
+        }
+        catch (DBConnectException e) {
+            event.getHook()
+                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
         month_total_game_page_count[0] = 1;
         event.getHook().sendMessage(
                 getTotalGamePrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("month_rank.embed.total_game_count.title"), getValidYear(event), getValidMonth(event), getValidFilter(event)),
+                        String.format(resourceBundle.getString("month_rank.embed.total_game_count.title"), year, month, filter),
                         month_total_game_page_count[0]
                 )
         ).addActionRow(
@@ -116,7 +212,33 @@ public class MonthRank extends RankArranger implements RankInterface {
     @Override
     public void totalGamePageControl(ButtonInteractionEvent event) {
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
-        var sorted_list = getSortedTotalGameList(getValidFilter(event), getValidMonth(event), getValidYear(event));
+
+        int month = getValidMonth(event);
+        int year = getValidYear(event);
+        int filter = getValidFilter(event);
+        long guildId = getButtonGuildID(event);
+        String gameGroup = getButtonGameGroup(event);
+
+        List<UserGameData> sorted_list;
+
+        try {
+            sorted_list = getMonthSortedList(
+                    guildId,
+                    gameGroup,
+                    month,
+                    year,
+                    filter,
+                    UserGameDataComparatorKt::compareWithGameCount
+            );
+        }
+        catch (DBConnectException e) {
+            event.getHook()
+                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
         pageControl(
                 event,
                 month_total_game_button,
@@ -124,7 +246,7 @@ public class MonthRank extends RankArranger implements RankInterface {
                 sorted_list.size(),
                 () -> getTotalGamePrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("month_rank.embed.total_game_count.title"), getValidYear(event), getValidMonth(event), getValidFilter(event)),
+                        String.format(resourceBundle.getString("month_rank.embed.total_game_count.title"), year, month, filter),
                         month_total_game_page_count[0]
                 )
         );

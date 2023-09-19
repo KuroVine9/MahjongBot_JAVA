@@ -22,84 +22,84 @@ import java.util.function.Supplier;
 
 public abstract class RankArranger extends GameDataParse implements RankInterface {
 
-    protected static EmbedBuilder getSummaryEmbed(String title, List<UserGameData> sorted_list, DiscordLocale locale) {
+    protected static EmbedBuilder getSummaryEmbed(String title, List<UserGameData> userGameDataList, DiscordLocale locale) {
         ResourceBundle resourceBundle = ResourceHandler.getResource(locale);
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle(title);
-        sorted_list.sort(UserGameDataComparatorKt::compareWithUma);
+        userGameDataList.sort(UserGameDataComparatorKt::compareWithUma);
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.total_uma_de"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
-                        sorted_list.get(0).getUserName(), sorted_list.get(0).getTotalUma(),
-                        sorted_list.get(1).getUserName(), sorted_list.get(1).getTotalUma(),
-                        sorted_list.get(2).getUserName(), sorted_list.get(2).getTotalUma()
+                        userGameDataList.get(0).getUserName(), userGameDataList.get(0).getTotalUma(),
+                        userGameDataList.get(1).getUserName(), userGameDataList.get(1).getTotalUma(),
+                        userGameDataList.get(2).getUserName(), userGameDataList.get(2).getTotalUma()
                 ),
                 true
         );
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.total_uma_as"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
-                        sorted_list.get(sorted_list.size() - 1).getUserName(), sorted_list.get(sorted_list.size() - 1).getTotalUma(),
-                        sorted_list.get(sorted_list.size() - 2).getUserName(), sorted_list.get(sorted_list.size() - 2).getTotalUma(),
-                        sorted_list.get(sorted_list.size() - 3).getUserName(), sorted_list.get(sorted_list.size() - 3).getTotalUma()
+                        userGameDataList.get(userGameDataList.size() - 1).getUserName(), userGameDataList.get(userGameDataList.size() - 1).getTotalUma(),
+                        userGameDataList.get(userGameDataList.size() - 2).getUserName(), userGameDataList.get(userGameDataList.size() - 2).getTotalUma(),
+                        userGameDataList.get(userGameDataList.size() - 3).getUserName(), userGameDataList.get(userGameDataList.size() - 3).getTotalUma()
                 ),
                 true
         );
-        sorted_list.sort(UserGameDataComparatorKt::compareWithGameCount);
+        userGameDataList.sort(UserGameDataComparatorKt::compareWithGameCount);
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.total_game_count.title"),
                 String.format(resourceBundle.getString("rank_arranger.embed.total_game_count.field"),
-                        sorted_list.get(0).getUserName(), sorted_list.get(0).getGameCount(),
-                        sorted_list.get(1).getUserName(), sorted_list.get(1).getGameCount(),
-                        sorted_list.get(2).getUserName(), sorted_list.get(2).getGameCount()
+                        userGameDataList.get(0).getUserName(), userGameDataList.get(0).getGameCount(),
+                        userGameDataList.get(1).getUserName(), userGameDataList.get(1).getGameCount(),
+                        userGameDataList.get(2).getUserName(), userGameDataList.get(2).getGameCount()
                 ),
                 true
         );
-        sorted_list.sort(UserGameDataComparatorKt::compareWithTobi);
+        userGameDataList.sort(UserGameDataComparatorKt::compareWithTobi);
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.tobi"),
                 String.format("%s : %.1f%%\n%s : %.1f%%\n%s : %.1f%%",
-                        sorted_list.get(0).getUserName(), sorted_list.get(0).getRankPercentage()[4],
-                        sorted_list.get(1).getUserName(), sorted_list.get(1).getRankPercentage()[4],
-                        sorted_list.get(2).getUserName(), sorted_list.get(2).getRankPercentage()[4]
+                        userGameDataList.get(0).getUserName(), userGameDataList.get(0).getRankPercentage()[4],
+                        userGameDataList.get(1).getUserName(), userGameDataList.get(1).getRankPercentage()[4],
+                        userGameDataList.get(2).getUserName(), userGameDataList.get(2).getRankPercentage()[4]
                 ),
                 true
         );
-        sorted_list.sort(UserGameDataComparatorKt::compareWithAvgRank);
+        userGameDataList.sort(UserGameDataComparatorKt::compareWithAvgRank);
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.avg_rank_de"),
                 String.format("%s : %.2f\n%s : %.2f\n%s : %.2f",
-                        sorted_list.get(0).getUserName(), sorted_list.get(0).getAvgRank(),
-                        sorted_list.get(1).getUserName(), sorted_list.get(1).getAvgRank(),
-                        sorted_list.get(2).getUserName(), sorted_list.get(2).getAvgRank()
+                        userGameDataList.get(0).getUserName(), userGameDataList.get(0).getAvgRank(),
+                        userGameDataList.get(1).getUserName(), userGameDataList.get(1).getAvgRank(),
+                        userGameDataList.get(2).getUserName(), userGameDataList.get(2).getAvgRank()
                 ),
                 true
         );
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.avg_rank_as"),
                 String.format("%s : %.2f\n%s : %.2f\n%s : %.2f",
-                        sorted_list.get(sorted_list.size() - 1).getUserName(), sorted_list.get(sorted_list.size() - 1).getAvgRank(),
-                        sorted_list.get(sorted_list.size() - 2).getUserName(), sorted_list.get(sorted_list.size() - 2).getAvgRank(),
-                        sorted_list.get(sorted_list.size() - 3).getUserName(), sorted_list.get(sorted_list.size() - 3).getAvgRank()
+                        userGameDataList.get(userGameDataList.size() - 1).getUserName(), userGameDataList.get(userGameDataList.size() - 1).getAvgRank(),
+                        userGameDataList.get(userGameDataList.size() - 2).getUserName(), userGameDataList.get(userGameDataList.size() - 2).getAvgRank(),
+                        userGameDataList.get(userGameDataList.size() - 3).getUserName(), userGameDataList.get(userGameDataList.size() - 3).getAvgRank()
                 ),
                 true
         );
-        sorted_list.sort(UserGameDataComparatorKt::compareWithAvgUma);
+        userGameDataList.sort(UserGameDataComparatorKt::compareWithAvgUma);
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.avg_uma_de"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
-                        sorted_list.get(0).getUserName(), sorted_list.get(0).getAvgUma(),
-                        sorted_list.get(1).getUserName(), sorted_list.get(1).getAvgUma(),
-                        sorted_list.get(2).getUserName(), sorted_list.get(2).getAvgUma()
+                        userGameDataList.get(0).getUserName(), userGameDataList.get(0).getAvgUma(),
+                        userGameDataList.get(1).getUserName(), userGameDataList.get(1).getAvgUma(),
+                        userGameDataList.get(2).getUserName(), userGameDataList.get(2).getAvgUma()
                 ),
                 true
         );
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.avg_uma_as"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
-                        sorted_list.get(sorted_list.size() - 1).getUserName(), sorted_list.get(sorted_list.size() - 1).getAvgUma(),
-                        sorted_list.get(sorted_list.size() - 2).getUserName(), sorted_list.get(sorted_list.size() - 2).getAvgUma(),
-                        sorted_list.get(sorted_list.size() - 3).getUserName(), sorted_list.get(sorted_list.size() - 3).getAvgUma()
+                        userGameDataList.get(userGameDataList.size() - 1).getUserName(), userGameDataList.get(userGameDataList.size() - 1).getAvgUma(),
+                        userGameDataList.get(userGameDataList.size() - 2).getUserName(), userGameDataList.get(userGameDataList.size() - 2).getAvgUma(),
+                        userGameDataList.get(userGameDataList.size() - 3).getUserName(), userGameDataList.get(userGameDataList.size() - 3).getAvgUma()
                 ),
                 true
         );

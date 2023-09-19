@@ -152,7 +152,7 @@ object DBScoreProcess {
 
     /**
      * 1개월 동안의 게임 결과를 가져옵니다.
-     * @param id 서버 id
+     * @param guildId 서버 id
      * @param month 검색할 달
      * @param year 검색할 년
      * @param gameGroup 검색할 게임 그룹
@@ -161,19 +161,19 @@ object DBScoreProcess {
      */
     @Throws(DBConnectException::class)
     fun getMonthUserData(
-        @GuildRes id: Long,
+        @GuildRes guildId: Long,
         @IntRange(1, 12) month: Int,
         year: Int,
         gameGroup: String = "",
         filterGameCount: Int = 0
     ): HashMap<Long, UserGameData> {
         val (startDate, endDate) = getTimestampForOneMonth(month, year)
-        return DataCache.getData(DataCache.Query(id, startDate, endDate, gameGroup, filterGameCount))
+        return DataCache.getData(DataCache.Query(guildId, startDate, endDate, gameGroup, filterGameCount))
     }
 
     /**
      * 검색 기간 동안의 게임 결과를 가져옵니다.
-     * @param id 서버 id
+     * @param guildId 서버 id
      * @param startMonth 시작 월
      * @param startYear 시작 년도
      * @param endMonth 종료 월(선택한 달의 끝까지 반영 ex: 7월->7월 31일 23시 59분 59초까지 반영)
@@ -184,7 +184,7 @@ object DBScoreProcess {
      */
     @Throws(DBConnectException::class)
     fun getSelectedUserData(
-        @GuildRes id: Long,
+        @GuildRes guildId: Long,
         @IntRange(1, 12) startMonth: Int,
         startYear: Int,
         @IntRange(1, 12) endMonth: Int,
@@ -193,23 +193,29 @@ object DBScoreProcess {
         filterGameCount: Int = 0
     ): HashMap<Long, UserGameData> {
         val (startDate, endDate) = getTimestampFromMonthAndYear(startMonth, startYear, endMonth, endYear)
-        return DataCache.getData(DataCache.Query(id, startDate, endDate, gameGroup, filterGameCount))
+        return DataCache.getData(DataCache.Query(guildId, startDate, endDate, gameGroup, filterGameCount))
     }
 
     /**
      * 모든 기간동안의 게임 결과를 가져옵니다.
-     * @param id 서버 id
+     * @param guildId 서버 id
      * @param gameGroup 검색할 게임 그룹
      * @param filterGameCount 필터링할 국 수
      * @throws DBConnectException DB 연결 에러시
      */
     @Throws(DBConnectException::class)
     fun getAllUserData(
-        @GuildRes id: Long,
+        @GuildRes guildId: Long,
         gameGroup: String = "",
         filterGameCount: Int = 0
     ): HashMap<Long, UserGameData> {
-        return DataCache.getData(DataCache.Query(id = id, gameGroup = gameGroup, filterGameCount = filterGameCount))
+        return DataCache.getData(
+            DataCache.Query(
+                id = guildId,
+                gameGroup = gameGroup,
+                filterGameCount = filterGameCount
+            )
+        )
     }
 
     /**
