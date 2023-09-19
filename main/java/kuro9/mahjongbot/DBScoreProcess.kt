@@ -21,10 +21,10 @@ object DBScoreProcess {
      * 데이터 캐싱을 위한 싱글톤 클래스입니다.
      * second-chance를 적용하였습니다.
      */
-    object DataCache {
+    private object DataCache {
         private const val QUEUE_SIZE = 8
 
-        enum class STATE { REFFED, OLD, INVALID }
+        private enum class STATE { REFFED, OLD, INVALID }
         data class Query(
             @GuildRes val id: Long,
             val startDate: Timestamp? = null,
@@ -33,7 +33,11 @@ object DBScoreProcess {
             val filterGameCount: Int = 0,
         )
 
-        data class Cache(var state: STATE = STATE.REFFED, val query: Query, val data: HashMap<Long, UserGameData>)
+        private data class Cache(
+            var state: STATE = STATE.REFFED,
+            val query: Query,
+            val data: HashMap<Long, UserGameData>
+        )
 
         private val cacheQueue: Array<Cache> = Array(QUEUE_SIZE) {
             Cache(STATE.INVALID, Query(-1, null, null), HashMap())
@@ -47,16 +51,23 @@ object DBScoreProcess {
          */
         private fun findData(query: Query): HashMap<Long, UserGameData>? {
             val result: HashMap<Long, UserGameData>
-            for (i in cacheQueue.indices) {
-                if (cacheQueue[i].query != query) continue
+            val basePos: Int = ptr
 
-                if (cacheQueue[i].state == STATE.INVALID) return null
+            do {
+                if (cacheQueue[ptr].query != query) {
+                    cacheQueue[ptr].state = STATE.OLD
+                    ptr = ++ptr % QUEUE_SIZE
+                    continue
+                }
+
+                //CASE WHEN TARGET FOUND
+                if (cacheQueue[ptr].state == STATE.INVALID) return null
                 else {
-                    result = cacheQueue[i].data
-                    cacheQueue[i].state = STATE.REFFED
+                    result = cacheQueue[ptr].data
+                    cacheQueue[ptr].state = STATE.REFFED
                     return result
                 }
-            }
+            } while (basePos != ptr)
             return null
         }
 
@@ -73,7 +84,7 @@ object DBScoreProcess {
                     continue
                 }
                 else {
-                    cacheQueue[ptr++] = Cache(query = query, data = data)
+                    cacheQueue[ptr] = Cache(query = query, data = data)
                     break
                 }
             }

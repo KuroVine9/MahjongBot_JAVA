@@ -1,14 +1,18 @@
 package kuro9.mahjongbot.instruction;
 
+import kuro9.mahjongbot.DBScoreProcess;
 import kuro9.mahjongbot.Logger;
 import kuro9.mahjongbot.ResourceHandler;
-import kuro9.mahjongbot.ScoreProcess;
 import kuro9.mahjongbot.data.UserGameData;
+import kuro9.mahjongbot.data.UserGameDataComparatorKt;
+import kuro9.mahjongbot.exception.DBConnectException;
 import kuro9.mahjongbot.instruction.action.RankInterface;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -36,12 +40,28 @@ public class EntireRank extends RankArranger implements RankInterface {
     public void summaryReply(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
+
         int filter = getValidFilter(event);
+        long guildId = getGuildID(event);
+        String gameGroup = getGameGroup(event);
+
+        HashMap<Long, UserGameData> userDataList;
+
+        try {
+            userDataList = DBScoreProcess.INSTANCE.getAllUserData(guildId, gameGroup, filter);
+        }
+        catch (DBConnectException e) {
+            event.getHook()
+                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
         event.getHook().sendMessageEmbeds(
                 getSummaryEmbed(
                         String.format(resourceBundle.getString("entire_rank.embed.summary.title"), filter),
-                        ScoreProcess.getUserDataList().values().stream().peek(UserGameData::updateAllData)
-                                .filter(data -> data.game_count >= filter).toList(),
+                        userDataList.values().stream().toList(),
                         event.getUserLocale()
                 ).build()
         ).queue();
@@ -52,8 +72,29 @@ public class EntireRank extends RankArranger implements RankInterface {
     public void umaReply(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
+
         int filter = getValidFilter(event);
-        var sorted_list = getSortedUmaList(filter);
+        long guildId = getGuildID(event);
+        String gameGroup = getGameGroup(event);
+
+        List<UserGameData> sorted_list = null;
+
+        try {
+            sorted_list = getAllSortedList(
+                    guildId,
+                    gameGroup,
+                    filter,
+                    UserGameDataComparatorKt::compareWithUma
+            );
+        }
+        catch (DBConnectException e) {
+            event.getHook()
+                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
         uma_page_count[0] = 1;
         event.getHook().sendMessage(
                 getUmaPrintString(
@@ -75,7 +116,27 @@ public class EntireRank extends RankArranger implements RankInterface {
     public void umaPageControl(ButtonInteractionEvent event) {
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int filter = getValidFilter(event);
-        var sorted_list = getSortedUmaList(filter);
+        long guildId = getButtonGuildID(event);
+        String gameGroup = getButtonGameGroup(event);
+
+        List<UserGameData> sorted_list;
+
+        try {
+            sorted_list = getAllSortedList(
+                    guildId,
+                    gameGroup,
+                    filter,
+                    UserGameDataComparatorKt::compareWithUma
+            );
+        }
+        catch (DBConnectException e) {
+            event.getHook()
+                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
         pageControl(
                 event,
                 uma_button,
@@ -95,7 +156,27 @@ public class EntireRank extends RankArranger implements RankInterface {
         event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int filter = getValidFilter(event);
-        var sorted_list = getSortedTotalGameList(filter);
+        long guildId = getGuildID(event);
+        String gameGroup = getGameGroup(event);
+
+        List<UserGameData> sorted_list = null;
+
+        try {
+            sorted_list = getAllSortedList(
+                    guildId,
+                    gameGroup,
+                    filter,
+                    UserGameDataComparatorKt::compareWithGameCount
+            );
+        }
+        catch (DBConnectException e) {
+            event.getHook()
+                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
         total_game_page_count[0] = 1;
         event.getHook().sendMessage(
                 getTotalGamePrintString(
@@ -117,7 +198,27 @@ public class EntireRank extends RankArranger implements RankInterface {
     public void totalGamePageControl(ButtonInteractionEvent event) {
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         int filter = getValidFilter(event);
-        var sorted_list = getSortedTotalGameList(filter);
+        long guildId = getButtonGuildID(event);
+        String gameGroup = getButtonGameGroup(event);
+
+        List<UserGameData> sorted_list;
+
+        try {
+            sorted_list = getAllSortedList(
+                    guildId,
+                    gameGroup,
+                    filter,
+                    UserGameDataComparatorKt::compareWithGameCount
+            );
+        }
+        catch (DBConnectException e) {
+            event.getHook()
+                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
         pageControl(
                 event,
                 total_game_button,
