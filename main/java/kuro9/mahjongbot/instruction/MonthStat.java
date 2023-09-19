@@ -1,21 +1,16 @@
 package kuro9.mahjongbot.instruction;
 
+import kuro9.mahjongbot.DBScoreProcess;
 import kuro9.mahjongbot.Logger;
 import kuro9.mahjongbot.ResourceHandler;
-import kuro9.mahjongbot.ScoreProcess;
-import kuro9.mahjongbot.Setting;
 import kuro9.mahjongbot.data.UserGameData;
+import kuro9.mahjongbot.exception.DBConnectException;
 import kuro9.mahjongbot.instruction.action.StatInterface;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MonthStat extends StatArranger implements StatInterface {
@@ -23,39 +18,42 @@ public class MonthStat extends StatArranger implements StatInterface {
     public void action(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
-        HashMap<String, kuro9.mahjongbot.data.UserGameData> data_list;
 
-        int month = ((event.getOption("month") == null) ?
-                LocalDate.now().getMonthValue() :
-                (int) event.getOption("month").getAsLong());
-        int year = ((event.getOption("year") == null) ?
-                LocalDate.now().getYear() :
-                (int) event.getOption("year").getAsLong());
+        int month = getValidMonth(event);
+        int year = getValidYear(event);
+        long guildId = getGuildID(event);
+        String gameGroup = getGameGroup(event);
+        long userId = getValidUser(event).getIdLong();
+
+        HashMap<Long, UserGameData> data_list;
+        int[][] recent_game_list;
 
         try {
-            ObjectInputStream istream = new ObjectInputStream(new FileInputStream(Setting.getValidMonthDataPath(month, year)));
-            data_list = (HashMap<String, kuro9.mahjongbot.data.UserGameData>) istream.readObject();
+            data_list = DBScoreProcess.INSTANCE.getMonthUserData(guildId, month, year, gameGroup, 0);
+            recent_game_list = DBScoreProcess.INSTANCE.recentMonthGameResult(guildId, userId, month, year, gameGroup);
         }
-        catch (IOException | ClassNotFoundException e) {
-            data_list = ScoreProcess.getUserDataList(month, year);
+        catch (DBConnectException e) {
+            event.getHook()
+                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
         }
 
-        String finalName = getValidUser(event).getName();
+        UserGameData userGameData = data_list.get(userId);
+        if (userGameData == null)
+            userGameData = new UserGameData(userId);
 
-        kuro9.mahjongbot.data.UserGameData user = Optional.ofNullable(data_list.get(finalName)).orElseGet(() -> new UserGameData(finalName));
-        user.updateAllData();
+        File scoreGraphImage = generateGraph(recent_game_list);
 
-        int rank = getRank(data_list, finalName);
-
-        File image = generateGraph(ScoreProcess.recentGameResult(finalName, month, year));
         event.getHook().sendMessageEmbeds(
                 getEmbed(
-                        user,
-                        String.format(resourceBundle.getString("month_stat.embed.title"), rank, year, month, user.name),
+                        userGameData,
+                        String.format(resourceBundle.getString("month_stat.embed.title"), getRank(data_list, userId), year, month, userGameData.getUserName()),
                         getValidUser(event).getEffectiveAvatarUrl(),
                         event.getUserLocale()
                 ).build()
-        ).addFiles(FileUpload.fromData(image)).queue();
+        ).addFiles(FileUpload.fromData(scoreGraphImage)).queue();
         Logger.addEvent(event);
     }
 }

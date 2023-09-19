@@ -1,10 +1,10 @@
 package kuro9.mahjongbot.instruction;
 
-import kuro9.mahjongbot.exception.DBConnectException;
 import kuro9.mahjongbot.DBScoreProcess;
 import kuro9.mahjongbot.Logger;
 import kuro9.mahjongbot.ResourceHandler;
 import kuro9.mahjongbot.data.UserGameData;
+import kuro9.mahjongbot.exception.DBConnectException;
 import kuro9.mahjongbot.instruction.action.StatInterface;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
@@ -60,7 +60,14 @@ public class SeasonStat extends StatArranger implements StatInterface {
 
         int rank = getRank(data_list, userID);
 
-        File image = generateGraph(DBScoreProcess.INSTANCE.recentSelectedGameResult(guildID, userID, start_month, year, end_month, year, gameGroup));
+        File image = null;
+        try {
+            image = generateGraph(DBScoreProcess.INSTANCE.recentSelectedGameResult(guildID, userID, start_month, year, end_month, year, gameGroup));
+        }
+        catch (DBConnectException e) {
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).setEphemeral(true).queue();
+            return;
+        }
         event.getHook().sendMessageEmbeds(
                 getEmbed(
                         user,

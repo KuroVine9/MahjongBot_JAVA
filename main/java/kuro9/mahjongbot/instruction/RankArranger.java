@@ -1,6 +1,7 @@
 package kuro9.mahjongbot.instruction;
 
-import kuro9.mahjongbot.*;
+import kuro9.mahjongbot.DBScoreProcess;
+import kuro9.mahjongbot.ResourceHandler;
 import kuro9.mahjongbot.annotation.GuildRes;
 import kuro9.mahjongbot.annotation.IntRange;
 import kuro9.mahjongbot.data.UserGameData;
@@ -9,75 +10,17 @@ import kuro9.mahjongbot.exception.DBConnectException;
 import kuro9.mahjongbot.instruction.action.RankInterface;
 import kuro9.mahjongbot.instruction.util.GameDataParse;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public abstract class RankArranger extends GameDataParse implements RankInterface {
-
-    protected static int getValidMonth(GenericInteractionCreateEvent event) {
-        if (event instanceof SlashCommandInteractionEvent s) {
-            return ((s.getOption("month") == null) ?
-                    LocalDate.now().getMonthValue() :
-                    (int) s.getOption("month").getAsLong());
-        }
-        else if (event instanceof ButtonInteractionEvent b) {
-            String pattern = "\\[\\d{4}.(\\d{2})";
-            Pattern r = Pattern.compile(pattern);
-            Matcher m = r.matcher(b.getMessage().getContentDisplay());
-            if (m.find()) {
-                return Integer.parseInt(m.group(1));
-            }
-            else return 0;
-        }
-        else return 0;
-    }
-
-    protected static int getValidYear(GenericInteractionCreateEvent event) {
-        if (event instanceof SlashCommandInteractionEvent s) {
-            return ((s.getOption("year") == null) ?
-                    LocalDate.now().getYear() :
-                    (int) s.getOption("year").getAsLong());
-        }
-        else if (event instanceof ButtonInteractionEvent b) {
-            String pattern = "\\[(\\d{4})";
-            Pattern r = Pattern.compile(pattern);
-            Matcher m = r.matcher(b.getMessage().getContentDisplay());
-            if (m.find()) {
-                return Integer.parseInt(m.group(1));
-            }
-            else return 0;
-        }
-        else return 0;
-    }
-
-    protected static int getValidFilter(GenericInteractionCreateEvent event) {
-        if (event instanceof SlashCommandInteractionEvent s) {
-            return ((s.getOption("filter") == null) ?
-                    0 : (int) s.getOption("filter").getAsLong());
-        }
-        else if (event instanceof ButtonInteractionEvent b) {
-            String pattern = "\\([A-Za-z ]*(\\d+)";
-            Pattern r = Pattern.compile(pattern);
-            Matcher m = r.matcher(b.getMessage().getContentDisplay());
-            if (m.find()) {
-                return Integer.parseInt(m.group(1));
-            }
-            else return 0;
-        }
-        else return 0;
-    }
 
     protected static EmbedBuilder getSummaryEmbed(String title, List<UserGameData> sorted_list, DiscordLocale locale) {
         ResourceBundle resourceBundle = ResourceHandler.getResource(locale);

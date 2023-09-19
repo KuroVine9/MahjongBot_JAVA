@@ -7,16 +7,12 @@ import kuro9.mahjongbot.data.UserGameData;
 import kuro9.mahjongbot.data.UserGameDataComparatorKt;
 import kuro9.mahjongbot.exception.DBConnectException;
 import kuro9.mahjongbot.instruction.action.RankInterface;
-import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class SeasonRank extends RankArranger implements RankInterface {
 
@@ -36,24 +32,6 @@ public class SeasonRank extends RankArranger implements RankInterface {
             Button.secondary("season_rank_totalgame_go_next", ">"),
             Button.secondary("season_rank_totalgame_go_last", ">>")
     };
-
-    private int getValidSeason(GenericInteractionCreateEvent event) {
-        if (event instanceof SlashCommandInteractionEvent s) {
-            return ((s.getOption("season") == null) ?
-                    ((LocalDateTime.now().getMonthValue() - 1) / 6) + 1 :
-                    (int) s.getOption("season").getAsLong());
-        }
-        else if (event instanceof ButtonInteractionEvent b) {
-            String pattern = "\\[\\d{4}.(\\d)";
-            Pattern r = Pattern.compile(pattern);
-            Matcher m = r.matcher(b.getMessage().getContentDisplay());
-            if (m.find()) {
-                return Integer.parseInt(m.group(1));
-            }
-            else return 0;
-        }
-        else return 0;
-    }
 
     @Override
     public void summaryReply(SlashCommandInteractionEvent event) {
