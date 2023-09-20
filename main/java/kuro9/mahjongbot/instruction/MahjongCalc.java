@@ -1,6 +1,10 @@
 package kuro9.mahjongbot.instruction;
 
-import kuro9.mahjongbot.*;
+import kuro9.mahjongbot.Logger;
+import kuro9.mahjongbot.MachiCalculator;
+import kuro9.mahjongbot.ResourceHandler;
+import kuro9.mahjongbot.Setting;
+import kuro9.mahjongbot.data.PaiDiscardMachiData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
@@ -121,8 +125,7 @@ public class MahjongCalc {
             graphic.dispose();
 
             ImageIO.write(merge, "png", new File(Setting.MAHJONG_BASE_PATH + "hand.png"));
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             return -1;
         }
         return 0;

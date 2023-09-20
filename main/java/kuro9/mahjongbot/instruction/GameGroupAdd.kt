@@ -15,11 +15,31 @@ fun gameGroupAdd(event: SlashCommandInteractionEvent, gameGroup: String) {
     val resourceBundle = ResourceHandler.getResource(event)
 
     if (guildId == 0L) {
-        //TODO 에러 임베드
+        val embed = EmbedBuilder()
+        embed.setTitle("403 Forbidden")
+        embed.addField(
+            resourceBundle.getString("add.embed.err.403.name"),
+            resourceBundle.getString("add.embed.err.403.description"),
+            true
+        )
+        embed.setColor(Color.RED)
+        event.hook.sendMessageEmbeds(embed.build()).queue()
+
+        Logger.addErrorEvent(event, Logger.NOT_GUILD_MSG)
         return
     }
     if (!DBHandler.checkGameGroup(gameGroup)) {
-        //TODO 에러 임베드
+        val embed = EmbedBuilder()
+        embed.setTitle("400 Bad Requests")
+        embed.addField(
+            resourceBundle.getString("add.embed.err.403.name"),
+            resourceBundle.getString("add.embed.err.403.description"),
+            true
+        )
+        embed.setColor(Color.RED)
+        event.hook.sendMessageEmbeds(embed.build()).queue()
+
+        Logger.addErrorEvent(event, Logger.NOT_GUILD_MSG)
         return
     }
 
@@ -38,7 +58,7 @@ fun gameGroupAdd(event: SlashCommandInteractionEvent, gameGroup: String) {
             )
         }
         embed.setFooter(
-            kotlin.String.format(
+            String.format(
                 resourceBundle.getString("add.embed.success.footer"),
                 game_count,
                 game.createdAt
@@ -47,16 +67,14 @@ fun gameGroupAdd(event: SlashCommandInteractionEvent, gameGroup: String) {
         embed.setColor(Color.BLACK)
         event.hook.sendMessageEmbeds(embed.build()).queue()
         Logger.addEvent(event)
-    }
-    catch (e: ParameterErrorException) {
+    } catch (e: ParameterErrorException) {
         event.hook
             .sendMessageEmbeds(e.getErrorEmbed(event.userLocale).build())
             .setEphemeral(true)
             .queue()
         Logger.addErrorEvent(event, Logger.PARAM_ERR)
         return
-    }
-    catch (e: DBConnectException) {
+    } catch (e: DBConnectException) {
         event.hook
             .sendMessageEmbeds(e.getErrorEmbed(event.userLocale).build())
             .setEphemeral(true)

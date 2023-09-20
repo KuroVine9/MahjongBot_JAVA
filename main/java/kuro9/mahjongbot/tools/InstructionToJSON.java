@@ -1,5 +1,7 @@
-package kuro9.mahjongbot;
+package kuro9.mahjongbot.tools;
 
+import kuro9.mahjongbot.ResourceHandler;
+import kuro9.mahjongbot.Setting;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;

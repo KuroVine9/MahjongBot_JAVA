@@ -6,8 +6,11 @@ import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionE
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,15 +42,14 @@ public class GameDataParse {
     protected static String getButtonGameGroup(ButtonInteractionEvent event) {
         String pattern = "key=\\d{1,4}-\\d{1,2}-\\d-[A-Z]{3}-\\d+-\\d+-([A-Za-z0-9_]{0,15})=";
         Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(event.getMessage().getContentDisplay());
+        Matcher m = r.matcher(Arrays.toString(Base64.getDecoder().decode(event.getMessage().getContentDisplay().getBytes(StandardCharsets.US_ASCII))));
         if (m.find()) {
             return m.group(1);
         }
         else return "";
     }
 
-    //TODO 페이지 표시 때 월, 년, 기록모드, 게임그룹 등 데이터 base64 encode/decode로 파싱하기?
-    @IntRange(inclusiveStart = 1, inclusiveEnd = 12)
+    @IntRange (inclusiveStart = 1, inclusiveEnd = 12)
     protected static int getValidMonth(GenericInteractionCreateEvent event) {
         if (event instanceof SlashCommandInteractionEvent s) {
             return ((s.getOption("month") == null) ?
@@ -101,7 +103,7 @@ public class GameDataParse {
         else return 0;
     }
 
-    @IntRange(inclusiveStart = 1, inclusiveEnd = 2)
+    @IntRange (inclusiveStart = 1, inclusiveEnd = 2)
     protected int getValidSeason(GenericInteractionCreateEvent event) {
         if (event instanceof SlashCommandInteractionEvent s) {
             return ((s.getOption("season") == null) ?
