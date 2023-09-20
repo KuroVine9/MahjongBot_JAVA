@@ -18,8 +18,8 @@ fun gameGroupAdd(event: SlashCommandInteractionEvent, gameGroup: String) {
         val embed = EmbedBuilder()
         embed.setTitle("403 Forbidden")
         embed.addField(
-            resourceBundle.getString("add.embed.err.403.name"),
-            resourceBundle.getString("add.embed.err.403.description"),
+            resourceBundle.getString("exception.not_in_guild.name"),
+            resourceBundle.getString("exception.not_in_guild.description"),
             true
         )
         embed.setColor(Color.RED)
@@ -32,8 +32,8 @@ fun gameGroupAdd(event: SlashCommandInteractionEvent, gameGroup: String) {
         val embed = EmbedBuilder()
         embed.setTitle("400 Bad Requests")
         embed.addField(
-            resourceBundle.getString("add.embed.err.403.name"),
-            resourceBundle.getString("add.embed.err.403.description"),
+            resourceBundle.getString("exception.not_in_guild.name"),
+            resourceBundle.getString("exception.not_in_guild.description"),
             true
         )
         embed.setColor(Color.RED)
@@ -67,14 +67,16 @@ fun gameGroupAdd(event: SlashCommandInteractionEvent, gameGroup: String) {
         embed.setColor(Color.BLACK)
         event.hook.sendMessageEmbeds(embed.build()).queue()
         Logger.addEvent(event)
-    } catch (e: ParameterErrorException) {
+    }
+    catch (e: ParameterErrorException) {
         event.hook
             .sendMessageEmbeds(e.getErrorEmbed(event.userLocale).build())
             .setEphemeral(true)
             .queue()
         Logger.addErrorEvent(event, Logger.PARAM_ERR)
         return
-    } catch (e: DBConnectException) {
+    }
+    catch (e: DBConnectException) {
         event.hook
             .sendMessageEmbeds(e.getErrorEmbed(event.userLocale).build())
             .setEphemeral(true)

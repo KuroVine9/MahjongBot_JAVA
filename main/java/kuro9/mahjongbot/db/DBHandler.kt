@@ -29,6 +29,9 @@ object DBHandler {
     private const val addGameGroupQuery = "CALL add_group(?, ?, ?)"
     private const val selectGameResultQuery = "CALL select_record(?, ?, ?, ?, ?)"
     private const val selectRecentGameResultQuery = "CALL recent_ten_record(?, ?, ?, ?, ?)"
+    private const val selectGameGroupQuery = "CALL select_gamegroup(?)"
+    private const val modifyRecordQuery = "CALL modify_record(?, ?,?,?,?,?,?,?,?,?,?,?)"
+    private const val deleteRecordQuery = "CALL delete_record(?,?,?,?)"
 
 
     /**
@@ -223,6 +226,93 @@ object DBHandler {
 
         return gameResultList
     }
+
+    /**
+     * 게임 그룹를 조회합니다.
+     * @param guildID 조회할 서버 ID
+     * @return 게임 그룹 List
+     * @throws DBConnectException DB 처리 에러
+     */
+    @Throws(DBConnectException::class)
+    fun selectGameGroup(@GuildRes guildID: Long): List<String> {
+        val gameGroupList = mutableListOf<String>()
+
+        try {
+            dataSource.connection.use { connection ->
+                connection.prepareCall(selectGameGroupQuery).use { call ->
+                    with(call) {
+                        setLong(1, guildID)
+
+                        executeQuery().use { resultSet ->
+                            with(resultSet) {
+                                while (next())
+                                    gameGroupList.add(getString(1))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (e: SQLException) {
+            throw DBConnectException()
+        }
+
+        return gameGroupList
+    }
+
+    /**
+     * 등록된 게임을 수정합니다.
+     * @param game [Game] 객체
+     * @param result size가 4인 [GameResult] 객체 배열
+     * @return 현재 guild && game group에서의 국 수
+     *
+     * @throws ParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
+     * @throws GameGroupNotFoundException 등록된 game group가 아닐 때
+     * @throws DBConnectException DB 처리 중 에러가 발생할 때
+     */
+    @Throws(ParameterErrorException::class, GameGroupNotFoundException::class, DBConnectException::class)
+    fun modifyRecord(@UserRes userId: Long, game: Game, result: Collection<GameResult>) {
+        if (result.size != 4) throw ParameterErrorException("Size is not 4!")
+        if (result.withIndex()
+                .all { (index, gameResult) -> gameResult.rank != index + 1 }
+        ) throw ParameterErrorException("Not Sorted!")
+        if (result.map { it.score }
+                .reduce { acc, now -> acc + now } != 100000) throw ParameterErrorException("Score sum is invalid!")
+
+        try {
+            dataSource.connection.use { connection ->
+                connection.prepareCall(addScoreQuery).use { call ->
+                    with(call) {
+                        setLong(1, userId)
+                        setInt(2, game.id)
+                        setLong(3, game.guildID)
+
+                        result.forEach {
+                            setLong(it.rank * 2 + 2, it.userID)
+                            setInt(it.rank * 2 + 3, it.score)
+                        }
+
+                        registerOutParameter(12, Types.INTEGER)
+
+                        executeUpdate()
+                        when (getInt(12)) {
+                            -1 -> throw DBConnectException("Procedure Error!")
+                            -400 -> //TODO 예외처리
+                            -403 ->
+                            else -> {}
+                        }
+                    }
+                }
+            }
+        }
+        catch (e: SQLException) {
+            throw DBConnectException()
+        }
+
+    }
+
+    //TODO Delete record 메소드
+    //TODO (sql도 해야함) admin 등록, 리스트 출력 기능
 
     fun checkGameGroup(gameGroup: String): Boolean =
         Regex("^[A-Za-z0-9_]{0,15}$").matchEntire(gameGroup) !== null

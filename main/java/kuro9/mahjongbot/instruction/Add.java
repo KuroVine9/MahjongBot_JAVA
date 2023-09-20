@@ -31,8 +31,8 @@ public class Add extends GameDataParse {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle("403 Forbidden");
             embed.addField(
-                    resourceBundle.getString("add.embed.err.403.name"),
-                    resourceBundle.getString("add.embed.err.403.description"),
+                    resourceBundle.getString("exception.not_in_guild.name"),
+                    resourceBundle.getString("exception.not_in_guild.description"),
                     true
             );
             embed.setColor(Color.RED);
