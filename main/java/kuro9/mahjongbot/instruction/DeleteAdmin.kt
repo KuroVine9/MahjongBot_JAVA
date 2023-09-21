@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import java.awt.Color
 import java.util.*
 
-object AddAdmin : GameDataParse() {
+object DeleteAdmin : GameDataParse() {
     fun action(event: SlashCommandInteractionEvent) {
         val userId: Long = getUserID(event)
         val guildId: Long = getGuildID(event)
@@ -48,15 +48,15 @@ object AddAdmin : GameDataParse() {
         }
 
         try {
-            DBHandler.addAdmin(userId, guildId)
+            DBHandler.deleteAdmin(userId, guildId)
 
             event.hook.sendMessageEmbeds(
                 EmbedBuilder().apply {
                     setTitle("200 OK")
                     addField(
-                        resourceBundle.getString("admin.add.embed.title"),
+                        resourceBundle.getString("admin.delete.embed.title"),
                         String.format(
-                            resourceBundle.getString("admin.add.embed.description"),
+                            resourceBundle.getString("admin.delete.embed.description"),
                             event.jda.getUserById(userId)?.effectiveName ?: "<Unknown>"
                         ),
                         true
@@ -66,15 +66,12 @@ object AddAdmin : GameDataParse() {
             ).setEphemeral(true).queue()
 
             Logger.addEvent(event);
-
         }
         catch (e: DBConnectException) {
             event.hook.sendMessageEmbeds(
                 e.getErrorEmbed(event.userLocale)
             ).setEphemeral(true).queue()
         }
-
-
     }
 
     private fun invalidGuildTask(event: SlashCommandInteractionEvent, resourceBundle: ResourceBundle) {
