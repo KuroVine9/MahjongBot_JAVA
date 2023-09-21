@@ -3,11 +3,12 @@ package kuro9.mahjongbot.exception
 import kuro9.mahjongbot.Logger
 import kuro9.mahjongbot.ResourceHandler
 import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.interactions.DiscordLocale
 import java.awt.Color
 
 abstract class EmbeddableException(message: String) : Exception(message) {
-    abstract fun getErrorEmbed(locale: DiscordLocale): EmbedBuilder
+    abstract fun getErrorEmbed(locale: DiscordLocale): MessageEmbed
 }
 
 class DBConnectException(message: String = "DB Connect Error!") : EmbeddableException(message) {
@@ -15,7 +16,7 @@ class DBConnectException(message: String = "DB Connect Error!") : EmbeddableExce
         Logger.addSystemErrorEvent(Logger.DB_CONN_ERR)
     }
 
-    override fun getErrorEmbed(locale: DiscordLocale): EmbedBuilder {
+    override fun getErrorEmbed(locale: DiscordLocale): MessageEmbed {
         val resourceBundle = ResourceHandler.getResource(locale)
         val embed = EmbedBuilder()
         embed.setTitle("500 Internal Server Error")
@@ -25,12 +26,12 @@ class DBConnectException(message: String = "DB Connect Error!") : EmbeddableExce
             true
         )
         embed.setColor(Color.RED)
-        return embed
+        return embed.build()
     }
 }
 
 class ParameterErrorException(message: String = "Param Error!") : EmbeddableException(message) {
-    override fun getErrorEmbed(locale: DiscordLocale): EmbedBuilder {
+    override fun getErrorEmbed(locale: DiscordLocale): MessageEmbed {
         val resourceBundle = ResourceHandler.getResource(locale)
         val embed = EmbedBuilder()
         embed.setTitle("400 Bad Request")
@@ -41,13 +42,13 @@ class ParameterErrorException(message: String = "Param Error!") : EmbeddableExce
             true
         )
         embed.setColor(Color.RED)
-        return embed
+        return embed.build()
     }
 
 }
 
 class GameGroupNotFoundException(message: String = "Game Group Not Found!") : EmbeddableException(message) {
-    override fun getErrorEmbed(locale: DiscordLocale): EmbedBuilder {
+    override fun getErrorEmbed(locale: DiscordLocale): MessageEmbed {
         val resourceBundle = ResourceHandler.getResource(locale)
         val embed = EmbedBuilder()
         embed.setTitle("404 Not Found")
@@ -58,13 +59,13 @@ class GameGroupNotFoundException(message: String = "Game Group Not Found!") : Em
             true
         )
         embed.setColor(Color.RED)
-        return embed
+        return embed.build()
     }
 
 }
 
 class NotGuildInteractionException(message: String = "Not a Guild Interaction!") : EmbeddableException(message) {
-    override fun getErrorEmbed(locale: DiscordLocale): EmbedBuilder {
+    override fun getErrorEmbed(locale: DiscordLocale): MessageEmbed {
         val resourceBundle = ResourceHandler.getResource(locale)
         val embed = EmbedBuilder()
         embed.setTitle("403 Forbidden")
@@ -74,13 +75,13 @@ class NotGuildInteractionException(message: String = "Not a Guild Interaction!")
             true
         )
         embed.setColor(Color.RED)
-        return embed
+        return embed.build()
     }
 
 }
 
 class PermissionDeniedException(message: String = "You have No Permission!") : EmbeddableException(message) {
-    override fun getErrorEmbed(locale: DiscordLocale): EmbedBuilder {
+    override fun getErrorEmbed(locale: DiscordLocale): MessageEmbed {
         val resourceBundle = ResourceHandler.getResource(locale)
         val embed = EmbedBuilder()
         embed.setTitle("403 Forbidden")
@@ -90,12 +91,12 @@ class PermissionDeniedException(message: String = "You have No Permission!") : E
             true
         )
         embed.setColor(Color.RED)
-        return embed
+        return embed.build()
     }
 }
 
 class PermissionExpiredException(message: String = "Too late!") : EmbeddableException(message) {
-    override fun getErrorEmbed(locale: DiscordLocale): EmbedBuilder {
+    override fun getErrorEmbed(locale: DiscordLocale): MessageEmbed {
         val resourceBundle = ResourceHandler.getResource(locale)
         val embed = EmbedBuilder()
         embed.setTitle("400 Bad Request")
@@ -105,7 +106,7 @@ class PermissionExpiredException(message: String = "Too late!") : EmbeddableExce
             true
         )
         embed.setColor(Color.RED)
-        return embed
+        return embed.build()
     }
 }
 

@@ -35,7 +35,7 @@ public class EntireStat extends StatArranger implements StatInterface {
         }
         catch (DBConnectException e) {
             event.getHook()
-                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build())
+                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()))
                     .setEphemeral(true)
                     .queue();
             return;

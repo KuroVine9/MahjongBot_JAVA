@@ -22,7 +22,7 @@ import java.util.stream.IntStream;
 /**
  * 순위 데이터 파일에 기록을 추가합니다.
  */
-public class Add extends GameDataParse {
+public class AddScore extends GameDataParse {
 
     public static void action(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
@@ -84,8 +84,7 @@ public class Add extends GameDataParse {
             Logger.addEvent(event);
         }
         catch (ParameterErrorException | GameGroupNotFoundException | DBConnectException e) {
-            EmbedBuilder embed = e.getErrorEmbed(event.getUserLocale());
-            event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale())).setEphemeral(true).queue();
 
             if (e instanceof ParameterErrorException)
                 Logger.addErrorEvent(event, Logger.PARAM_ERR);

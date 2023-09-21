@@ -4,7 +4,6 @@ import kuro9.mahjongbot.instruction.*;
 import kuro9.mahjongbot.instruction.action.RankInterface;
 import kuro9.mahjongbot.instruction.action.StatInterface;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.User;
@@ -24,7 +23,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
-import java.util.Set;
 
 public class Main extends ListenerAdapter {
     private static RankInterface[] rank;
@@ -47,7 +45,7 @@ public class Main extends ListenerAdapter {
         Setting.init(TOKEN);
 
         JDA jda = Setting.JDA;
-        if(jda == null) {
+        if (jda == null) {
             System.out.println("\n\n[MahjongBot:Main] JDA Cannot be Null!\n\n");
             throw new NullPointerException(JDA.class.getName());
         }
@@ -105,7 +103,7 @@ public class Main extends ListenerAdapter {
                         Button.link(String.format("https://docs.google.com/spreadsheets/d/%s/", Setting.ERROR_LOG_FILE_ID), "error_log.csv")
                 ).queue();
             }
-            case "add" -> Add.action(event);
+            case "add" -> AddScore.action(event);
             case "stat" -> stat[2].action(event);
             case "month_stat" -> stat[1].action(event);
             case "entire_stat" -> stat[0].action(event);

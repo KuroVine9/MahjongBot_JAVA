@@ -25,11 +25,13 @@ public class Logger {
     public static final String NOT_GUILD_MSG = "not-guild-msg";
     public static final String DB_CONN_ERR = "db-connect-err";
     public static final String HAND_IMG_GEN_ERR = "hand-img-gen-err";
-    public static String IMAGE_GEN_ERR = "image-generate-err";
-    public static String INSTRUCTION_LOAD_ERR = "instruction-load-err";
-    public static String SETTING_JSON_PARSE_ERR = "setting-parse-err";
-    public static String PARAM_ERR = "parameter-err";
-    public static String UNKNOWN_GAMEGROUP = "unknown-gamegroup";
+    public static final String IMAGE_GEN_ERR = "image-generate-err";
+    public static final String INSTRUCTION_LOAD_ERR = "instruction-load-err";
+    public static final String SETTING_JSON_PARSE_ERR = "setting-parse-err";
+    public static final String PARAM_ERR = "parameter-err";
+    public static final String UNKNOWN_GAMEGROUP = "unknown-gamegroup";
+    public static final String UNKNOWN_GUILD = "unknown-guild";
+    public static final String PERMISSION_DENY = "no-permission";
 
     /**
      * 일반 이벤트를 로깅합니다.

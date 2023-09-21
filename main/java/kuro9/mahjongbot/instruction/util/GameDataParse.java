@@ -1,6 +1,8 @@
 package kuro9.mahjongbot.instruction.util;
 
+import kuro9.mahjongbot.annotation.GuildRes;
 import kuro9.mahjongbot.annotation.IntRange;
+import kuro9.mahjongbot.annotation.UserRes;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -16,6 +18,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GameDataParse {
+
+    @UserRes
+    public static long getUserID(SlashCommandInteractionEvent event) {
+        long userId;
+        var userObj = event.getOption("user");
+
+        return userObj == null ? event.getUser().getIdLong() : userObj.getAsUser().getIdLong();
+    }
+
+    @GuildRes
     public static long getGuildID(GenericCommandInteractionEvent event) {
         long guildID;
         if (event.getOption("guild") == null) {

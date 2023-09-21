@@ -36,7 +36,7 @@ public class SeasonStat extends StatArranger implements StatInterface {
             data_list = DBScoreProcess.INSTANCE.getSelectedUserData(guildID, start_month, year, end_month, year, gameGroup, 0);
         }
         catch (DBConnectException e) {
-            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).setEphemeral(true).queue();
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale())).setEphemeral(true).queue();
             return;
         }
 
@@ -50,7 +50,7 @@ public class SeasonStat extends StatArranger implements StatInterface {
             image = generateGraph(DBScoreProcess.INSTANCE.recentSelectedGameResult(guildID, userID, start_month, year, end_month, year, gameGroup));
         }
         catch (DBConnectException e) {
-            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).setEphemeral(true).queue();
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale())).setEphemeral(true).queue();
             return;
         }
         event.getHook().sendMessageEmbeds(

@@ -57,7 +57,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
             ).queue();
         }
         catch (DBConnectException e) {
-            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).setEphemeral(true).queue();
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale())).setEphemeral(true).queue();
             return;
         }
         Logger.addEvent(event);
@@ -90,7 +90,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
             );
         }
         catch (DBConnectException e) {
-            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).setEphemeral(true).queue();
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale())).setEphemeral(true).queue();
             return;
         }
 
@@ -138,7 +138,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
             );
         }
         catch (DBConnectException e) {
-            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).setEphemeral(true).queue();
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale())).setEphemeral(true).queue();
             return;
         }
 
@@ -184,7 +184,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
             );
         }
         catch (DBConnectException e) {
-            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).setEphemeral(true).queue();
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale())).setEphemeral(true).queue();
             return;
         }
 
@@ -232,7 +232,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
             );
         }
         catch (DBConnectException e) {
-            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build()).setEphemeral(true).queue();
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale())).setEphemeral(true).queue();
             return;
         }
 

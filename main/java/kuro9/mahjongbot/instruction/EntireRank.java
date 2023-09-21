@@ -52,7 +52,7 @@ public class EntireRank extends RankArranger implements RankInterface {
         }
         catch (DBConnectException e) {
             event.getHook()
-                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build())
+                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()))
                     .setEphemeral(true)
                     .queue();
             return;
@@ -89,7 +89,7 @@ public class EntireRank extends RankArranger implements RankInterface {
         }
         catch (DBConnectException e) {
             event.getHook()
-                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build())
+                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()))
                     .setEphemeral(true)
                     .queue();
             return;
@@ -132,7 +132,7 @@ public class EntireRank extends RankArranger implements RankInterface {
         }
         catch (DBConnectException e) {
             event.getHook()
-                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build())
+                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()))
                     .setEphemeral(true)
                     .queue();
             return;
@@ -173,7 +173,7 @@ public class EntireRank extends RankArranger implements RankInterface {
         }
         catch (DBConnectException e) {
             event.getHook()
-                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build())
+                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()))
                     .setEphemeral(true)
                     .queue();
             return;
@@ -216,7 +216,7 @@ public class EntireRank extends RankArranger implements RankInterface {
         }
         catch (DBConnectException e) {
             event.getHook()
-                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()).build())
+                    .sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale()))
                     .setEphemeral(true)
                     .queue();
             return;
