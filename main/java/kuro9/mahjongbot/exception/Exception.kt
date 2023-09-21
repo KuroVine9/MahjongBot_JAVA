@@ -78,3 +78,34 @@ class NotGuildInteractionException(message: String = "Not a Guild Interaction!")
     }
 
 }
+
+class PermissionDeniedException(message: String = "You have No Permission!") : EmbeddableException(message) {
+    override fun getErrorEmbed(locale: DiscordLocale): EmbedBuilder {
+        val resourceBundle = ResourceHandler.getResource(locale)
+        val embed = EmbedBuilder()
+        embed.setTitle("403 Forbidden")
+        embed.addField(
+            resourceBundle.getString("exception.no_permission.name"),
+            resourceBundle.getString("exception.no_permission.description"),
+            true
+        )
+        embed.setColor(Color.RED)
+        return embed
+    }
+}
+
+class PermissionExpiredException(message: String = "Too late!") : EmbeddableException(message) {
+    override fun getErrorEmbed(locale: DiscordLocale): EmbedBuilder {
+        val resourceBundle = ResourceHandler.getResource(locale)
+        val embed = EmbedBuilder()
+        embed.setTitle("400 Bad Request")
+        embed.addField(
+            resourceBundle.getString("exception.no_permission.name"),
+            resourceBundle.getString("exception.no_permission.description"),
+            true
+        )
+        embed.setColor(Color.RED)
+        return embed
+    }
+}
+

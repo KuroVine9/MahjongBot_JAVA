@@ -7,9 +7,7 @@ import kuro9.mahjongbot.annotation.GuildRes
 import kuro9.mahjongbot.annotation.UserRes
 import kuro9.mahjongbot.db.data.Game
 import kuro9.mahjongbot.db.data.GameResult
-import kuro9.mahjongbot.exception.DBConnectException
-import kuro9.mahjongbot.exception.GameGroupNotFoundException
-import kuro9.mahjongbot.exception.ParameterErrorException
+import kuro9.mahjongbot.exception.*
 import java.sql.SQLException
 import java.sql.Timestamp
 import java.sql.Types
@@ -32,6 +30,9 @@ object DBHandler {
     private const val selectGameGroupQuery = "CALL select_gamegroup(?)"
     private const val modifyRecordQuery = "CALL modify_record(?, ?,?,?,?,?,?,?,?,?,?,?)"
     private const val deleteRecordQuery = "CALL delete_record(?,?,?,?)"
+    private const val addAdminQuery = "CALL add_admin(?,?)"
+    private const val selectAdminQuery = "CALL select_admin(?)"
+    private const val deleteAdminQuery = "CALL delete_admin(?,?)"
 
 
     /**
@@ -46,12 +47,7 @@ object DBHandler {
      */
     @Throws(ParameterErrorException::class, GameGroupNotFoundException::class, DBConnectException::class)
     fun addScore(game: Game, result: Collection<GameResult>): Int {
-        if (result.size != 4) throw ParameterErrorException("Size is not 4!")
-        if (result.withIndex()
-                .all { (index, gameResult) -> gameResult.rank != index + 1 }
-        ) throw ParameterErrorException("Not Sorted!")
-        if (result.map { it.score }
-                .reduce { acc, now -> acc + now } != 100000) throw ParameterErrorException("Score sum is invalid!")
+        checkGameResult(result)
 
         try {
             dataSource.connection.use { connection ->
@@ -262,26 +258,28 @@ object DBHandler {
 
     /**
      * 등록된 게임을 수정합니다.
-     * @param game [Game] 객체
-     * @param result size가 4인 [GameResult] 객체 배열
-     * @return 현재 guild && game group에서의 국 수
+     *
+     * @param userId 명령어를 실행하는 유저의 ID
+     * @param game [Game] 객체 - id와 guildID 필드가 반드시 valid한 값이어야 함
+     * @param result size가 4인 [GameResult] 객체 배열 - id 필드가 반드시 valid한 값이어야 함
      *
      * @throws ParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
-     * @throws GameGroupNotFoundException 등록된 game group가 아닐 때
+     * @throws PermissionExpiredException 10분이 지나 더 이상 점수의 수정/삭제가 불가능할 때
+     * @throws PermissionDeniedException 점수를 수정/삭제 할 권한이 없을 때
      * @throws DBConnectException DB 처리 중 에러가 발생할 때
      */
-    @Throws(ParameterErrorException::class, GameGroupNotFoundException::class, DBConnectException::class)
+    @Throws(
+        ParameterErrorException::class,
+        PermissionExpiredException::class,
+        DBConnectException::class,
+        PermissionDeniedException::class
+    )
     fun modifyRecord(@UserRes userId: Long, game: Game, result: Collection<GameResult>) {
-        if (result.size != 4) throw ParameterErrorException("Size is not 4!")
-        if (result.withIndex()
-                .all { (index, gameResult) -> gameResult.rank != index + 1 }
-        ) throw ParameterErrorException("Not Sorted!")
-        if (result.map { it.score }
-                .reduce { acc, now -> acc + now } != 100000) throw ParameterErrorException("Score sum is invalid!")
+        checkGameResult(result)
 
         try {
             dataSource.connection.use { connection ->
-                connection.prepareCall(addScoreQuery).use { call ->
+                connection.prepareCall(modifyRecordQuery).use { call ->
                     with(call) {
                         setLong(1, userId)
                         setInt(2, game.id)
@@ -297,9 +295,11 @@ object DBHandler {
                         executeUpdate()
                         when (getInt(12)) {
                             -1 -> throw DBConnectException("Procedure Error!")
-                            -400 -> //TODO 예외처리
-                            -403 ->
-                            else -> {}
+                            -400 -> throw PermissionExpiredException()
+                            -403 -> throw PermissionDeniedException()
+                            else -> {
+                                //Do Nothing
+                            }
                         }
                     }
                 }
@@ -311,8 +311,157 @@ object DBHandler {
 
     }
 
-    //TODO Delete record 메소드
-    //TODO (sql도 해야함) admin 등록, 리스트 출력 기능
+    /**
+     * 등록된 게임을 삭제합니다.
+     *
+     * @param userId 명령어를 실행하는 유저의 ID
+     * @param gameId 삭제할 게임의 ID
+     * @param guildId 삭제할 게임이 등록되어 있는 서버의 ID
+     *
+     * @throws ParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
+     * @throws PermissionExpiredException 10분이 지나 더 이상 점수의 수정/삭제가 불가능할 때
+     * @throws PermissionDeniedException 점수를 수정/삭제 할 권한이 없을 때
+     * @throws DBConnectException DB 처리 중 에러가 발생할 때
+     */
+    @Throws(
+        PermissionExpiredException::class,
+        DBConnectException::class,
+        PermissionDeniedException::class
+    )
+    fun deleteRecord(@UserRes userId: Long, gameId: Int, @GuildRes guildId: Long) {
+
+        try {
+            dataSource.connection.use { connection ->
+                connection.prepareCall(deleteRecordQuery).use { call ->
+                    with(call) {
+                        setLong(1, userId)
+                        setInt(2, gameId)
+                        setLong(3, guildId)
+
+                        registerOutParameter(4, Types.INTEGER)
+
+                        executeUpdate()
+                        when (getInt(4)) {
+                            -1 -> throw DBConnectException("Procedure Error!")
+                            -400 -> throw PermissionExpiredException()
+                            -403 -> throw PermissionDeniedException()
+                            else -> {
+                                //Do Nothing
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (e: SQLException) {
+            throw DBConnectException()
+        }
+
+    }
+
+    /**
+     * 관리자를 등록합니다.
+     *
+     * @param userId 유저의 ID
+     * @param guildId 서버의 ID
+     *
+     * @throws DBConnectException DB 처리 중 에러가 발생할 때
+     */
+    @Throws(DBConnectException::class)
+    fun addAdmin(@UserRes userId: Long, @GuildRes guildId: Long) {
+
+        try {
+            dataSource.connection.use { connection ->
+                connection.prepareCall(addAdminQuery).use { call ->
+                    with(call) {
+                        setLong(1, userId)
+                        setLong(2, guildId)
+
+                        executeUpdate()
+                    }
+                }
+            }
+        }
+        catch (e: SQLException) {
+            throw DBConnectException()
+        }
+
+    }
+
+    /**
+     * 현재 서버의 관리자 리스트를 출력합니다.
+     *
+     * @param guildId 서버의 ID
+     *
+     * @return 관리자의 ID 목록
+     *
+     * @throws DBConnectException DB 처리 중 에러가 발생할 때
+     */
+    @Throws(DBConnectException::class)
+    fun selectAdmin(@GuildRes guildId: Long): List<Long> {
+        val adminList = mutableListOf<Long>()
+
+        try {
+            dataSource.connection.use { connection ->
+                connection.prepareCall(selectAdminQuery).use { call ->
+                    with(call) {
+                        setLong(1, guildId)
+
+                        executeQuery().use { resultSet ->
+                            with(resultSet) {
+                                while (next())
+                                    adminList.add(getLong(1))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (e: SQLException) {
+            throw DBConnectException()
+        }
+
+        return adminList
+    }
+
+    /**
+     * 관리자를 삭제합니다.
+     *
+     * @param userId 유저의 ID
+     * @param guildId 서버의 ID
+     *
+     * @throws DBConnectException DB 처리 중 에러가 발생할 때
+     */
+    @Throws(DBConnectException::class)
+    fun deleteAdmin(@UserRes userId: Long, @GuildRes guildId: Long) {
+
+        try {
+            dataSource.connection.use { connection ->
+                connection.prepareCall(deleteAdminQuery).use { call ->
+                    with(call) {
+                        setLong(1, userId)
+                        setLong(2, guildId)
+
+                        executeUpdate()
+                    }
+                }
+            }
+        }
+        catch (e: SQLException) {
+            throw DBConnectException()
+        }
+
+    }
+
+    @Throws(ParameterErrorException::class)
+    private fun checkGameResult(result: Collection<GameResult>) {
+        if (result.size != 4) throw ParameterErrorException("Size is not 4!")
+        if (result.withIndex()
+                .all { (index, gameResult) -> gameResult.rank != index + 1 }
+        ) throw ParameterErrorException("Not Sorted!")
+        if (result.map { it.score }
+                .reduce { acc, now -> acc + now } != 100000) throw ParameterErrorException("Score sum is invalid!")
+    }
 
     fun checkGameGroup(gameGroup: String): Boolean =
         Regex("^[A-Za-z0-9_]{0,15}$").matchEntire(gameGroup) !== null
