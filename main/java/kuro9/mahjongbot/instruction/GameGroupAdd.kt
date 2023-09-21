@@ -5,13 +5,14 @@ import kuro9.mahjongbot.ResourceHandler
 import kuro9.mahjongbot.db.DBHandler
 import kuro9.mahjongbot.exception.DBConnectException
 import kuro9.mahjongbot.exception.ParameterErrorException
+import kuro9.mahjongbot.instruction.util.GameDataParse
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import java.awt.Color
-import java.util.*
 
-fun gameGroupAdd(event: SlashCommandInteractionEvent, gameGroup: String) {
-    val guildId: Long = event.guild?.idLong ?: 0
+fun gameGroupAdd(event: SlashCommandInteractionEvent) {
+    val guildId: Long = GameDataParse.getGuildID(event)
+    val gameGroup: String = GameDataParse.getGameGroup(event)
     val resourceBundle = ResourceHandler.getResource(event)
 
     if (guildId == 0L) {
@@ -28,12 +29,12 @@ fun gameGroupAdd(event: SlashCommandInteractionEvent, gameGroup: String) {
         Logger.addErrorEvent(event, Logger.NOT_GUILD_MSG)
         return
     }
-    if (!DBHandler.checkGameGroup(gameGroup)) {
+    if (!DBHandler.checkGameGroup(gameGroup) || gameGroup == "") {
         val embed = EmbedBuilder()
         embed.setTitle("400 Bad Requests")
         embed.addField(
-            resourceBundle.getString("exception.not_in_guild.name"),
-            resourceBundle.getString("exception.not_in_guild.description"),
+            resourceBundle.getString("gamegroup_add.embed.err.400.name"),
+            resourceBundle.getString("gamegroup_add.embed.err.400.description"),
             true
         )
         embed.setColor(Color.RED)
@@ -43,37 +44,41 @@ fun gameGroupAdd(event: SlashCommandInteractionEvent, gameGroup: String) {
         return
     }
 
+
     try {
-        DBHandler.addGameGroup(guildId, gameGroup)
-
-        //TODO 성공 임베드, 현재 게임 그룹 가져오는 임베드
-
         val embed = EmbedBuilder()
-        embed.setTitle(resourceBundle.getString("add.embed.success.title"))
-        for (i in 0..3) {
-            embed.addField(
-                String.format(resourceBundle.getString("add.embed.success.field"), i + 1, names.get(i)),
-                scores.get(i).toString(),
-                true
-            )
-        }
+        DBHandler.addGameGroup(guildId, gameGroup)
+        val gameGroupList = DBHandler.selectGameGroup(guildId)
+
+        embed.setTitle(resourceBundle.getString("gamegroup_add.embed.success.title"))
+        embed.addField(
+            resourceBundle.getString("gamegroup_add.embed.success.field_title"),
+            gameGroupList.joinToString(separator = "\n", transform = { "`$it`" }),
+            false
+        )
         embed.setFooter(
             String.format(
-                resourceBundle.getString("add.embed.success.footer"),
-                game_count,
-                game.createdAt
+                resourceBundle.getString("gamegroup_add.embed.success.footer"),
+                gameGroup
             )
         )
         embed.setColor(Color.BLACK)
+
         event.hook.sendMessageEmbeds(embed.build()).queue()
         Logger.addEvent(event)
     }
     catch (e: ParameterErrorException) {
-        event.hook
-            .sendMessageEmbeds(e.getErrorEmbed(event.userLocale).build())
-            .setEphemeral(true)
-            .queue()
-        Logger.addErrorEvent(event, Logger.PARAM_ERR)
+        val embed = EmbedBuilder()
+        embed.setTitle("400 Bad Requests")
+        embed.addField(
+            resourceBundle.getString("gamegroup_add.embed.err.400.name"),
+            resourceBundle.getString("gamegroup_add.embed.err.400.description"),
+            true
+        )
+        embed.setColor(Color.RED)
+        event.hook.sendMessageEmbeds(embed.build()).queue()
+
+        Logger.addErrorEvent(event, Logger.NOT_GUILD_MSG)
         return
     }
     catch (e: DBConnectException) {

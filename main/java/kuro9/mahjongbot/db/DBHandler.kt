@@ -85,12 +85,11 @@ object DBHandler {
      * 새 게임 그룹을 추가합니다.
      * @param guildID 길드의 id
      * @param groupName 알파벳, 숫자, 언더바로 구성된 최대 15글자의 게임그룹명
-     * @return 성공 여부
      * @throws ParameterErrorException [guildID]가 형식에 맞지 않을 때
      * @throws DBConnectException DB 처리 중 에러가 발생할 때
      */
     @Throws(ParameterErrorException::class, DBConnectException::class)
-    fun addGameGroup(@GuildRes guildID: Long, groupName: String): Boolean {
+    fun addGameGroup(@GuildRes guildID: Long, groupName: String) {
         if (!checkGameGroup(groupName)) throw ParameterErrorException("Invalid form of game group name!")
 
         try {
@@ -102,7 +101,14 @@ object DBHandler {
                         registerOutParameter(3, Types.INTEGER)
 
                         executeUpdate()
-                        return if (getInt(3) == 0) true else throw DBConnectException("Procedure Error!")
+
+                        when (getInt(3)) {
+                            -1 -> throw DBConnectException("Procedure Error!")
+                            -400 -> throw ParameterErrorException("Not a Valid GameGroup!")
+                            else -> {
+                                // DO NOTHING
+                            }
+                        }
                     }
                 }
             }
