@@ -8,10 +8,8 @@ import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionE
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -52,11 +50,21 @@ public class GameDataParse {
     }
 
     public static String getButtonGameGroup(ButtonInteractionEvent event) {
-        String pattern = "key=\\d{1,4}-\\d{1,2}-\\d-[A-Z]{3}-\\d+-\\d+-([A-Za-z0-9_]{0,15})=";
+        String pattern = "key=([^=]+)=";
         Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(Arrays.toString(Base64.getDecoder().decode(event.getMessage().getContentDisplay().getBytes(StandardCharsets.US_ASCII))));
+        String message = new String(event.getMessage().getContentDisplay().getBytes());
+        String footer = message.split("\u001B")[message.split("\u001B").length - 2].replace("[0;", "");
+        Matcher m = r.matcher(footer);
         if (m.find()) {
-            return m.group(1);
+            String result = new String(Base64.getDecoder().decode(m.group(1)));
+
+            String base64Pattern = "\\d{1,4}-\\d{1,2}-\\d-[A-Z]{3}-\\d+-\\d+-([A-Za-z0-9_]{0,15})";
+            Pattern br = Pattern.compile(base64Pattern);
+            Matcher bm = br.matcher(result);
+            if (bm.find()) {
+                return bm.group(1);
+            }
+            else return "";
         }
         else return "";
     }

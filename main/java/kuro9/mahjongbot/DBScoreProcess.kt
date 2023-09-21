@@ -98,7 +98,12 @@ object DBScoreProcess {
          */
         @Throws(DBConnectException::class)
         fun getData(query: Query): HashMap<Long, UserGameData> {
-            findData(query)?.let { return it }
+            findData(query)?.let {
+                println("[MahjongBot:${this::class.simpleName}] Cache hit! - Query=$query")
+                return it
+            }
+            println("[MahjongBot:${this::class.simpleName}] Cache miss! - Query=$query")
+            println("[MahjongBot:${this::class.simpleName}] Cache=${cacheQueue.contentToString()}")
 
             val dataList = DBHandler.selectGameResult(
                 query.startDate,
@@ -139,6 +144,7 @@ object DBScoreProcess {
          */
         fun invalidAllData() {
             cacheQueue.forEach { it.state = STATE.INVALID }
+            println("[MahjongBot:${this::class.simpleName}] Cache invalided!")
         }
     }
 

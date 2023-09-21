@@ -57,7 +57,7 @@ object DeleteAdmin : GameDataParse() {
                         resourceBundle.getString("admin.embed.delete.title"),
                         String.format(
                             resourceBundle.getString("admin.embed.delete.description"),
-                            event.jda.getUserById(userId)?.effectiveName ?: "<Unknown>"
+                            event.jda.retrieveUserById(userId).complete().effectiveName
                         ),
                         true
                     )

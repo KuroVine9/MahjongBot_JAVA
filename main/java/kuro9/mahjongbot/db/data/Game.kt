@@ -10,5 +10,5 @@ data class Game(
     val gameGroup: String = ""
 ) {
     var id: Int = 0
-    val createdAt: Timestamp = Timestamp(0)
+    val createdAt: Timestamp = Timestamp(System.currentTimeMillis())
 }

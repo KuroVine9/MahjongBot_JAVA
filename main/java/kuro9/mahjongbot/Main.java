@@ -32,6 +32,7 @@ public class Main extends ListenerAdapter {
     public static void main(String[] args) {
         long time = System.currentTimeMillis();
         System.out.println("[MahjongBot:Main] System Initializing...");
+        Setting.parseString();
 
         final String TOKEN;
         try {

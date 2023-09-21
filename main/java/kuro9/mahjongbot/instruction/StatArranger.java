@@ -77,13 +77,13 @@ public abstract class StatArranger extends GameDataParse implements StatInterfac
         for (int i = 0; i < 4; i++) {
             embed.addField(
                     String.format(resourceBundle.getString("stat_arranger.embed.rank_pp"), i + 1),
-                    String.format(resourceBundle.getString("stat_arranger.embed.pp_format"), user.getRankPercentage()[i], user.getRankPercentage()[i]),
+                    String.format(resourceBundle.getString("stat_arranger.embed.pp_format"), user.getRankPercentage()[i], user.getRankCount()[i]),
                     true
             );
         }
         embed.addField(
                 resourceBundle.getString("stat_arranger.embed.tobi"),
-                String.format(resourceBundle.getString("stat_arranger.embed.pp_format"), user.getRankPercentage()[4], user.getRankPercentage()[4]),
+                String.format(resourceBundle.getString("stat_arranger.embed.pp_format"), user.getRankPercentage()[4], user.getRankCount()[4]),
                 true
         );
         embed.addField(

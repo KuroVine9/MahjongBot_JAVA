@@ -43,7 +43,6 @@ public record Setting() {
     public static JDA JDA;
 
     public static void init(String token) {
-        parseString();
         JDA = JDABuilder.createDefault(token).build();
     }
 

@@ -153,7 +153,7 @@ public class Logger {
         log_list.add(event.getUser().getAsTag());
 
         if (event instanceof SlashCommandInteractionEvent s) {
-            log_list.add(s.getName());
+            log_list.add(s.getFullCommandName());
             s.getOptions().forEach(
                     option -> log_list.add(
                             String.format(

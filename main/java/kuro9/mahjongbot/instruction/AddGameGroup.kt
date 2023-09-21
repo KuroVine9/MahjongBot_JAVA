@@ -53,7 +53,7 @@ object AddGameGroup : GameDataParse() {
             DBHandler.addGameGroup(guildId, gameGroup)
             val gameGroupList = DBHandler.selectGameGroup(guildId)
 
-            embed.setTitle(resourceBundle.getString("game_group.add.embed.success.title"))
+            embed.setTitle("200 OK")
             embed.addField(
                 resourceBundle.getString("game_group.add.embed.success.field_title"),
                 gameGroupList.joinToString(separator = "\n", transform = { "`$it`" }),

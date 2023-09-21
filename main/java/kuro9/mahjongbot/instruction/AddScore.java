@@ -43,14 +43,28 @@ public class AddScore extends GameDataParse {
         }
 
         var options = event.getOptions();
-        String[] names = new String[4];
-        long[] userIds = new long[4];
-        int[] scores = new int[4];
-        for (int i = 0; i < options.size(); i++) {
-            names[i / 2] = options.get(i).getAsUser().getEffectiveName();
-            userIds[i / 2] = options.get(i).getAsUser().getIdLong();
-            scores[i / 2] = (int) options.get(++i).getAsLong();
-        }
+
+        int[] scores = {
+                event.getOption("1st_score").getAsInt(),
+                event.getOption("2nd_score").getAsInt(),
+                event.getOption("3rd_score").getAsInt(),
+                event.getOption("4th_score").getAsInt()
+        };
+
+        long[] userIds = {
+                event.getOption("1st_name").getAsUser().getIdLong(),
+                event.getOption("2nd_name").getAsUser().getIdLong(),
+                event.getOption("3rd_name").getAsUser().getIdLong(),
+                event.getOption("4th_name").getAsUser().getIdLong()
+        };
+
+        String[] names = {
+                event.getOption("1st_name").getAsUser().getEffectiveName(),
+                event.getOption("2nd_name").getAsUser().getEffectiveName(),
+                event.getOption("3rd_name").getAsUser().getEffectiveName(),
+                event.getOption("4th_name").getAsUser().getEffectiveName()
+        };
+
         @GuildRes long guildId = getGuildID(event);
         @UserRes long userId = event.getUser().getIdLong();
         String gameGroup = getGameGroup(event);

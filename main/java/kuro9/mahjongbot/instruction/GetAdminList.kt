@@ -24,7 +24,7 @@ object GetAdminList : GameDataParse() {
                     setTitle("200 OK")
                     addField(
                         resourceBundle.getString("admin.embed.get.title"),
-                        adminNameList.joinToString(prefix = "[ ", postfix = " ]"),
+                        adminNameList.joinToString(prefix = "[ ", postfix = " ]", transform = { "`$it`" }),
                         true
                     )
                     setColor(Color.BLACK)

@@ -65,7 +65,7 @@ public class InstructionToJSON {
                 .addSubcommands(
                         new SubcommandData("add", resourceEN.getString("game_group.add.description"))
                                 .addOptions(
-                                        new OptionData(STRING, "game_group", resourceEN.getString("game_group.add.options.description"))
+                                        new OptionData(STRING, "game_group", resourceEN.getString("game_group.add.options.game_group.description"), true)
                                 ),
                         new SubcommandData("get", resourceEN.getString("game_group.get.description"))
                 ).toData().toJson();
@@ -180,7 +180,7 @@ public class InstructionToJSON {
                 .setLocalizationFunction(localizationFunction)
                 .setGuildOnly(true)
                 .addOptions(
-                        new OptionData(USER, "game_id", resourceEN.getString("modify.options.game_id.description"), true),
+                        new OptionData(INTEGER, "game_id", resourceEN.getString("modify.options.game_id.description"), true),
                         new OptionData(USER, "1st_name", resourceEN.getString("modify.options.1st_name.description"), true),
                         new OptionData(INTEGER, "1st_score", resourceEN.getString("modify.options.1st_score.description"), true),
                         new OptionData(USER, "2nd_name", resourceEN.getString("modify.options.2nd_name.description"), true),
@@ -195,7 +195,7 @@ public class InstructionToJSON {
         byte[] delete = Commands.slash("delete", resourceEN.getString("delete.description"))
                 .setLocalizationFunction(localizationFunction)
                 .setGuildOnly(true)
-                .addOption(USER, "game_id", resourceEN.getString("delete.options.game_id.description"), true)
+                .addOption(INTEGER, "game_id", resourceEN.getString("delete.options.game_id.description"), true)
                 .toData().toJson();
         command_list.add(new String(delete));
 

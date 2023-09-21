@@ -44,7 +44,7 @@ object GetGameGroupList : GameDataParse() {
                             resourceBundle.getString("game_group.select.embed.field_title"),
                             gameGroupList.size
                         ),
-                        gameGroupList.joinToString(separator = "\n", transform = { "`$it`" }),
+                        gameGroupList.joinToString(prefix = "[ ", postfix = " ]", transform = { "`$it`" }),
                         false
                     )
                     setColor(Color.BLACK)

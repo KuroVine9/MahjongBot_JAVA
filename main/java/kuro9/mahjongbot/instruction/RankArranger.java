@@ -16,7 +16,6 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
@@ -193,7 +192,7 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
             page_block.append("\u001B[0m");
             page_block.append(get_data.apply(data_list.get(i)));
         }
-        page_block.append(String.format("\n\n\u001B[0;30key=%s", base64Key));
+        page_block.append(String.format("\n\n\u001B[0;30mkey=%s\u001B[0m", base64Key));
         page_block.append("```");
         return page_block.toString();
     }
@@ -359,9 +358,9 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
                 gameType.name(),
                 (filter == null) ? "0" : filter.toString(),
                 (page == null) ? "1" : page.toString(),
-                (gameGroup == null) ? "" : filter
+                (gameGroup == null) ? "" : gameGroup
         );
-        return Base64.getEncoder().encodeToString(original.getBytes(StandardCharsets.US_ASCII));
+        return Base64.getEncoder().encodeToString(original.getBytes());
     }
 
     enum GameType {SUM, UMA, GMC}
