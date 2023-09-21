@@ -3,6 +3,7 @@ package kuro9.mahjongbot;
 import kuro9.mahjongbot.instruction.*;
 import kuro9.mahjongbot.instruction.action.RankInterface;
 import kuro9.mahjongbot.instruction.action.StatInterface;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -86,7 +87,7 @@ public class Main extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        switch (event.getName()) {
+        switch (event.getFullCommandName()) {
             case "ping" -> {
                 long time = System.currentTimeMillis();
                 event.reply("Pong!").setEphemeral(true)
@@ -95,34 +96,37 @@ public class Main extends ListenerAdapter {
                         ).queue();
                 Logger.addEvent(event);
             }
+            case "revalid" -> ReValid.action(event);
             case "file" -> {
                 Logger.addEvent(event);
-                event.reply("Uploaded Files").setEphemeral(true).addActionRow(
+                event.reply("Uploaded Files\n> `sunwi.csv` will not be use or update.").setEphemeral(true).addActionRow(
                         Button.link(String.format("https://docs.google.com/spreadsheets/d/%s/", Setting.DATA_FILE_ID), "sunwi.csv"),
                         Button.link(String.format("https://docs.google.com/spreadsheets/d/%s/", Setting.LOG_FILE_ID), "log.csv"),
                         Button.link(String.format("https://docs.google.com/spreadsheets/d/%s/", Setting.ERROR_LOG_FILE_ID), "error_log.csv")
                 ).queue();
             }
             case "add" -> AddScore.action(event);
-            case "stat" -> stat[2].action(event);
-            case "month_stat" -> stat[1].action(event);
-            case "entire_stat" -> stat[0].action(event);
-            case "revalid" -> ReValid.action(event);
-            case "entire_rank" -> {
+
+            case "stat season" -> stat[2].action(event);
+            case "stat month" -> stat[1].action(event);
+            case "stat entire" -> stat[0].action(event);
+
+
+            case "rank entire" -> {
                 switch (event.getOption("type") == null ? -1 : (int) event.getOption("type").getAsLong()) {
                     case 0 -> rank[0].summaryReply(event);
                     case 1, -1 -> rank[0].umaReply(event);
                     case 2 -> rank[0].totalGameReply(event);
                 }
             }
-            case "month_rank" -> {
+            case "rank month" -> {
                 switch (event.getOption("type") == null ? -1 : (int) event.getOption("type").getAsLong()) {
                     case 0 -> rank[1].summaryReply(event);
                     case 1, -1 -> rank[1].umaReply(event);
                     case 2 -> rank[1].totalGameReply(event);
                 }
             }
-            case "rank" -> {
+            case "rank season" -> {
                 switch (event.getOption("type") == null ? -1 : (int) event.getOption("type").getAsLong()) {
                     case 0 -> rank[2].summaryReply(event);
                     case 1, -1 -> rank[2].umaReply(event);
@@ -131,7 +135,22 @@ public class Main extends ListenerAdapter {
             }
             case "machi" -> MahjongCalc.getAllMachi(event);
 
-            default -> throw new IllegalStateException("Unexpected value: " + event.getName());
+            case "admin add" -> AddAdmin.INSTANCE.action(event);
+            case "admin get" -> GetAdminList.INSTANCE.action(event);
+            case "admin delete" -> DeleteAdmin.INSTANCE.action(event);
+
+            case "game_group add" -> AddGameGroup.INSTANCE.action(event);
+            case "game_group get" -> GetGameGroupList.INSTANCE.action(event);
+
+            case "delete" -> DeleteScore.INSTANCE.action(event);
+            case "modify.description" -> ModifyScore.INSTANCE.action(event);
+
+            default -> {
+                EmbedBuilder embed = new EmbedBuilder();
+                embed.setTitle("501 Not Implemented");
+                embed.setDescription("Unexpected value: " + event.getName());
+                Logger.addErrorEvent(event, Logger.UNKNOWN_INST);
+            }
         }
     }
 

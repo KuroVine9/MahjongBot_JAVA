@@ -54,9 +54,9 @@ object AddAdmin : GameDataParse() {
                 EmbedBuilder().apply {
                     setTitle("200 OK")
                     addField(
-                        resourceBundle.getString("admin.add.embed.title"),
+                        resourceBundle.getString("admin.embed.add.title"),
                         String.format(
-                            resourceBundle.getString("admin.add.embed.description"),
+                            resourceBundle.getString("admin.embed.add.description"),
                             event.jda.getUserById(userId)?.effectiveName ?: "<Unknown>"
                         ),
                         true

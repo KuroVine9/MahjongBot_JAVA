@@ -50,7 +50,7 @@ public class EntireStat extends StatArranger implements StatInterface {
         event.getHook().sendMessageEmbeds(
                 getEmbed(
                         userGameData,
-                        String.format(resourceBundle.getString("entire_stat.embed.title"), getRank(data_list, userId), userGameData.getUserName()),
+                        String.format(resourceBundle.getString("stat.entire.embed.title"), getRank(data_list, userId), userGameData.getUserName()),
                         getValidUser(event).getEffectiveAvatarUrl(),
                         event.getUserLocale()
                 ).build()

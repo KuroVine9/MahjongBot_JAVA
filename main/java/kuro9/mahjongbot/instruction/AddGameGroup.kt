@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import java.awt.Color
 
-object GameGroupAdd : GameDataParse() {
+object AddGameGroup : GameDataParse() {
     fun action(event: SlashCommandInteractionEvent) {
         val guildId: Long = getGuildID(event)
         val gameGroup: String = getGameGroup(event)
@@ -36,8 +36,8 @@ object GameGroupAdd : GameDataParse() {
             val embed = EmbedBuilder()
             embed.setTitle("400 Bad Requests")
             embed.addField(
-                resourceBundle.getString("gamegroup.add.embed.err.400.name"),
-                resourceBundle.getString("gamegroup.add.embed.err.400.description"),
+                resourceBundle.getString("game_group.add.embed.err.400.name"),
+                resourceBundle.getString("game_group.add.embed.err.400.description"),
                 true
             )
             embed.setColor(Color.RED)
@@ -53,15 +53,15 @@ object GameGroupAdd : GameDataParse() {
             DBHandler.addGameGroup(guildId, gameGroup)
             val gameGroupList = DBHandler.selectGameGroup(guildId)
 
-            embed.setTitle(resourceBundle.getString("gamegroup.add.embed.success.title"))
+            embed.setTitle(resourceBundle.getString("game_group.add.embed.success.title"))
             embed.addField(
-                resourceBundle.getString("gamegroup.add.embed.success.field_title"),
+                resourceBundle.getString("game_group.add.embed.success.field_title"),
                 gameGroupList.joinToString(separator = "\n", transform = { "`$it`" }),
                 false
             )
             embed.setFooter(
                 String.format(
-                    resourceBundle.getString("gamegroup.add.embed.success.footer"),
+                    resourceBundle.getString("game_group.add.embed.success.footer"),
                     gameGroup
                 )
             )
@@ -74,8 +74,8 @@ object GameGroupAdd : GameDataParse() {
             val embed = EmbedBuilder()
             embed.setTitle("400 Bad Requests")
             embed.addField(
-                resourceBundle.getString("gamegroup.add.embed.err.400.name"),
-                resourceBundle.getString("gamegroup.add.embed.err.400.description"),
+                resourceBundle.getString("game_group.add.embed.err.400.name"),
+                resourceBundle.getString("game_group.add.embed.err.400.description"),
                 true
             )
             embed.setColor(Color.RED)

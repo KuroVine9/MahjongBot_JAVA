@@ -60,7 +60,7 @@ public class EntireRank extends RankArranger implements RankInterface {
 
         event.getHook().sendMessageEmbeds(
                 getSummaryEmbed(
-                        String.format(resourceBundle.getString("entire_rank.embed.summary.title"), filter),
+                        String.format(resourceBundle.getString("rank.entire.embed.summary.title"), filter),
                         userDataList.values().stream().toList(),
                         event.getUserLocale()
                 ).build()
@@ -99,7 +99,7 @@ public class EntireRank extends RankArranger implements RankInterface {
         event.getHook().sendMessage(
                 getUmaPrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("entire_rank.embed.uma.title"), filter),
+                        String.format(resourceBundle.getString("rank.entire.embed.uma.title"), filter),
                         uma_page_count[0],
                         base64KeyGen(null, null, null, GameType.UMA, filter, null, gameGroup)
                 )
@@ -145,7 +145,7 @@ public class EntireRank extends RankArranger implements RankInterface {
                 sorted_list.size(),
                 () -> getUmaPrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("entire_rank.embed.uma.title"), filter),
+                        String.format(resourceBundle.getString("rank.entire.embed.uma.title"), filter),
                         uma_page_count[0],
                         base64KeyGen(null, null, null, GameType.UMA, filter, uma_page_count[0], gameGroup)
                 )
@@ -183,7 +183,7 @@ public class EntireRank extends RankArranger implements RankInterface {
         event.getHook().sendMessage(
                 getTotalGamePrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("entire_rank.embed.total_game_count.title"), filter),
+                        String.format(resourceBundle.getString("rank.entire.embed.total_game_count.title"), filter),
                         total_game_page_count[0],
                         base64KeyGen(null, null, null, GameType.GMC, filter, null, gameGroup)
                 )
@@ -229,7 +229,7 @@ public class EntireRank extends RankArranger implements RankInterface {
                 sorted_list.size(),
                 () -> getTotalGamePrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("entire_rank.embed.total_game_count.title"), filter),
+                        String.format(resourceBundle.getString("rank.entire.embed.total_game_count.title"), filter),
                         total_game_page_count[0],
                         base64KeyGen(null, null, null, GameType.GMC, filter, total_game_page_count[0], gameGroup)
                 )

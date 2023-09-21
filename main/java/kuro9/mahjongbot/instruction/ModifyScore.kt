@@ -76,23 +76,6 @@ object ModifyScore : GameDataParse() {
             return
         }
 
-        if (event.user.idLong != guild.ownerIdLong) {
-            event.hook.sendMessageEmbeds(
-                EmbedBuilder().apply {
-                    setTitle("403 Forbidden")
-                    addField(
-                        resourceBundle.getString("exception.no_permission.title"),
-                        resourceBundle.getString("exception.no_permission.description"),
-                        true
-                    )
-                    setColor(Color.RED)
-                }.build()
-            ).setEphemeral(true).queue()
-
-            Logger.addErrorEvent(event, Logger.PERMISSION_DENY)
-            return
-        }
-
         val game = Game(guildId, userId).apply { id = gameId }
         val result =
             IntStream.range(0, 4).mapToObj { GameResult(gameId, resultUserIds[it]!!, it + 1, resultScores[it]!!) }

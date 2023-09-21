@@ -23,7 +23,7 @@ object GetAdminList : GameDataParse() {
                 EmbedBuilder().apply {
                     setTitle("200 OK")
                     addField(
-                        resourceBundle.getString("admin.get.embed.title"),
+                        resourceBundle.getString("admin.embed.get.title"),
                         adminNameList.joinToString(prefix = "[ ", postfix = " ]"),
                         true
                     )

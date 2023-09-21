@@ -49,7 +49,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
         try {
             event.getHook().sendMessageEmbeds(
                     getSummaryEmbed(
-                            String.format(resourceBundle.getString("season_rank.embed.summary.title"), year, season, filter),
+                            String.format(resourceBundle.getString("rank.season.embed.summary.title"), year, season, filter),
                             DBScoreProcess.INSTANCE.getSelectedUserData(guildID, start_month, year, end_month, year, gameGroup, filter)
                                     .values().stream().toList(),
                             event.getUserLocale()
@@ -98,7 +98,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
         event.getHook().sendMessage(
                 getUmaPrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("season_rank.embed.uma.title"), year, season, filter),
+                        String.format(resourceBundle.getString("rank.season.embed.uma.title"), year, season, filter),
                         season_uma_page_count[0],
                         base64KeyGen(year, null, season, GameType.UMA, filter, null, gameGroup)
                 )
@@ -149,7 +149,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
                 sorted_list.size(),
                 () -> getUmaPrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("season_rank.embed.uma.title"), year, season, filter),
+                        String.format(resourceBundle.getString("rank.season.embed.uma.title"), year, season, filter),
                         season_uma_page_count[0],
                         base64KeyGen(year, null, season, GameType.UMA, filter, season_uma_page_count[0], gameGroup)
                 )
@@ -192,7 +192,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
         event.getHook().sendMessage(
                 getTotalGamePrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("season_rank.embed.total_game_count.title"), year, season, filter),
+                        String.format(resourceBundle.getString("rank.season.embed.total_game_count.title"), year, season, filter),
                         season_total_game_page_count[0],
                         base64KeyGen(year, null, season, GameType.GMC, filter, null, gameGroup)
                 )
@@ -243,7 +243,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
                 sorted_list.size(),
                 () -> getTotalGamePrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("season_rank.embed.total_game_count.title"), year, season, filter),
+                        String.format(resourceBundle.getString("rank.season.embed.total_game_count.title"), year, season, filter),
                         season_total_game_page_count[0],
                         base64KeyGen(year, null, season, GameType.GMC, filter, season_total_game_page_count[0], gameGroup)
                 )

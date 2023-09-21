@@ -49,7 +49,7 @@ public class MonthStat extends StatArranger implements StatInterface {
         event.getHook().sendMessageEmbeds(
                 getEmbed(
                         userGameData,
-                        String.format(resourceBundle.getString("month_stat.embed.title"), getRank(data_list, userId), year, month, userGameData.getUserName()),
+                        String.format(resourceBundle.getString("stat.month.embed.title"), getRank(data_list, userId), year, month, userGameData.getUserName()),
                         getValidUser(event).getEffectiveAvatarUrl(),
                         event.getUserLocale()
                 ).build()

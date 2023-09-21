@@ -3,7 +3,9 @@ package kuro9.mahjongbot.instruction
 import kuro9.mahjongbot.Logger
 import kuro9.mahjongbot.ResourceHandler
 import kuro9.mahjongbot.db.DBHandler
-import kuro9.mahjongbot.exception.DBConnectException
+import kuro9.mahjongbot.exception.EmbeddableException
+import kuro9.mahjongbot.exception.PermissionDeniedException
+import kuro9.mahjongbot.exception.PermissionExpiredException
 import kuro9.mahjongbot.instruction.util.GameDataParse
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -37,29 +39,6 @@ object DeleteScore : GameDataParse() {
         }
 
         try {
-            adminList = DBHandler.selectAdmin(guildId)
-        }
-        catch (e: DBConnectException) {
-            event.hook.sendMessageEmbeds(e.getErrorEmbed(event.userLocale)).setEphemeral(true).queue()
-            return
-        }
-
-        if (!adminList.contains(userId)) {
-            val embed = EmbedBuilder()
-            embed.setTitle("403 Forbidden")
-            embed.addField(
-                resourceBundle.getString("exception.no_permission.title"),
-                resourceBundle.getString("exception.no_permission.description"),
-                true
-            )
-            embed.setColor(Color.RED)
-            event.hook.sendMessageEmbeds(embed.build()).queue()
-
-            Logger.addErrorEvent(event, Logger.PERMISSION_DENY)
-            return
-        }
-
-        try {
             DBHandler.deleteRecord(userId, gameId, guildId)
 
             event.hook.sendMessageEmbeds(
@@ -73,9 +52,20 @@ object DeleteScore : GameDataParse() {
             Logger.addEvent(event)
 
         }
-        catch (e: DBConnectException) {
+        catch (e: EmbeddableException) {
             event.hook.sendMessageEmbeds(e.getErrorEmbed(event.userLocale)).setEphemeral(true).queue()
-            return
+
+            when (e) {
+                is PermissionExpiredException ->
+                    Logger.addErrorEvent(event, Logger.TIMEOUT)
+
+                is PermissionDeniedException ->
+                    Logger.addErrorEvent(event, Logger.PERMISSION_DENY)
+
+                else -> {
+                    // DO NOTHING
+                }
+            }
         }
     }
 }

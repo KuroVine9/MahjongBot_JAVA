@@ -1,5 +1,753 @@
 [
   {
+    "dm_permission": false,
+    "name_localizations": {},
+    "nsfw": false,
+    "name": "admin",
+    "options": [
+      {
+        "name_localizations": {},
+        "name": "add",
+        "options": [
+          {
+            "name_localizations": { "ko": "유저", "ja": "ユーザー" },
+            "autocomplete": false,
+            "name": "user",
+            "description": "User to register",
+            "description_localizations": {
+              "ko": "등록할 유저",
+              "ja": "登録するユーザー"
+            },
+            "type": 6,
+            "required": false
+          }
+        ],
+        "description": "Adds a score log manager.",
+        "description_localizations": {
+          "ko": "점수 기록 관리자를 추가합니다.",
+          "ja": "スコア記録管理者を追加します。"
+        },
+        "type": 1
+      },
+      {
+        "name_localizations": {},
+        "name": "get",
+        "options": [],
+        "description": "Gets the History Manager list for the current server.",
+        "description_localizations": {
+          "ko": "현재 서버의 기록 관리자 목록을 가져옵니다. ",
+          "ja": "現在のサーバーの履歴管理者のリストを取得します。"
+        },
+        "type": 1
+      },
+      {
+        "name_localizations": {},
+        "name": "delete",
+        "options": [
+          {
+            "name_localizations": { "ko": "유저", "ja": "ユーザー" },
+            "autocomplete": false,
+            "name": "user",
+            "description": "Users to exclude",
+            "description_localizations": {
+              "ko": "제외할 유저",
+              "ja": "除外するユーザー"
+            },
+            "type": 6,
+            "required": false
+          }
+        ],
+        "description": "Exclude the user from the Scores Manager.",
+        "description_localizations": {
+          "ko": "유저를 점수 기록 관리자에서 제외합니다. ",
+          "ja": "ユーザーをスコア レコード管理者から除外します。"
+        },
+        "type": 1
+      }
+    ],
+    "description": "Set permissions to modify/delete scores.",
+    "description_localizations": {
+      "ko": "점수 수정/삭제가 가능한 권한을 설정합니다. ",
+      "ja": "スコアの修正/削除が可能な権限を設定します。"
+    },
+    "default_member_permissions": null,
+    "type": 1
+  },
+  {
+    "dm_permission": false,
+    "name_localizations": {},
+    "nsfw": false,
+    "name": "game_group",
+    "options": [
+      {
+        "name_localizations": {},
+        "name": "add",
+        "options": [
+          {
+            "name_localizations": {},
+            "autocomplete": false,
+            "name": "game_group",
+            "description": "Rules: ^[A-Za-z0-9_]{1,15}$(alphabets, numbers, and underbars within 15 characters)",
+            "description_localizations": {},
+            "type": 3,
+            "required": false
+          }
+        ],
+        "description": "Add a game group.",
+        "description_localizations": {
+          "ko": "게임 그룹을 추가합니다. ",
+          "ja": "ゲームグループを追加します。"
+        },
+        "type": 1
+      },
+      {
+        "name_localizations": {},
+        "name": "get",
+        "options": [],
+        "description": "Gets the list of game groups for the current server.",
+        "description_localizations": {
+          "ko": "현재 서버의 게임 그룹 목록을 가져옵니다. ",
+          "ja": "現在のサーバーのゲーム グループのリストを取得します。"
+        },
+        "type": 1
+      }
+    ],
+    "description": "Manage groups used to store games such as competitions separately from regular games.",
+    "description_localizations": {
+      "ko": "대회 등의 게임을 일반 게임과 분리 저장할 때 쓰이는 그룹을 관리합니다. ",
+      "ja": "大会などのゲームを通常のゲームと分離保存する際に使用されるグループを管理します。"
+    },
+    "default_member_permissions": null,
+    "type": 1
+  },
+  {
+    "dm_permission": false,
+    "name_localizations": {},
+    "nsfw": false,
+    "name": "stat",
+    "options": [
+      {
+        "name_localizations": {},
+        "name": "entire",
+        "options": [
+          {
+            "name_localizations": { "ko": "유저", "ja": "ユーザー" },
+            "autocomplete": false,
+            "name": "user",
+            "description": "Enter the nickname of the user you want to search (not input == you).",
+            "description_localizations": {
+              "ko": "검색할 유저의 닉네임을 입력해주세요 (미입력==본인).",
+              "ja": "見ようとするユーザーのニックネームを入力してください（未入力==本人）。"
+            },
+            "type": 6,
+            "required": false
+          },
+          {
+            "name_localizations": {
+              "ko": "게임_그룹",
+              "ja": "ゲーム_グループ"
+            },
+            "autocomplete": false,
+            "name": "game_group",
+            "description": "Enter a group of games to search for. If not entered, search as default game.",
+            "description_localizations": {
+              "ko": "검색할 게임의 그룹을 입력하세요. 미입력 시 기본 게임으로 검색합니다. ",
+              "ja": "検索するゲームのグループを入力してください。 入力されていない場合は、デフォルトのゲームで検索します。"
+            },
+            "type": 3,
+            "required": false
+          }
+        ],
+        "description": "Check the statistics of the player for the entire period.",
+        "description_localizations": {
+          "ko": "전체 기간의 플레이어의 통계를 확인합니다.",
+          "ja": "全期間のプレイヤーの統計を確認します。"
+        },
+        "type": 1
+      },
+      {
+        "name_localizations": {},
+        "name": "season",
+        "options": [
+          {
+            "name_localizations": { "ko": "유저", "ja": "ユーザー" },
+            "autocomplete": false,
+            "name": "user",
+            "description": "Enter the nickname of the user you want to search (not input == you).",
+            "description_localizations": {
+              "ko": "검색할 유저의 닉네임을 입력해주세요 (미입력==본인).",
+              "ja": "見ようとするユーザーのニックネームを入力してください（未入力==本人）。"
+            },
+            "type": 6,
+            "required": false
+          },
+          {
+            "name_localizations": { "ko": "시즌", "ja": "シーズン" },
+            "autocomplete": false,
+            "name": "season",
+            "description": "Please select the desired half of the record (not selected == present).",
+            "description_localizations": {
+              "ko": "원하는 기록의 반기를 선택해주세요 (미선택==현재).",
+              "ja": "希望する記録の半期を選んでください(未選択==現在)。"
+            },
+            "type": 4,
+            "choices": [
+              {
+                "name_localizations": {
+                  "ko": "상반기 (1월-6월)",
+                  "ja": "上半期 (1月-6月)"
+                },
+                "name": "1-6",
+                "value": 1
+              },
+              {
+                "name_localizations": {
+                  "ko": "하반기 (7월-12월)",
+                  "ja": "下半期（7月-12月)"
+                },
+                "name": "7-12",
+                "value": 2
+              }
+            ],
+            "required": false
+          },
+          {
+            "name_localizations": { "ko": "년", "ja": "年" },
+            "autocomplete": false,
+            "name": "year",
+            "description": "Please enter the year of the desired record as an integer (not selected == present).",
+            "description_localizations": {
+              "ko": "원하는 기록의 년도를 정수로 입력해주세요 (미선택==현재).",
+              "ja": "記録の年度を正しく入力してください（未選択==現在）。"
+            },
+            "type": 4,
+            "required": false
+          },
+          {
+            "name_localizations": {
+              "ko": "게임_그룹",
+              "ja": "ゲーム_グループ"
+            },
+            "autocomplete": false,
+            "name": "game_group",
+            "description": "Enter a group of games to search for. If not entered, search as default game.",
+            "description_localizations": {
+              "ko": "검색할 게임의 그룹을 입력하세요. 미입력 시 기본 게임으로 검색합니다. ",
+              "ja": "検索するゲームのグループを入力してください。 入力されていない場合は、デフォルトのゲームで検索します。"
+            },
+            "type": 3,
+            "required": false
+          }
+        ],
+        "description": "Check the Player statistics.",
+        "description_localizations": {
+          "ko": "플레이어의 통계를 확인합니다.",
+          "ja": "シーズン別のプレイヤーの統計を確認します。"
+        },
+        "type": 1
+      },
+      {
+        "name_localizations": {},
+        "name": "month",
+        "options": [
+          {
+            "name_localizations": { "ko": "유저", "ja": "ユーザー" },
+            "autocomplete": false,
+            "name": "user",
+            "description": "Enter the nickname of the user you want to search (not input == you).",
+            "description_localizations": {
+              "ko": "검색할 유저의 닉네임을 입력해주세요 (미입력==본인).",
+              "ja": "見ようとするユーザーのニックネームを入力してください（未入力==本人）。"
+            },
+            "type": 6,
+            "required": false
+          },
+          {
+            "name_localizations": { "ko": "월", "ja": "月" },
+            "autocomplete": false,
+            "name": "month",
+            "description": "Please enter the month of the desired record as an integer (not selected == present).",
+            "description_localizations": {
+              "ko": "원하는 기록의 월을 정수로 입력해주세요 (미선택==현재).",
+              "ja": "記録の月を正しく入力してください（未選択==現在）。"
+            },
+            "type": 4,
+            "required": false
+          },
+          {
+            "name_localizations": { "ko": "년", "ja": "年" },
+            "autocomplete": false,
+            "name": "year",
+            "description": "Enter the year of the desired record as an integer (not selected == present).",
+            "description_localizations": {
+              "ko": "원하는 기록의 년도를 정수로 입력해주세요 (미선택==현재).",
+              "ja": "記録の年度を正しく入力してください（未選択==現在）。"
+            },
+            "type": 4,
+            "required": false
+          },
+          {
+            "name_localizations": {
+              "ko": "게임_그룹",
+              "ja": "ゲーム_グループ"
+            },
+            "autocomplete": false,
+            "name": "game_group",
+            "description": "Enter a group of games to search for. If not entered, search as default game.",
+            "description_localizations": {
+              "ko": "검색할 게임의 그룹을 입력하세요. 미입력 시 기본 게임으로 검색합니다. ",
+              "ja": "検索するゲームのグループを入力してください。 入力されていない場合は、デフォルトのゲームで検索します。"
+            },
+            "type": 3,
+            "required": false
+          }
+        ],
+        "description": "Check the statistics of the player by month.",
+        "description_localizations": {
+          "ko": "월별 플레이어의 통계를 확인합니다.",
+          "ja": "月別プレイヤーの統計を確認します。"
+        },
+        "type": 1
+      }
+    ],
+    "description": "You can check the user's stats.",
+    "description_localizations": {
+      "ko": "유저의 스탯을 확인할 수 있습니다. ",
+      "ja": "ユーザーのスタットを確認できます。"
+    },
+    "default_member_permissions": null,
+    "type": 1
+  },
+  {
+    "dm_permission": false,
+    "name_localizations": {},
+    "nsfw": false,
+    "name": "rank",
+    "options": [
+      {
+        "name_localizations": {},
+        "name": "entire",
+        "options": [
+          {
+            "name_localizations": { "ko": "종류", "ja": "種類" },
+            "autocomplete": false,
+            "name": "type",
+            "description": "Please select the desired statistic list (not selected == Uma).",
+            "description_localizations": {
+              "ko": "원하는 통계 목록을 선택해주세요 (미선택==우마).",
+              "ja": "見ようとする統計リストを選択してください（未選択==ウマ）。"
+            },
+            "type": 4,
+            "choices": [
+              {
+                "name_localizations": { "ko": "요약", "ja": "要約" },
+                "name": "summary",
+                "value": 0
+              },
+              {
+                "name_localizations": { "ko": "우마", "ja": "ウマ" },
+                "name": "uma",
+                "value": 1
+              },
+              {
+                "name_localizations": { "ko": "총합 국 수", "ja": "対戦数" },
+                "name": "total_game_count",
+                "value": 2
+              }
+            ],
+            "required": false
+          },
+          {
+            "name_localizations": {
+              "ko": "국_수_필터",
+              "ja": "対戦数フィルター"
+            },
+            "autocomplete": false,
+            "name": "filter",
+            "description": "Please enter the reference number.",
+            "description_localizations": {
+              "ko": "기준 국 수를 입력해주세요.",
+              "ja": "基準国数を入力してください。"
+            },
+            "type": 4,
+            "required": false
+          },
+          {
+            "name_localizations": {
+              "ko": "게임_그룹",
+              "ja": "ゲーム_グループ"
+            },
+            "autocomplete": false,
+            "name": "game_group",
+            "description": "Enter a group of games to search for. If not entered, search as default game.",
+            "description_localizations": {
+              "ko": "검색할 게임의 그룹을 입력하세요. 미입력 시 기본 게임으로 검색합니다. ",
+              "ja": "検索するゲームのグループを入力してください。 入力されていない場合は、デフォルトのゲームで検索します。"
+            },
+            "type": 3,
+            "required": false
+          }
+        ],
+        "description": "Check the overall ranking.",
+        "description_localizations": {
+          "ko": "전체 순위를 확인합니다. ",
+          "ja": "全体の順位を確認します。"
+        },
+        "type": 1
+      },
+      {
+        "name_localizations": {},
+        "name": "season",
+        "options": [
+          {
+            "name_localizations": { "ko": "종류", "ja": "種類" },
+            "autocomplete": false,
+            "name": "type",
+            "description": "select the desired statistic list (not selected == Uma).",
+            "description_localizations": {
+              "ko": "원하는 통계 목록을 선택해주세요 (미선택==우마).",
+              "ja": "見ようとする統計リストを選択してください（未選択==ウマ）。"
+            },
+            "type": 4,
+            "choices": [
+              {
+                "name_localizations": { "ko": "요약", "ja": "要約" },
+                "name": "summary",
+                "value": 0
+              },
+              {
+                "name_localizations": { "ko": "우마", "ja": "ウマ" },
+                "name": "uma",
+                "value": 1
+              },
+              {
+                "name_localizations": { "ko": "총합 국 수", "ja": "対戦数" },
+                "name": "total_game_count",
+                "value": 2
+              }
+            ],
+            "required": false
+          },
+          {
+            "name_localizations": { "ko": "시즌", "ja": "シーズン" },
+            "autocomplete": false,
+            "name": "season",
+            "description": "Please select the desired half of the record (not selected == present).",
+            "description_localizations": {
+              "ko": "원하는 기록의 반기를 선택해주세요 (미선택==현재).",
+              "ja": "希望する記録の半期を選んでください(未選択==現在)。"
+            },
+            "type": 4,
+            "choices": [
+              {
+                "name_localizations": {
+                  "ko": "상반기 (1월-6월)",
+                  "ja": "上半期 (1月-6月)"
+                },
+                "name": "1-6",
+                "value": 1
+              },
+              {
+                "name_localizations": {
+                  "ko": "하반기 (7월-12월)",
+                  "ja": "下半期（7月-12月)"
+                },
+                "name": "7-12",
+                "value": 2
+              }
+            ],
+            "required": false
+          },
+          {
+            "name_localizations": { "ko": "년", "ja": "年" },
+            "autocomplete": false,
+            "name": "year",
+            "description": "Please enter the year of the desired record as an integer (not selected == present).",
+            "description_localizations": {
+              "ko": "원하는 기록의 년도를 정수로 입력해주세요 (미선택==현재).",
+              "ja": "記録の年度を正しく入力してください（未選択==現在）。"
+            },
+            "type": 4,
+            "required": false
+          },
+          {
+            "name_localizations": {
+              "ko": "국_수_필터",
+              "ja": "対戦数フィルター"
+            },
+            "autocomplete": false,
+            "name": "filter",
+            "description": "Please enter the reference number.",
+            "description_localizations": {
+              "ko": "기준 국 수를 입력해주세요.",
+              "ja": "基準国数を入力してください。"
+            },
+            "type": 4,
+            "required": false
+          },
+          {
+            "name_localizations": { "ko": "게임_그룹", "ja": "ゲームグループ" },
+            "autocomplete": false,
+            "name": "game_group",
+            "description": "Enter a group of games to search for. If not entered, search as default game.",
+            "description_localizations": {
+              "ko": "검색할 게임의 그룹을 입력하세요. 미입력 시 기본 게임으로 검색합니다. ",
+              "ja": "検索するゲームのグループを入力してください。 入力されていない場合は、デフォルトのゲームで検索します。"
+            },
+            "type": 3,
+            "required": false
+          }
+        ],
+        "description": "Check the current ranking by season.",
+        "description_localizations": {
+          "ko": "시즌별 현재 순위를 확인합니다. ",
+          "ja": "シーズン別の現在の順位を確認します。"
+        },
+        "type": 1
+      },
+      {
+        "name_localizations": {},
+        "name": "month",
+        "options": [
+          {
+            "name_localizations": { "ko": "종류", "ja": "種類" },
+            "autocomplete": false,
+            "name": "type",
+            "description": "select the desired statistic list (not selected == Uma).",
+            "description_localizations": {
+              "ko": "원하는 통계 목록을 선택해주세요 (미선택==우마).",
+              "ja": "見ようとする統計リストを選択してください（未選択==ウマ）。"
+            },
+            "type": 4,
+            "choices": [
+              {
+                "name_localizations": { "ko": "요약", "ja": "要約" },
+                "name": "summary",
+                "value": 0
+              },
+              {
+                "name_localizations": { "ko": "우마", "ja": "ウマ" },
+                "name": "uma",
+                "value": 1
+              },
+              {
+                "name_localizations": { "ko": "총합 국 수", "ja": "対戦数" },
+                "name": "total_game_count",
+                "value": 2
+              }
+            ],
+            "required": false
+          },
+          {
+            "name_localizations": { "ko": "월", "ja": "月" },
+            "autocomplete": false,
+            "name": "month",
+            "description": "Please enter the month of the desired record as an integer (not selected == present).",
+            "description_localizations": {
+              "ko": "원하는 기록의 월을 정수로 입력해주세요 (미선택==현재).",
+              "ja": "記録の月を正しく入力してください（未選択==現在）。"
+            },
+            "type": 4,
+            "required": false
+          },
+          {
+            "name_localizations": { "ko": "년", "ja": "年" },
+            "autocomplete": false,
+            "name": "year",
+            "description": "Please enter the year of the desired record as an integer (not selected == present).",
+            "description_localizations": {
+              "ko": "원하는 기록의 년도를 정수로 입력해주세요 (미선택==현재).",
+              "ja": "記録の年度を正しく入力してください（未選択==現在）。"
+            },
+            "type": 4,
+            "required": false
+          },
+          {
+            "name_localizations": {
+              "ko": "국_수_필터",
+              "ja": "対戦数フィルター"
+            },
+            "autocomplete": false,
+            "name": "filter",
+            "description": "Please enter the reference number.",
+            "description_localizations": {
+              "ko": "기준 국 수를 입력해주세요.",
+              "ja": "基準国数を入力してください。"
+            },
+            "type": 4,
+            "required": false
+          },
+          {
+            "name_localizations": {
+              "ko": "게임_그룹",
+              "ja": "ゲーム_グループ"
+            },
+            "autocomplete": false,
+            "name": "game_group",
+            "description": "Enter a group of games to search for. If not entered, search as default game.",
+            "description_localizations": {
+              "ko": "검색할 게임의 그룹을 입력하세요. 미입력 시 기본 게임으로 검색합니다. ",
+              "ja": "検索するゲームのグループを入力してください。 入力されていない場合は、デフォルトのゲームで検索します。"
+            },
+            "type": 3,
+            "required": false
+          }
+        ],
+        "description": "Check the monthly ranking.",
+        "description_localizations": {
+          "ko": "월별 순위를 확인합니다.",
+          "ja": "月別順位を確認します。"
+        },
+        "type": 1
+      }
+    ],
+    "description": "You can check the Ranking Panel on the server.",
+    "description_localizations": {
+      "ko": "서버에서의 순위판을 확인할 수 있습니다. ",
+      "ja": "サーバーでのランキングを確認できます。"
+    },
+    "default_member_permissions": null,
+    "type": 1
+  },
+  {
+    "dm_permission": false,
+    "name_localizations": {},
+    "nsfw": false,
+    "name": "modify",
+    "options": [
+      {
+        "name_localizations": { "ko": "게임ID", "ja": "ゲームID" },
+        "autocomplete": false,
+        "name": "game_id",
+        "description": "Please enter the ID of the game you want to modify.",
+        "description_localizations": {
+          "ko": "수정하려고 하는 게임의 ID를 입력해주세요. ",
+          "ja": "修正したいゲームのIDを入力してください。"
+        },
+        "type": 6,
+        "required": true
+      },
+      {
+        "name_localizations": { "ko": "1위_닉네임", "ja": "1位のニックネーム" },
+        "autocomplete": false,
+        "name": "1st_name",
+        "description": "User has to exist in the Discord server.",
+        "description_localizations": {
+          "ko": "디스코드 서버 내에 유저가 존재해야 합니다.",
+          "ja": "Discordサーバー内にユーザが存在する必要があります。"
+        },
+        "type": 6,
+        "required": true
+      },
+      {
+        "name_localizations": { "ko": "1위_점수", "ja": "1位の点数" },
+        "autocomplete": false,
+        "name": "1st_score",
+        "description": "First place score",
+        "description_localizations": { "ko": "1위 점수", "ja": "1位の点数" },
+        "type": 4,
+        "required": true
+      },
+      {
+        "name_localizations": { "ko": "2위_닉네임", "ja": "2位のニックネーム" },
+        "autocomplete": false,
+        "name": "2nd_name",
+        "description": "User has to exist in the Discord server.",
+        "description_localizations": {
+          "ko": "디스코드 서버 내에 유저가 존재해야 합니다.",
+          "ja": "Discordサーバー内にユーザが存在する必要があります。"
+        },
+        "type": 6,
+        "required": true
+      },
+      {
+        "name_localizations": { "ko": "2위_점수", "ja": "2位の点数" },
+        "autocomplete": false,
+        "name": "2nd_score",
+        "description": "Second place score",
+        "description_localizations": { "ko": "2위 점수", "ja": "2位の点数" },
+        "type": 4,
+        "required": true
+      },
+      {
+        "name_localizations": { "ko": "3위_닉네임", "ja": "3位のニックネーム" },
+        "autocomplete": false,
+        "name": "3rd_name",
+        "description": "User has to exist in the Discord server.",
+        "description_localizations": {
+          "ko": "디스코드 서버 내에 유저가 존재해야 합니다.",
+          "ja": "Discordサーバー内にユーザが存在する必要があります。"
+        },
+        "type": 6,
+        "required": true
+      },
+      {
+        "name_localizations": { "ko": "3위_점수", "ja": "3位の点数" },
+        "autocomplete": false,
+        "name": "3rd_score",
+        "description": "Third place score",
+        "description_localizations": { "ko": "3위 점수", "ja": "3位の点数" },
+        "type": 4,
+        "required": true
+      },
+      {
+        "name_localizations": { "ko": "4위_닉네임", "ja": "4位のニックネーム" },
+        "autocomplete": false,
+        "name": "4th_name",
+        "description": "User has to exist in the Discord server.",
+        "description_localizations": {
+          "ko": "디스코드 서버 내에 유저가 존재해야 합니다.",
+          "ja": "Discordサーバー内にユーザが存在する必要があります。"
+        },
+        "type": 6,
+        "required": true
+      },
+      {
+        "name_localizations": { "ko": "4위_점수", "ja": "4位の点数" },
+        "autocomplete": false,
+        "name": "4th_score",
+        "description": "Fourth place score",
+        "description_localizations": { "ko": "4위 점수", "ja": "4位の点数" },
+        "type": 4,
+        "required": true
+      }
+    ],
+    "description": "Score record manager or the person who registered the game can modify the score within 10 minutes.",
+    "description_localizations": {
+      "ko": "이미 저장된 게임의 점수를 수정합니다. 점수 기록 관리자 또는 게임을 등록했던 사람이 10분 이내에 점수를 수정할 수 있습니다.  ",
+      "ja": "保存済みゲームのスコアを修正します。 スコア記録管理者またはゲームを登録した人が10分以内にスコアを修正できます。"
+    },
+    "default_member_permissions": null,
+    "type": 1
+  },
+  {
+    "dm_permission": false,
+    "name_localizations": {},
+    "nsfw": false,
+    "name": "delete",
+    "options": [
+      {
+        "name_localizations": { "ko": "게임ID", "ja": "ゲームID" },
+        "autocomplete": false,
+        "name": "game_id",
+        "description": "Please enter the ID of the game you want to delete.",
+        "description_localizations": {
+          "ko": "삭제하려고 하는 게임의 ID를 입력해주세요. ",
+          "ja": "削除しようとするゲームのIDを入力してください。"
+        },
+        "type": 6,
+        "required": true
+      }
+    ],
+    "description": "Delete an already saved game. The Game History Manager can delete the game within 60 minutes.",
+    "description_localizations": {
+      "ko": "이미 저장된 게임을 삭제합니다. 게임 기록 관리자가 60분 이내에 게임을 삭제할 수 있습니다. ",
+      "ja": "すでに保存されているゲームを削除します。 ゲーム記録管理者が60分以内にゲームを削除できます。"
+    },
+    "default_member_permissions": null,
+    "type": 1
+  },
+  {
     "dm_permission": true,
     "name_localizations": {},
     "nsfw": false,
@@ -28,10 +776,7 @@
     "name": "machi",
     "options": [
       {
-        "name_localizations": {
-          "ko": "손패",
-          "ja": "手牌"
-        },
+        "name_localizations": { "ko": "손패", "ja": "手牌" },
         "autocomplete": false,
         "name": "hand",
         "description": "Do not write m,p,s,z multiple times. m=Man-zu, p=Pin-zu, s=Sou-zu, z=Honors ex) 234m34455p234s44z",
@@ -52,16 +797,13 @@
     "type": 1
   },
   {
-    "dm_permission": true,
+    "dm_permission": false,
     "name_localizations": {},
     "nsfw": false,
     "name": "add",
     "options": [
       {
-        "name_localizations": {
-          "ko": "1위_닉네임",
-          "ja": "1位のニックネーム"
-        },
+        "name_localizations": { "ko": "1위_닉네임", "ja": "1位のニックネーム" },
         "autocomplete": false,
         "name": "1st_name",
         "description": "User has to exist in the Discord server.",
@@ -73,25 +815,16 @@
         "required": true
       },
       {
-        "name_localizations": {
-          "ko": "1위_점수",
-          "ja": "1位の点数"
-        },
+        "name_localizations": { "ko": "1위_점수", "ja": "1位の点数" },
         "autocomplete": false,
         "name": "1st_score",
         "description": "First place score",
-        "description_localizations": {
-          "ko": "1위 점수",
-          "ja": "1位の点数"
-        },
+        "description_localizations": { "ko": "1위 점수", "ja": "1位の点数" },
         "type": 4,
         "required": true
       },
       {
-        "name_localizations": {
-          "ko": "2위_닉네임",
-          "ja": "2位のニックネーム"
-        },
+        "name_localizations": { "ko": "2위_닉네임", "ja": "2位のニックネーム" },
         "autocomplete": false,
         "name": "2nd_name",
         "description": "User has to exist in the Discord server.",
@@ -103,25 +836,16 @@
         "required": true
       },
       {
-        "name_localizations": {
-          "ko": "2위_점수",
-          "ja": "2位の点数"
-        },
+        "name_localizations": { "ko": "2위_점수", "ja": "2位の点数" },
         "autocomplete": false,
         "name": "2nd_score",
         "description": "Second place score",
-        "description_localizations": {
-          "ko": "2위 점수",
-          "ja": "2位の点数"
-        },
+        "description_localizations": { "ko": "2위 점수", "ja": "2位の点数" },
         "type": 4,
         "required": true
       },
       {
-        "name_localizations": {
-          "ko": "3위_닉네임",
-          "ja": "3位のニックネーム"
-        },
+        "name_localizations": { "ko": "3위_닉네임", "ja": "3位のニックネーム" },
         "autocomplete": false,
         "name": "3rd_name",
         "description": "User has to exist in the Discord server.",
@@ -133,25 +857,16 @@
         "required": true
       },
       {
-        "name_localizations": {
-          "ko": "3위_점수",
-          "ja": "3位の点数"
-        },
+        "name_localizations": { "ko": "3위_점수", "ja": "3位の点数" },
         "autocomplete": false,
         "name": "3rd_score",
         "description": "Third place score",
-        "description_localizations": {
-          "ko": "3위 점수",
-          "ja": "3位の点数"
-        },
+        "description_localizations": { "ko": "3위 점수", "ja": "3位の点数" },
         "type": 4,
         "required": true
       },
       {
-        "name_localizations": {
-          "ko": "4위_닉네임",
-          "ja": "4位のニックネーム"
-        },
+        "name_localizations": { "ko": "4위_닉네임", "ja": "4位のニックネーム" },
         "autocomplete": false,
         "name": "4th_name",
         "description": "User has to exist in the Discord server.",
@@ -163,19 +878,25 @@
         "required": true
       },
       {
-        "name_localizations": {
-          "ko": "4위_점수",
-          "ja": "4位の点数"
-        },
+        "name_localizations": { "ko": "4위_점수", "ja": "4位の点数" },
         "autocomplete": false,
         "name": "4th_score",
         "description": "Fourth place score",
-        "description_localizations": {
-          "ko": "4위 점수",
-          "ja": "4位の点数"
-        },
+        "description_localizations": { "ko": "4위 점수", "ja": "4位の点数" },
         "type": 4,
         "required": true
+      },
+      {
+        "name_localizations": { "ko": "게임_그룹", "ja": "ゲーム_グループ" },
+        "autocomplete": false,
+        "name": "game_group",
+        "description": "Enter a group of games to search for. If not entered, search as default game.",
+        "description_localizations": {
+          "ko": "검색할 게임의 그룹을 입력하세요. 미입력 시 기본 게임으로 검색합니다. ",
+          "ja": "検索するゲームのグループを入力してください。 入力されていない場合は、デフォルトのゲームで検索します。"
+        },
+        "type": 3,
+        "required": false
       }
     ],
     "description": "Add new game result.",
@@ -190,471 +911,12 @@
     "dm_permission": true,
     "name_localizations": {},
     "nsfw": false,
-    "name": "entire_stat",
-    "options": [
-      {
-        "name_localizations": {
-          "ko": "유저",
-          "ja": "ユーザー"
-        },
-        "autocomplete": false,
-        "name": "user",
-        "description": "Enter the nickname of the user you want to search (not input == you).",
-        "description_localizations": {
-          "ko": "검색할 유저의 닉네임을 입력해주세요 (미입력==본인).",
-          "ja": "見ようとするユーザーのニックネームを入力してください（未入力==本人）。"
-        },
-        "type": 6,
-        "required": false
-      }
-    ],
-    "description": "Check the statistics of the player for the entire period.",
-    "description_localizations": {
-      "ko": "전체 기간의 플레이어의 통계를 확인합니다.",
-      "ja": "全期間のプレイヤーの統計を確認します。"
-    },
-    "default_member_permissions": null,
-    "type": 1
-  },
-  {
-    "dm_permission": true,
-    "name_localizations": {},
-    "nsfw": false,
-    "name": "month_stat",
-    "options": [
-      {
-        "name_localizations": {
-          "ko": "유저",
-          "ja": "ユーザー"
-        },
-        "autocomplete": false,
-        "name": "user",
-        "description": "Enter the nickname of the user you want to search (not input == you).",
-        "description_localizations": {
-          "ko": "검색할 유저의 닉네임을 입력해주세요 (미입력==본인).",
-          "ja": "見ようとするユーザーのニックネームを入力してください（未入力==本人）。"
-        },
-        "type": 6,
-        "required": false
-      },
-      {
-        "name_localizations": {
-          "ko": "월",
-          "ja": "月"
-        },
-        "autocomplete": false,
-        "name": "month",
-        "description": "Please enter the month of the desired record as an integer (not selected == present).",
-        "description_localizations": {
-          "ko": "원하는 기록의 월을 정수로 입력해주세요 (미선택==현재).",
-          "ja": "記録の月を正しく入力してください（未選択==現在）。"
-        },
-        "type": 4,
-        "required": false
-      },
-      {
-        "name_localizations": {
-          "ko": "년",
-          "ja": "年"
-        },
-        "autocomplete": false,
-        "name": "year",
-        "description": "Enter the year of the desired record as an integer (not selected == present).",
-        "description_localizations": {
-          "ko": "원하는 기록의 년도를 정수로 입력해주세요 (미선택==현재).",
-          "ja": "記録の年度を正しく入力してください（未選択==現在）。"
-        },
-        "type": 4,
-        "required": false
-      }
-    ],
-    "description": "Check the statistics of the player by month.",
-    "description_localizations": {
-      "ko": "월별 플레이어의 통계를 확인합니다.",
-      "ja": "月別プレイヤーの統計を確認します。"
-    },
-    "default_member_permissions": null,
-    "type": 1
-  },
-  {
-    "dm_permission": true,
-    "name_localizations": {},
-    "nsfw": false,
-    "name": "stat",
-    "options": [
-      {
-        "name_localizations": {
-          "ko": "유저",
-          "ja": "ユーザー"
-        },
-        "autocomplete": false,
-        "name": "user",
-        "description": "Enter the nickname of the user you want to search (not input == you).",
-        "description_localizations": {
-          "ko": "검색할 유저의 닉네임을 입력해주세요 (미입력==본인).",
-          "ja": "見ようとするユーザーのニックネームを入力してください（未入力==本人）。"
-        },
-        "type": 6,
-        "required": false
-      },
-      {
-        "name_localizations": {
-          "ko": "시즌",
-          "ja": "シーズン"
-        },
-        "autocomplete": false,
-        "name": "season",
-        "description": "Please select the desired half of the record (not selected == present).",
-        "description_localizations": {
-          "ko": "원하는 기록의 반기를 선택해주세요 (미선택==현재).",
-          "ja": "希望する記録の半期を選んでください(未選択==現在)。"
-        },
-        "type": 4,
-        "choices": [
-          {
-            "name_localizations": {
-              "ko": "상반기 (1월-6월)",
-              "ja": "上半期 (1月-6月)"
-            },
-            "name": "1-6",
-            "value": 1
-          },
-          {
-            "name_localizations": {
-              "ko": "하반기 (7월-12월)",
-              "ja": "下半期（7月-12月)"
-            },
-            "name": "7-12",
-            "value": 2
-          }
-        ],
-        "required": false
-      },
-      {
-        "name_localizations": {
-          "ko": "년",
-          "ja": "年"
-        },
-        "autocomplete": false,
-        "name": "year",
-        "description": "Please enter the year of the desired record as an integer (not selected == present).",
-        "description_localizations": {
-          "ko": "원하는 기록의 년도를 정수로 입력해주세요 (미선택==현재).",
-          "ja": "記録の年度を正しく入力してください（未選択==現在）。"
-        },
-        "type": 4,
-        "required": false
-      }
-    ],
-    "description": "Check the Player statistics.",
-    "description_localizations": {
-      "ko": "플레이어의 통계를 확인합니다.",
-      "ja": "シーズン別のプレイヤーの統計を確認します。"
-    },
-    "default_member_permissions": null,
-    "type": 1
-  },
-  {
-    "dm_permission": true,
-    "name_localizations": {},
-    "nsfw": false,
     "name": "revalid",
     "options": [],
-    "description": "Reloads the data.",
+    "description": "Invalidates the currently stored cache.",
     "description_localizations": {
-      "ko": "데이터를 새로고침합니다. ",
-      "ja": "データを更新します。"
-    },
-    "default_member_permissions": null,
-    "type": 1
-  },
-  {
-    "dm_permission": true,
-    "name_localizations": {},
-    "nsfw": false,
-    "name": "entire_rank",
-    "options": [
-      {
-        "name_localizations": {
-          "ko": "종류",
-          "ja": "種類"
-        },
-        "autocomplete": false,
-        "name": "type",
-        "description": "Please select the desired statistic list (not selected == Uma).",
-        "description_localizations": {
-          "ko": "원하는 통계 목록을 선택해주세요 (미선택==우마).",
-          "ja": "見ようとする統計リストを選択してください（未選択==ウマ）。"
-        },
-        "type": 4,
-        "choices": [
-          {
-            "name_localizations": {
-              "ko": "요약",
-              "ja": "要約"
-            },
-            "name": "summary",
-            "value": 0
-          },
-          {
-            "name_localizations": {
-              "ko": "우마",
-              "ja": "ウマ"
-            },
-            "name": "uma",
-            "value": 1
-          },
-          {
-            "name_localizations": {
-              "ko": "총합 국 수",
-              "ja": "対戦数"
-            },
-            "name": "total_game_count",
-            "value": 2
-          }
-        ],
-        "required": false
-      },
-      {
-        "name_localizations": {
-          "ko": "국_수_필터",
-          "ja": "対戦数フィルター"
-        },
-        "autocomplete": false,
-        "name": "filter",
-        "description": "Please enter the reference number.",
-        "description_localizations": {
-          "ko": "기준 국 수를 입력해주세요.",
-          "ja": "基準国数を入力してください。"
-        },
-        "type": 4,
-        "required": false
-      }
-    ],
-    "description": "Check the overall ranking.",
-    "description_localizations": {
-      "ko": "전체 순위를 확인합니다. ",
-      "ja": "全体の順位を確認します。"
-    },
-    "default_member_permissions": null,
-    "type": 1
-  },
-  {
-    "dm_permission": true,
-    "name_localizations": {},
-    "nsfw": false,
-    "name": "month_rank",
-    "options": [
-      {
-        "name_localizations": {
-          "ko": "종류",
-          "ja": "種類"
-        },
-        "autocomplete": false,
-        "name": "type",
-        "description": "select the desired statistic list (not selected == Uma).",
-        "description_localizations": {
-          "ko": "원하는 통계 목록을 선택해주세요 (미선택==우마).",
-          "ja": "見ようとする統計リストを選択してください（未選択==ウマ）。"
-        },
-        "type": 4,
-        "choices": [
-          {
-            "name_localizations": {
-              "ko": "요약",
-              "ja": "要約"
-            },
-            "name": "summary",
-            "value": 0
-          },
-          {
-            "name_localizations": {
-              "ko": "우마",
-              "ja": "ウマ"
-            },
-            "name": "uma",
-            "value": 1
-          },
-          {
-            "name_localizations": {
-              "ko": "총합 국 수",
-              "ja": "対戦数"
-            },
-            "name": "total_game_count",
-            "value": 2
-          }
-        ],
-        "required": false
-      },
-      {
-        "name_localizations": {
-          "ko": "월",
-          "ja": "月"
-        },
-        "autocomplete": false,
-        "name": "month",
-        "description": "Please enter the month of the desired record as an integer (not selected == present).",
-        "description_localizations": {
-          "ko": "원하는 기록의 월을 정수로 입력해주세요 (미선택==현재).",
-          "ja": "記録の月を正しく入力してください（未選択==現在）。"
-        },
-        "type": 4,
-        "required": false
-      },
-      {
-        "name_localizations": {
-          "ko": "년",
-          "ja": "年"
-        },
-        "autocomplete": false,
-        "name": "year",
-        "description": "Please enter the year of the desired record as an integer (not selected == present).",
-        "description_localizations": {
-          "ko": "원하는 기록의 년도를 정수로 입력해주세요 (미선택==현재).",
-          "ja": "記録の年度を正しく入力してください（未選択==現在）。"
-        },
-        "type": 4,
-        "required": false
-      },
-      {
-        "name_localizations": {
-          "ko": "국_수_필터",
-          "ja": "対戦数フィルター"
-        },
-        "autocomplete": false,
-        "name": "filter",
-        "description": "Please enter the reference number.",
-        "description_localizations": {
-          "ko": "기준 국 수를 입력해주세요.",
-          "ja": "基準国数を入力してください。"
-        },
-        "type": 4,
-        "required": false
-      }
-    ],
-    "description": "Check the monthly ranking.",
-    "description_localizations": {
-      "ko": "월별 순위를 확인합니다.",
-      "ja": "月別順位を確認します。"
-    },
-    "default_member_permissions": null,
-    "type": 1
-  },
-  {
-    "dm_permission": true,
-    "name_localizations": {},
-    "nsfw": false,
-    "name": "rank",
-    "options": [
-      {
-        "name_localizations": {
-          "ko": "종류",
-          "ja": "種類"
-        },
-        "autocomplete": false,
-        "name": "type",
-        "description": "select the desired statistic list (not selected == Uma).",
-        "description_localizations": {
-          "ko": "원하는 통계 목록을 선택해주세요 (미선택==우마).",
-          "ja": "見ようとする統計リストを選択してください（未選択==ウマ）。"
-        },
-        "type": 4,
-        "choices": [
-          {
-            "name_localizations": {
-              "ko": "요약",
-              "ja": "要約"
-            },
-            "name": "summary",
-            "value": 0
-          },
-          {
-            "name_localizations": {
-              "ko": "우마",
-              "ja": "ウマ"
-            },
-            "name": "uma",
-            "value": 1
-          },
-          {
-            "name_localizations": {
-              "ko": "총합 국 수",
-              "ja": "対戦数"
-            },
-            "name": "total_game_count",
-            "value": 2
-          }
-        ],
-        "required": false
-      },
-      {
-        "name_localizations": {
-          "ko": "시즌",
-          "ja": "シーズン"
-        },
-        "autocomplete": false,
-        "name": "season",
-        "description": "Please select the desired half of the record (not selected == present).",
-        "description_localizations": {
-          "ko": "원하는 기록의 반기를 선택해주세요 (미선택==현재).",
-          "ja": "希望する記録の半期を選んでください(未選択==現在)。"
-        },
-        "type": 4,
-        "choices": [
-          {
-            "name_localizations": {
-              "ko": "상반기 (1월-6월)",
-              "ja": "上半期 (1月-6月)"
-            },
-            "name": "1-6",
-            "value": 1
-          },
-          {
-            "name_localizations": {
-              "ko": "하반기 (7월-12월)",
-              "ja": "下半期（7月-12月)"
-            },
-            "name": "7-12",
-            "value": 2
-          }
-        ],
-        "required": false
-      },
-      {
-        "name_localizations": {
-          "ko": "년",
-          "ja": "年"
-        },
-        "autocomplete": false,
-        "name": "year",
-        "description": "Please enter the year of the desired record as an integer (not selected == present).",
-        "description_localizations": {
-          "ko": "원하는 기록의 년도를 정수로 입력해주세요 (미선택==현재).",
-          "ja": "記録の年度を正しく入力してください（未選択==現在）。"
-        },
-        "type": 4,
-        "required": false
-      },
-      {
-        "name_localizations": {
-          "ko": "국_수_필터",
-          "ja": "対戦数フィルター"
-        },
-        "autocomplete": false,
-        "name": "filter",
-        "description": "Please enter the reference number.",
-        "description_localizations": {
-          "ko": "기준 국 수를 입력해주세요.",
-          "ja": "基準国数を入力してください。"
-        },
-        "type": 4,
-        "required": false
-      }
-    ],
-    "description": "Check the current ranking by season.",
-    "description_localizations": {
-      "ko": "시즌별 현재 순위를 확인합니다. ",
-      "ja": "シーズン別の現在の順位を確認します。"
+      "ko": "현재 저장된 캐시를 무효화합니다. ",
+      "ja": "現在保存されているキャッシュを無効にします。"
     },
     "default_member_permissions": null,
     "type": 1

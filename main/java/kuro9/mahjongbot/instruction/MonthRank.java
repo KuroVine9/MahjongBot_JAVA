@@ -61,7 +61,7 @@ public class MonthRank extends RankArranger implements RankInterface {
 
         event.getHook().sendMessageEmbeds(
                 getSummaryEmbed(
-                        String.format(resourceBundle.getString("month_rank.embed.summary.title"), year, month, filter),
+                        String.format(resourceBundle.getString("rank.month.embed.summary.title"), year, month, filter),
                         userDataList.values().stream().toList(),
                         event.getUserLocale()
                 ).build()
@@ -104,7 +104,7 @@ public class MonthRank extends RankArranger implements RankInterface {
         event.getHook().sendMessage(
                 getUmaPrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("month_rank.embed.uma.title"), year, month, filter),
+                        String.format(resourceBundle.getString("rank.month.embed.uma.title"), year, month, filter),
                         month_uma_page_count[0],
                         base64KeyGen(year, month, null, GameType.UMA, filter, null, gameGroup)
                 )
@@ -155,7 +155,7 @@ public class MonthRank extends RankArranger implements RankInterface {
                 sorted_list.size(),
                 () -> getUmaPrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("month_rank.embed.uma.title"), year, month, filter),
+                        String.format(resourceBundle.getString("rank.month.embed.uma.title"), year, month, filter),
                         month_uma_page_count[0],
                         base64KeyGen(year, month, null, GameType.UMA, filter, month_uma_page_count[0], gameGroup)
                 )
@@ -198,7 +198,7 @@ public class MonthRank extends RankArranger implements RankInterface {
         event.getHook().sendMessage(
                 getTotalGamePrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("month_rank.embed.total_game_count.title"), year, month, filter),
+                        String.format(resourceBundle.getString("rank.month.embed.total_game_count.title"), year, month, filter),
                         month_total_game_page_count[0],
                         base64KeyGen(year, month, null, GameType.GMC, filter, null, gameGroup)
                 )
@@ -249,7 +249,7 @@ public class MonthRank extends RankArranger implements RankInterface {
                 sorted_list.size(),
                 () -> getTotalGamePrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("month_rank.embed.total_game_count.title"), year, month, filter),
+                        String.format(resourceBundle.getString("rank.month.embed.total_game_count.title"), year, month, filter),
                         month_total_game_page_count[0],
                         base64KeyGen(year, month, null, GameType.GMC, filter, month_total_game_page_count[0], gameGroup)
                 )

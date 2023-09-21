@@ -35,6 +35,7 @@ public class Logger {
     public static final String PERMISSION_DENY = "no-permission";
     public static final String TIMEOUT = "timeout";
     public static final String PARAM_PARSE_ERR = "parameter-parse-err";
+    public static final String UNKNOWN_INST = "unknown-inst";
 
     /**
      * 일반 이벤트를 로깅합니다.

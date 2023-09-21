@@ -38,10 +38,10 @@ object GetGameGroupList : GameDataParse() {
 
             event.hook.sendMessageEmbeds(
                 EmbedBuilder().apply {
-                    setTitle(String.format(resourceBundle.getString("gamegroup.select.embed.title"), guildName))
+                    setTitle(String.format(resourceBundle.getString("game_group.select.embed.title"), guildName))
                     addField(
                         String.format(
-                            resourceBundle.getString("gamegroup.select.embed.field_title"),
+                            resourceBundle.getString("game_group.select.embed.field_title"),
                             gameGroupList.size
                         ),
                         gameGroupList.joinToString(separator = "\n", transform = { "`$it`" }),
