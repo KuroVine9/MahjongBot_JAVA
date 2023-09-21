@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
  */
 public class Logger {
     public static final String SYS_START = "system-start";
+    public static final String UNKNOWN_ISSUE = "unknown-issue";
     public static final String NOT_GUILD_MSG = "not-guild-msg";
     public static final String DB_CONN_ERR = "db-connect-err";
     public static final String HAND_IMG_GEN_ERR = "hand-img-gen-err";
@@ -32,6 +33,8 @@ public class Logger {
     public static final String UNKNOWN_GAMEGROUP = "unknown-gamegroup";
     public static final String UNKNOWN_GUILD = "unknown-guild";
     public static final String PERMISSION_DENY = "no-permission";
+    public static final String TIMEOUT = "timeout";
+    public static final String PARAM_PARSE_ERR = "parameter-parse-err";
 
     /**
      * 일반 이벤트를 로깅합니다.

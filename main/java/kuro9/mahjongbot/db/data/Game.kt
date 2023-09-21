@@ -9,6 +9,6 @@ data class Game(
     @UserRes val addedBy: Long,
     val gameGroup: String = ""
 ) {
-    val id: Int = 0
+    var id: Int = 0
     val createdAt: Timestamp = Timestamp(0)
 }

@@ -22,7 +22,7 @@ object GameGroupAdd : GameDataParse() {
             val embed = EmbedBuilder()
             embed.setTitle("403 Forbidden")
             embed.addField(
-                resourceBundle.getString("exception.not_in_guild.name"),
+                resourceBundle.getString("exception.not_in_guild.title"),
                 resourceBundle.getString("exception.not_in_guild.description"),
                 true
             )

@@ -31,7 +31,7 @@ public class AddScore extends GameDataParse {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle("403 Forbidden");
             embed.addField(
-                    resourceBundle.getString("exception.not_in_guild.name"),
+                    resourceBundle.getString("exception.not_in_guild.title"),
                     resourceBundle.getString("exception.not_in_guild.description"),
                     true
             );
@@ -61,7 +61,9 @@ public class AddScore extends GameDataParse {
         ).toList();
 
         try {
-            int game_count = DBScoreProcess.INSTANCE.addScore(game, gameResult);
+            var result = DBScoreProcess.INSTANCE.addScore(game, gameResult);
+            int game_count = result[0];
+            int game_id = result[1];
 
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle(resourceBundle.getString("add.embed.success.title"));
@@ -75,6 +77,7 @@ public class AddScore extends GameDataParse {
             embed.setFooter(
                     String.format(
                             resourceBundle.getString("add.embed.success.footer"),
+                            game_id,
                             game_count,
                             game.getCreatedAt()
                     )

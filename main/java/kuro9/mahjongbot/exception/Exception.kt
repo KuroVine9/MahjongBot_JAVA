@@ -21,7 +21,7 @@ class DBConnectException(message: String = "DB Connect Error!") : EmbeddableExce
         val embed = EmbedBuilder()
         embed.setTitle("500 Internal Server Error")
         embed.addField(
-            resourceBundle.getString("exception.dbconn.name"),
+            resourceBundle.getString("exception.dbconn.title"),
             resourceBundle.getString("exception.dbconn.description"),
             true
         )
@@ -70,7 +70,7 @@ class NotGuildInteractionException(message: String = "Not a Guild Interaction!")
         val embed = EmbedBuilder()
         embed.setTitle("403 Forbidden")
         embed.addField(
-            resourceBundle.getString("exception.not_in_guild.name"),
+            resourceBundle.getString("exception.not_in_guild.title"),
             resourceBundle.getString("exception.not_in_guild.description"),
             true
         )
@@ -86,7 +86,7 @@ class PermissionDeniedException(message: String = "You have No Permission!") : E
         val embed = EmbedBuilder()
         embed.setTitle("403 Forbidden")
         embed.addField(
-            resourceBundle.getString("exception.no_permission.name"),
+            resourceBundle.getString("exception.no_permission.title"),
             resourceBundle.getString("exception.no_permission.description"),
             true
         )
@@ -101,8 +101,8 @@ class PermissionExpiredException(message: String = "Too late!") : EmbeddableExce
         val embed = EmbedBuilder()
         embed.setTitle("400 Bad Request")
         embed.addField(
-            resourceBundle.getString("exception.no_permission.name"),
-            resourceBundle.getString("exception.no_permission.description"),
+            resourceBundle.getString("exception.time_expired.title"),
+            resourceBundle.getString("exception.time_expired.description"),
             true
         )
         embed.setColor(Color.RED)

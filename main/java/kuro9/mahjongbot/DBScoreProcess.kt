@@ -149,13 +149,13 @@ object DBScoreProcess {
      *
      * @param game 게임의 결과 객체
      * @param gameResult 1위부터 4위의 점수가 기록된 리스트
-     * @return 현재 guild && game group에서의 국 수
+     * @return 현재 guild && game group에서의 국 수, 게임ID로 구성된 배열
      * @throws ParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
      * @throws GameGroupNotFoundException 등록된 game group가 아닐 때
      * @throws DBConnectException DB 처리 중 에러가 발생할 때
      */
     @Throws(ParameterErrorException::class, GameGroupNotFoundException::class, DBConnectException::class)
-    fun addScore(game: Game, gameResult: Collection<GameResult>): Int {
+    fun addScore(game: Game, gameResult: Collection<GameResult>): Array<Int> {
         DataCache.markDataToInvalid(game.guildID, game.gameGroup)
         return DBHandler.addScore(game, gameResult)
     }

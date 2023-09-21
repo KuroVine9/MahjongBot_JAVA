@@ -23,7 +23,7 @@ object DBHandler {
         }
     )
 
-    private const val addScoreQuery = "CALL add_score(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    private const val addScoreQuery = "CALL add_score(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
     private const val addGameGroupQuery = "CALL add_group(?, ?, ?)"
     private const val selectGameResultQuery = "CALL select_record(?, ?, ?, ?, ?)"
     private const val selectRecentGameResultQuery = "CALL recent_ten_record(?, ?, ?, ?, ?)"
@@ -39,14 +39,14 @@ object DBHandler {
      * 점수를 추가합니다.
      * @param game [Game] 객체
      * @param result size가 4인 [GameResult] 객체 배열
-     * @return 현재 guild && game group에서의 국 수
+     * @return 현재 guild && game group에서의 국 수, 게임ID로 구성된 배열
      *
      * @throws ParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
      * @throws GameGroupNotFoundException 등록된 game group가 아닐 때
      * @throws DBConnectException DB 처리 중 에러가 발생할 때
      */
     @Throws(ParameterErrorException::class, GameGroupNotFoundException::class, DBConnectException::class)
-    fun addScore(game: Game, result: Collection<GameResult>): Int {
+    fun addScore(game: Game, result: Collection<GameResult>): Array<Int> {
         checkGameResult(result)
 
         try {
@@ -68,7 +68,7 @@ object DBHandler {
                         when (val gameCount: Int = getInt(12)) {
                             -2 -> throw GameGroupNotFoundException()
                             -1 -> throw DBConnectException("Procedure Error!")
-                            else -> return gameCount
+                            else -> return arrayOf(gameCount, getInt(13))
                         }
                     }
                 }
@@ -324,7 +324,6 @@ object DBHandler {
      * @param gameId 삭제할 게임의 ID
      * @param guildId 삭제할 게임이 등록되어 있는 서버의 ID
      *
-     * @throws ParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
      * @throws PermissionExpiredException 10분이 지나 더 이상 점수의 수정/삭제가 불가능할 때
      * @throws PermissionDeniedException 점수를 수정/삭제 할 권한이 없을 때
      * @throws DBConnectException DB 처리 중 에러가 발생할 때

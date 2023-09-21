@@ -35,7 +35,7 @@ object AddAdmin : GameDataParse() {
                 EmbedBuilder().apply {
                     setTitle("403 Forbidden")
                     addField(
-                        resourceBundle.getString("exception.no_permission.name"),
+                        resourceBundle.getString("exception.no_permission.title"),
                         resourceBundle.getString("exception.no_permission.description"),
                         true
                     )
@@ -81,7 +81,7 @@ object AddAdmin : GameDataParse() {
         val embed = EmbedBuilder()
         embed.setTitle("400 Bad Request")
         embed.addField(
-            resourceBundle.getString("exception.invalid_guild.name"),
+            resourceBundle.getString("exception.invalid_guild.title"),
             resourceBundle.getString("exception.invalid_guild.description"),
             true
         )
