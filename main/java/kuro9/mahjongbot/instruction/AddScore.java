@@ -5,6 +5,7 @@ import kuro9.mahjongbot.Logger;
 import kuro9.mahjongbot.ResourceHandler;
 import kuro9.mahjongbot.annotation.GuildRes;
 import kuro9.mahjongbot.annotation.UserRes;
+import kuro9.mahjongbot.db.DBHandler;
 import kuro9.mahjongbot.db.data.Game;
 import kuro9.mahjongbot.db.data.GameResult;
 import kuro9.mahjongbot.exception.DBConnectException;
@@ -75,9 +76,8 @@ public class AddScore extends GameDataParse {
         ).toList();
 
         try {
-            var result = DBScoreProcess.INSTANCE.addScore(game, gameResult);
-            int game_count = result[0];
-            int game_id = result[1];
+            int game_id = DBScoreProcess.INSTANCE.addScore(game, gameResult);
+            int game_count = DBHandler.INSTANCE.getGameCount(game_id, guildId, gameGroup);
 
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle(resourceBundle.getString("add.embed.success.title"));
@@ -99,8 +99,7 @@ public class AddScore extends GameDataParse {
             embed.setColor(Color.BLACK);
             event.getHook().sendMessageEmbeds(embed.build()).queue();
             Logger.addEvent(event);
-        }
-        catch (ParameterErrorException | GameGroupNotFoundException | DBConnectException e) {
+        } catch (ParameterErrorException | GameGroupNotFoundException | DBConnectException e) {
             event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale())).setEphemeral(true).queue();
 
             if (e instanceof ParameterErrorException)

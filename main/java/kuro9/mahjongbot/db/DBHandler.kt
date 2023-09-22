@@ -23,7 +23,7 @@ object DBHandler {
         }
     )
 
-    private const val addScoreQuery = "CALL add_score(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    private const val addScoreQuery = "CALL add_score(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
     private const val addGameGroupQuery = "CALL add_group(?, ?, ?)"
     private const val selectGameResultQuery = "CALL select_record(?, ?, ?, ?, ?)"
     private const val selectRecentGameResultQuery = "CALL recent_ten_record(?, ?, ?, ?, ?)"
@@ -33,20 +33,23 @@ object DBHandler {
     private const val addAdminQuery = "CALL add_admin(?,?)"
     private const val selectAdminQuery = "CALL select_admin(?)"
     private const val deleteAdminQuery = "CALL delete_admin(?,?)"
+    private const val getGameCountQuery = "CALL get_game_count(?, ?, ?, ?)"
 
 
     /**
      * 점수를 추가합니다.
      * @param game [Game] 객체
      * @param result size가 4인 [GameResult] 객체 배열
-     * @return 현재 guild && game group에서의 국 수, 게임ID로 구성된 배열
+     * @return 게임ID
      *
      * @throws ParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
      * @throws GameGroupNotFoundException 등록된 game group가 아닐 때
      * @throws DBConnectException DB 처리 중 에러가 발생할 때
      */
     @Throws(ParameterErrorException::class, GameGroupNotFoundException::class, DBConnectException::class)
-    fun addScore(game: Game, result: Collection<GameResult>): Array<Int> {
+    fun addScore(game: Game, result: Collection<GameResult>): Int {
+        if (!checkGameGroup(game.gameGroup))
+            throw ParameterErrorException("Invalid GameGroup!")
         checkGameResult(result)
 
         try {
@@ -65,19 +68,68 @@ object DBHandler {
                         registerOutParameter(12, Types.INTEGER)
 
                         executeUpdate()
-                        when (val gameCount: Int = getInt(12)) {
-                            -2 -> throw GameGroupNotFoundException()
+                        when (val gameId: Int = getInt(12)) {
+                            -400 -> throw GameGroupNotFoundException()
                             -1 -> throw DBConnectException("Procedure Error!")
-                            else -> return arrayOf(gameCount, getInt(13))
+                            else -> return gameId
                         }
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
 
+    }
+
+    /**
+     * 등록한 게임이 몇 번째 게임인지 리턴합니다.
+     *
+     * @param game id, guildId, gameGroup가 valid해야 함.
+     * @return 속한 서버의 게임 그룹에서의 게임 카운트
+     * @throws ParameterErrorException 게임 그룹 패턴 체크
+     * @throws DBConnectException DB 처리 에러
+     */
+    @Throws(ParameterErrorException::class, DBConnectException::class)
+    fun getGameCount(game: Game): Int {
+        if (!checkGameGroup(game.gameGroup))
+            throw ParameterErrorException("Invalid GameGroup Pattern!")
+
+        try {
+            dataSource.connection.use { connection ->
+                connection.prepareCall(getGameCountQuery).use { call ->
+                    with(call) {
+                        setInt(1, game.id)
+                        setLong(2, game.guildID)
+                        setString(3, game.gameGroup)
+
+                        registerOutParameter(4, Types.INTEGER)
+
+                        executeUpdate()
+
+                        return getInt(4)
+                    }
+                }
+            }
+        } catch (e: SQLException) {
+            throw DBConnectException()
+        }
+    }
+
+    /**
+     * 등록한 게임이 몇 번째 게임인지 리턴합니다.
+     *
+     * @param gameId 게임의 ID
+     * @param guildId 서버 ID
+     * @param gameGroup 게임 그룹
+     *
+     * @return 속한 서버의 게임 그룹에서의 게임 카운트
+     * @throws ParameterErrorException 게임 그룹 패턴 체크
+     * @throws DBConnectException DB 처리 에러
+     */
+    @Throws(ParameterErrorException::class, DBConnectException::class)
+    fun getGameCount(gameId: Int, @GuildRes guildId: Long, gameGroup: String): Int {
+        return getGameCount(Game(guildId, -1, gameGroup).apply { id = gameId })
     }
 
 
@@ -112,8 +164,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
     }
@@ -167,8 +218,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -221,8 +271,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -254,8 +303,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -310,8 +358,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -357,8 +404,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -386,8 +432,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -421,8 +466,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -451,8 +495,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
 
