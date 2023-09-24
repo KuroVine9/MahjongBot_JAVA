@@ -43,8 +43,6 @@ public class AddScore extends GameDataParse {
             return;
         }
 
-        var options = event.getOptions();
-
         int[] scores = {
                 event.getOption("1st_score").getAsInt(),
                 event.getOption("2nd_score").getAsInt(),
@@ -99,7 +97,8 @@ public class AddScore extends GameDataParse {
             embed.setColor(Color.BLACK);
             event.getHook().sendMessageEmbeds(embed.build()).queue();
             Logger.addEvent(event);
-        } catch (ParameterErrorException | GameGroupNotFoundException | DBConnectException e) {
+        }
+        catch (ParameterErrorException | GameGroupNotFoundException | DBConnectException e) {
             event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale())).setEphemeral(true).queue();
 
             if (e instanceof ParameterErrorException)

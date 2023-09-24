@@ -98,7 +98,7 @@ public class Logger {
         );
         embed.addField(
                 "USER_NAME",
-                event.getUser().getAsTag(),
+                event.getUser().getEffectiveName(),
                 true
         );
         embed.setFooter(log_list.get(0));
@@ -150,7 +150,7 @@ public class Logger {
         log_list.add(time);
         log_list.add(String.format("[%s]", description));
         log_list.add(String.format("%B", event.isFromGuild()));
-        log_list.add(event.getUser().getAsTag());
+        log_list.add(event.getUser().getEffectiveName());
 
         if (event instanceof SlashCommandInteractionEvent s) {
             log_list.add(s.getFullCommandName());
@@ -163,7 +163,7 @@ public class Logger {
                                         case STRING -> option.getAsString();
                                         case INTEGER -> String.valueOf(option.getAsLong());
                                         case BOOLEAN -> String.valueOf(option.getAsBoolean());
-                                        case USER -> option.getAsUser().getAsTag();
+                                        case USER -> option.getAsUser().getEffectiveName();
                                         case ROLE -> option.getAsRole().getName();
                                         default -> null;
                                     }

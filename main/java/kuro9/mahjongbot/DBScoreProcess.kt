@@ -82,7 +82,8 @@ object DBScoreProcess {
                     cacheQueue[ptr].state = STATE.OLD
                     ptr = ++ptr % QUEUE_SIZE
                     continue
-                } else {
+                }
+                else {
                     cacheQueue[ptr] = Cache(query = query, data = data)
                     break
                 }
@@ -163,6 +164,10 @@ object DBScoreProcess {
     fun addScore(game: Game, gameResult: Collection<GameResult>): Int {
         DataCache.markDataToInvalid(game.guildID, game.gameGroup)
         return DBHandler.addScore(game, gameResult)
+    }
+
+    fun deleteScore(@UserRes userId: Long, gameId: Int, @GuildRes guildId: Long) {
+        DataCache.markDataToInvalid(guildId, gameGroup)
     }
 
     /**

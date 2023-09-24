@@ -34,6 +34,7 @@ object DBHandler {
     private const val selectAdminQuery = "CALL select_admin(?)"
     private const val deleteAdminQuery = "CALL delete_admin(?,?)"
     private const val getGameCountQuery = "CALL get_game_count(?, ?, ?, ?)"
+    private const val getGameDataQuery = "CALL get_game_data(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)"
 
 
     /**
@@ -76,7 +77,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -111,7 +113,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
     }
@@ -164,7 +167,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
     }
@@ -218,7 +222,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -271,7 +276,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -303,7 +309,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -358,7 +365,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -404,7 +412,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -432,7 +441,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -466,7 +476,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -495,7 +506,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
 
