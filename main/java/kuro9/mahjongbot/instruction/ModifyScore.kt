@@ -1,14 +1,10 @@
 package kuro9.mahjongbot.instruction
 
+import kuro9.mahjongbot.DBScoreProcess
 import kuro9.mahjongbot.Logger
 import kuro9.mahjongbot.ResourceHandler
-import kuro9.mahjongbot.db.DBHandler
-import kuro9.mahjongbot.db.data.Game
 import kuro9.mahjongbot.db.data.GameResult
-import kuro9.mahjongbot.exception.EmbeddableException
-import kuro9.mahjongbot.exception.ParameterErrorException
-import kuro9.mahjongbot.exception.PermissionDeniedException
-import kuro9.mahjongbot.exception.PermissionExpiredException
+import kuro9.mahjongbot.exception.*
 import kuro9.mahjongbot.instruction.util.GameDataParse
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -19,7 +15,6 @@ import java.util.stream.IntStream
 object ModifyScore : GameDataParse() {
     fun action(event: SlashCommandInteractionEvent) {
         val userId: Long = event.user.idLong
-        val guildId: Long = getGuildID(event)
         val gameId: Int? = event.getOption("game_id")?.asInt
 
         val resultUserIds = listOf(
@@ -64,25 +59,13 @@ object ModifyScore : GameDataParse() {
 
         event.deferReply().queue()
 
-        if (guildId == 0L) {
-            invalidGuildTask(event, resourceBundle)
-            return
-        }
 
-        val guild = event.jda.getGuildById(guildId)
-
-        if (guild === null) {
-            invalidGuildTask(event, resourceBundle)
-            return
-        }
-
-        val game = Game(guildId, userId).apply { id = gameId }
         val result =
             IntStream.range(0, 4).mapToObj { GameResult(gameId, resultUserIds[it]!!, it + 1, resultScores[it]!!) }
                 .toList()
 
         try {
-            DBHandler.modifyRecord(userId, game, result)
+            DBScoreProcess.modifyRecord(userId, gameId, result)
 
             event.hook.sendMessageEmbeds(
                 EmbedBuilder().apply {
@@ -103,8 +86,7 @@ object ModifyScore : GameDataParse() {
             ).queue()
 
             Logger.addEvent(event)
-        }
-        catch (e: EmbeddableException) {
+        } catch (e: EmbeddableException) {
             event.hook.sendMessageEmbeds(e.getErrorEmbed(event.userLocale)).setEphemeral(true).queue()
 
             when (e) {
@@ -116,6 +98,9 @@ object ModifyScore : GameDataParse() {
 
                 is PermissionDeniedException ->
                     Logger.addErrorEvent(event, Logger.PERMISSION_DENY)
+
+                is GameNotFoundException ->
+                    Logger.addErrorEvent(event, Logger.GAME_NOT_FOUND)
 
                 else -> {
                     // DO NOTHING

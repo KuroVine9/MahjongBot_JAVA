@@ -1,9 +1,10 @@
 package kuro9.mahjongbot.instruction
 
+import kuro9.mahjongbot.DBScoreProcess
 import kuro9.mahjongbot.Logger
 import kuro9.mahjongbot.ResourceHandler
-import kuro9.mahjongbot.db.DBHandler
 import kuro9.mahjongbot.exception.EmbeddableException
+import kuro9.mahjongbot.exception.GameNotFoundException
 import kuro9.mahjongbot.exception.PermissionDeniedException
 import kuro9.mahjongbot.exception.PermissionExpiredException
 import kuro9.mahjongbot.instruction.util.GameDataParse
@@ -14,7 +15,6 @@ import java.awt.Color
 object DeleteScore : GameDataParse() {
     fun action(event: SlashCommandInteractionEvent) {
         val userId: Long = event.user.idLong
-        val guildId: Long = getGuildID(event)
         val gameId: Int? = event.getOption("game_id")?.asInt
         val resourceBundle = ResourceHandler.getResource(event)
         event.deferReply().queue()
@@ -39,7 +39,7 @@ object DeleteScore : GameDataParse() {
         }
 
         try {
-            DBHandler.deleteRecord(userId, gameId, guildId)
+            DBScoreProcess.deleteScore(userId, gameId)
 
             event.hook.sendMessageEmbeds(
                 EmbedBuilder().apply {
@@ -51,8 +51,7 @@ object DeleteScore : GameDataParse() {
 
             Logger.addEvent(event)
 
-        }
-        catch (e: EmbeddableException) {
+        } catch (e: EmbeddableException) {
             event.hook.sendMessageEmbeds(e.getErrorEmbed(event.userLocale)).setEphemeral(true).queue()
 
             when (e) {
@@ -61,6 +60,9 @@ object DeleteScore : GameDataParse() {
 
                 is PermissionDeniedException ->
                     Logger.addErrorEvent(event, Logger.PERMISSION_DENY)
+
+                is GameNotFoundException ->
+                    Logger.addErrorEvent(event, Logger.GAME_NOT_FOUND)
 
                 else -> {
                     // DO NOTHING

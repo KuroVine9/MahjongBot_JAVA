@@ -376,21 +376,24 @@ object DBHandler {
      * 등록된 게임을 수정합니다.
      *
      * @param userId 명령어를 실행하는 유저의 ID
-     * @param game [Game] 객체 - id와 guildID 필드가 반드시 valid한 값이어야 함
+     * @param gameId 수정할 게임의 ID
+     * @param guildId 수정할 게임이 속한 서버의 ID
      * @param result size가 4인 [GameResult] 객체 배열 - id 필드가 반드시 valid한 값이어야 함
      *
      * @throws ParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
      * @throws PermissionExpiredException 10분이 지나 더 이상 점수의 수정/삭제가 불가능할 때
      * @throws PermissionDeniedException 점수를 수정/삭제 할 권한이 없을 때
      * @throws DBConnectException DB 처리 중 에러가 발생할 때
+     * @throws GameNotFoundException 수정할 게임을 찾을 수 없을 때
      */
     @Throws(
         ParameterErrorException::class,
         PermissionExpiredException::class,
         DBConnectException::class,
-        PermissionDeniedException::class
+        PermissionDeniedException::class,
+        GameNotFoundException::class
     )
-    fun modifyRecord(@UserRes userId: Long, game: Game, result: Collection<GameResult>) {
+    fun modifyRecord(@UserRes userId: Long, gameId: Int, @GuildRes guildId: Long, result: Collection<GameResult>) {
         checkGameResult(result)
 
         try {
@@ -398,8 +401,8 @@ object DBHandler {
                 connection.prepareCall(modifyRecordQuery).use { call ->
                     with(call) {
                         setLong(1, userId)
-                        setInt(2, game.id)
-                        setLong(3, game.guildID)
+                        setInt(2, gameId)
+                        setLong(3, guildId)
 
                         result.forEach {
                             setLong(it.rank * 2 + 2, it.userID)
@@ -410,12 +413,12 @@ object DBHandler {
 
                         executeUpdate()
                         when (getInt(12)) {
+                            0 -> {}
                             -1 -> throw DBConnectException("Procedure Error!")
                             -400 -> throw PermissionExpiredException()
                             -403 -> throw PermissionDeniedException()
-                            else -> {
-                                //Do Nothing
-                            }
+                            -404 -> throw GameNotFoundException()
+                            else -> throw IllegalStateException("This state cannot be handle")
                         }
                     }
                 }
@@ -436,11 +439,13 @@ object DBHandler {
      * @throws PermissionExpiredException 10분이 지나 더 이상 점수의 수정/삭제가 불가능할 때
      * @throws PermissionDeniedException 점수를 수정/삭제 할 권한이 없을 때
      * @throws DBConnectException DB 처리 중 에러가 발생할 때
+     * @throws GameNotFoundException 삭제하려는 게임을 찾을 수 없을 때
      */
     @Throws(
         PermissionExpiredException::class,
         DBConnectException::class,
-        PermissionDeniedException::class
+        PermissionDeniedException::class,
+        GameNotFoundException::class
     )
     fun deleteRecord(@UserRes userId: Long, gameId: Int, @GuildRes guildId: Long) {
 
@@ -456,12 +461,12 @@ object DBHandler {
 
                         executeUpdate()
                         when (getInt(4)) {
+                            0 -> {} // 정상처리
                             -1 -> throw DBConnectException("Procedure Error!")
                             -400 -> throw PermissionExpiredException()
                             -403 -> throw PermissionDeniedException()
-                            else -> {
-                                //Do Nothing
-                            }
+                            -404 -> throw GameNotFoundException()
+                            else -> throw IllegalStateException() // 이 브랜치에 도달해서는 안 됨.
                         }
                     }
                 }

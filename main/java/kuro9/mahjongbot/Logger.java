@@ -35,7 +35,8 @@ public class Logger {
     public static final String PERMISSION_DENY = "no-permission";
     public static final String TIMEOUT = "timeout";
     public static final String PARAM_PARSE_ERR = "parameter-parse-err";
-    public static final String UNKNOWN_INST = "unknown-inst";
+    public static final String UNKNOWN_INST = "unknown-instruction";
+    public static final String GAME_NOT_FOUND = "game-not-found";
 
     /**
      * 일반 이벤트를 로깅합니다.
@@ -226,8 +227,7 @@ public class Logger {
             String[] log = new String[log_list.size()];
             csv.writeNext(log_list.toArray(log));
             csv.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle("NEW SYSTEM ERR OCC.");
             embed.setDescription("From Logger#abstractWriteLogToCSV(ArrayList<String>, String)");

@@ -168,21 +168,49 @@ object DBScoreProcess {
      *
      * @param userId 명령어를 실행하는 유저의 ID
      * @param gameId 삭제할 게임의 ID
-     * @param guildId 삭제할 게임이 등록되어 있는 서버의 ID
-     * @param gameGroup 삭제할 게임의 게임 그룹
      *
      * @throws PermissionExpiredException 10분이 지나 더 이상 점수의 수정/삭제가 불가능할 때
      * @throws PermissionDeniedException 점수를 수정/삭제 할 권한이 없을 때
      * @throws DBConnectException DB 처리 중 에러가 발생할 때
+     * @throws GameNotFoundException 삭제하려는 게임을 찾을 수 없을 때
      */
     @Throws(
         PermissionExpiredException::class,
         DBConnectException::class,
-        PermissionDeniedException::class
+        PermissionDeniedException::class,
+        GameNotFoundException::class
     )
-    fun deleteScore(@UserRes userId: Long, gameId: Int, @GuildRes guildId: Long, gameGroup: String) {
-        DataCache.markDataToInvalid(guildId, gameGroup)
-        DBHandler.deleteRecord(userId, gameId, guildId)
+    fun deleteScore(@UserRes userId: Long, gameId: Int) {
+        val game = DBHandler.getGameData(gameId).game
+        DBHandler.deleteRecord(userId, gameId, game.guildID)
+        DataCache.markDataToInvalid(game.guildID, game.gameGroup)
+    }
+
+    /**
+     * 등록된 게임을 수정합니다.
+     *
+     * @param userId 명령어를 실행하는 유저의 ID
+     * @param gameId 수정할 게임의 ID
+     * @param gameResult size가 4인 [GameResult] 객체 배열 - id 필드가 반드시 valid한 값이어야 함
+     *
+     * @throws ParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
+     * @throws PermissionExpiredException 10분이 지나 더 이상 점수의 수정/삭제가 불가능할 때
+     * @throws PermissionDeniedException 점수를 수정/삭제 할 권한이 없을 때
+     * @throws DBConnectException DB 처리 중 에러가 발생할 때
+     * @throws GameNotFoundException 수정할 게임을 찾을 수 없을 때
+     */
+    @Throws(
+        ParameterErrorException::class,
+        PermissionExpiredException::class,
+        DBConnectException::class,
+        PermissionDeniedException::class,
+        GameNotFoundException::class
+    )
+    fun modifyRecord(@UserRes userId: Long, gameId: Int, gameResult: Collection<GameResult>) {
+        val game = DBHandler.getGameData(gameId).game
+
+        DBHandler.modifyRecord(userId, gameId, game.guildID, gameResult)
+        DataCache.markDataToInvalid(game.guildID, game.gameGroup)
     }
 
     /**
