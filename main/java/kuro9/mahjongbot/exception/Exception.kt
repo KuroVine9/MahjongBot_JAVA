@@ -110,3 +110,18 @@ class PermissionExpiredException(message: String = "Too late!") : EmbeddableExce
     }
 }
 
+class GameNotFoundException(message: String = "GameData Not Found!") : EmbeddableException(message) {
+    override fun getErrorEmbed(locale: DiscordLocale): MessageEmbed {
+        val resourceBundle = ResourceHandler.getResource(locale)
+        val embed = EmbedBuilder()
+        embed.setTitle("404 Not Found")
+        embed.addField(
+            resourceBundle.getString("exception.not_found.title.title"),
+            resourceBundle.getString("exception.not_found.description"),
+            true
+        )
+        embed.setColor(Color.RED)
+        return embed.build()
+    }
+}
+

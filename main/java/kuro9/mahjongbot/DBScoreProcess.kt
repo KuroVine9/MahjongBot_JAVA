@@ -7,9 +7,7 @@ import kuro9.mahjongbot.data.UserGameData
 import kuro9.mahjongbot.db.DBHandler
 import kuro9.mahjongbot.db.data.Game
 import kuro9.mahjongbot.db.data.GameResult
-import kuro9.mahjongbot.exception.DBConnectException
-import kuro9.mahjongbot.exception.GameGroupNotFoundException
-import kuro9.mahjongbot.exception.ParameterErrorException
+import kuro9.mahjongbot.exception.*
 import java.sql.Timestamp
 import java.util.*
 
@@ -82,8 +80,7 @@ object DBScoreProcess {
                     cacheQueue[ptr].state = STATE.OLD
                     ptr = ++ptr % QUEUE_SIZE
                     continue
-                }
-                else {
+                } else {
                     cacheQueue[ptr] = Cache(query = query, data = data)
                     break
                 }
@@ -166,8 +163,26 @@ object DBScoreProcess {
         return DBHandler.addScore(game, gameResult)
     }
 
-    fun deleteScore(@UserRes userId: Long, gameId: Int, @GuildRes guildId: Long) {
+    /**
+     * 등록된 게임을 삭제합니다.
+     *
+     * @param userId 명령어를 실행하는 유저의 ID
+     * @param gameId 삭제할 게임의 ID
+     * @param guildId 삭제할 게임이 등록되어 있는 서버의 ID
+     * @param gameGroup 삭제할 게임의 게임 그룹
+     *
+     * @throws PermissionExpiredException 10분이 지나 더 이상 점수의 수정/삭제가 불가능할 때
+     * @throws PermissionDeniedException 점수를 수정/삭제 할 권한이 없을 때
+     * @throws DBConnectException DB 처리 중 에러가 발생할 때
+     */
+    @Throws(
+        PermissionExpiredException::class,
+        DBConnectException::class,
+        PermissionDeniedException::class
+    )
+    fun deleteScore(@UserRes userId: Long, gameId: Int, @GuildRes guildId: Long, gameGroup: String) {
         DataCache.markDataToInvalid(guildId, gameGroup)
+        DBHandler.deleteRecord(userId, gameId, guildId)
     }
 
     /**

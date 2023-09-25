@@ -1,5 +1,6 @@
 package kuro9.mahjongbot.db.data
 
+import com.google.gson.Gson
 import kuro9.mahjongbot.annotation.GuildRes
 import kuro9.mahjongbot.annotation.UserRes
 import java.sql.Timestamp
@@ -10,5 +11,9 @@ data class Game(
     val gameGroup: String = ""
 ) {
     var id: Int = 0
-    val createdAt: Timestamp = Timestamp(System.currentTimeMillis())
+    var createdAt: Timestamp = Timestamp(System.currentTimeMillis())
+
+    override fun toString(): String {
+        return Gson().toJson(this)
+    }
 }

@@ -6,11 +6,12 @@ import kuro9.mahjongbot.Setting
 import kuro9.mahjongbot.annotation.GuildRes
 import kuro9.mahjongbot.annotation.UserRes
 import kuro9.mahjongbot.db.data.Game
+import kuro9.mahjongbot.db.data.GameRecord
 import kuro9.mahjongbot.db.data.GameResult
 import kuro9.mahjongbot.exception.*
 import java.sql.SQLException
 import java.sql.Timestamp
-import java.sql.Types
+import java.sql.Types.*
 
 
 object DBHandler {
@@ -66,7 +67,7 @@ object DBHandler {
                             setInt(it.rank * 2 + 3, it.score)
                         }
 
-                        registerOutParameter(12, Types.INTEGER)
+                        registerOutParameter(12, INTEGER)
 
                         executeUpdate()
                         when (val gameId: Int = getInt(12)) {
@@ -77,8 +78,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -105,7 +105,7 @@ object DBHandler {
                         setLong(2, game.guildID)
                         setString(3, game.gameGroup)
 
-                        registerOutParameter(4, Types.INTEGER)
+                        registerOutParameter(4, INTEGER)
 
                         executeUpdate()
 
@@ -113,8 +113,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
     }
@@ -135,6 +134,66 @@ object DBHandler {
         return getGameCount(Game(guildId, -1, gameGroup).apply { id = gameId })
     }
 
+    /**
+     * 특정 게임 기록을 불러옵니다.
+     * @param gameId 불러올 게임ID
+     * @return [GameRecord]형의 게임 기록
+     * @throws DBConnectException DB 처리 에러
+     * @throws GameNotFoundException 게임을 찾을 수 없는 경우
+     */
+    @Throws(DBConnectException::class, GameNotFoundException::class)
+    fun getGameData(gameId: Int): GameRecord {
+        try {
+            dataSource.connection.use { connection ->
+                connection.prepareCall(getGameDataQuery).use { call ->
+                    with(call) {
+                        setInt(1, gameId)
+                        registerOutParameter("result", INTEGER)
+                        registerOutParameter("guildID", BIGINT)
+                        registerOutParameter("createdAt", TIMESTAMP)
+                        registerOutParameter("gameGroup", VARCHAR)
+                        registerOutParameter("addedBy", BIGINT)
+
+                        registerOutParameter("firstId", BIGINT)
+                        registerOutParameter("firstScore", INTEGER)
+
+                        registerOutParameter("secondId", BIGINT)
+                        registerOutParameter("secondScore", INTEGER)
+
+                        registerOutParameter("thirdId", BIGINT)
+                        registerOutParameter("thirdScore", INTEGER)
+
+                        registerOutParameter("fourthId", BIGINT)
+                        registerOutParameter("fourthScore", INTEGER)
+
+                        executeUpdate()
+
+                        return when (getInt("result")) {
+                            -1 -> throw DBConnectException("Procedure Error!")
+                            -404 -> throw GameNotFoundException()
+                            else -> {
+                                val game = Game(getLong("guildID"), getLong("addedBy"), getString("gameGroup")).apply {
+                                    id = gameId
+                                    createdAt = getTimestamp("createdAt")
+                                }
+                                val gameResults = arrayOf(
+                                    GameResult(gameId, getLong("firstId"), 1, getInt("firstScore")),
+                                    GameResult(gameId, getLong("secondId"), 2, getInt("secondScore")),
+                                    GameResult(gameId, getLong("thirdId"), 3, getInt("thirdScore")),
+                                    GameResult(gameId, getLong("fourthId"), 4, getInt("fourthScore")),
+                                )
+
+                                GameRecord(game, gameResults)
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (e: SQLException) {
+            throw DBConnectException()
+        }
+    }
+
 
     /**
      * 새 게임 그룹을 추가합니다.
@@ -153,7 +212,7 @@ object DBHandler {
                     with(call) {
                         setLong(1, guildID)
                         setString(2, groupName)
-                        registerOutParameter(3, Types.INTEGER)
+                        registerOutParameter(3, INTEGER)
 
                         executeUpdate()
 
@@ -167,8 +226,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
     }
@@ -222,8 +280,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -276,8 +333,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -309,8 +365,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -351,7 +406,7 @@ object DBHandler {
                             setInt(it.rank * 2 + 3, it.score)
                         }
 
-                        registerOutParameter(12, Types.INTEGER)
+                        registerOutParameter(12, INTEGER)
 
                         executeUpdate()
                         when (getInt(12)) {
@@ -365,8 +420,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -398,7 +452,7 @@ object DBHandler {
                         setInt(2, gameId)
                         setLong(3, guildId)
 
-                        registerOutParameter(4, Types.INTEGER)
+                        registerOutParameter(4, INTEGER)
 
                         executeUpdate()
                         when (getInt(4)) {
@@ -412,8 +466,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -441,8 +494,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -476,8 +528,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -506,8 +557,7 @@ object DBHandler {
                     }
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw DBConnectException()
         }
 
