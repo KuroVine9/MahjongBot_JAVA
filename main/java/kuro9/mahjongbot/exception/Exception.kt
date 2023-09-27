@@ -116,7 +116,7 @@ class GameNotFoundException(message: String = "GameData Not Found!") : Embeddabl
         val embed = EmbedBuilder()
         embed.setTitle("404 Not Found")
         embed.addField(
-            resourceBundle.getString("exception.not_found.title.title"),
+            resourceBundle.getString("exception.not_found.title"),
             resourceBundle.getString("exception.not_found.description"),
             true
         )

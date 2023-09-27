@@ -4,10 +4,7 @@ import kuro9.mahjongbot.DBScoreProcess
 import kuro9.mahjongbot.Logger
 import kuro9.mahjongbot.ResourceHandler
 import kuro9.mahjongbot.db.DBHandler
-import kuro9.mahjongbot.exception.EmbeddableException
-import kuro9.mahjongbot.exception.GameNotFoundException
-import kuro9.mahjongbot.exception.PermissionDeniedException
-import kuro9.mahjongbot.exception.PermissionExpiredException
+import kuro9.mahjongbot.exception.*
 import kuro9.mahjongbot.instruction.util.GameDataParse
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
@@ -23,11 +20,11 @@ object DeleteScore : GameDataParse() {
     fun action(event: SlashCommandInteractionEvent) {
         val userId: Long = event.user.idLong
         val gameId: Int? = event.getOption("game_id")?.asInt
+        val guildId: Long? = event.guild?.idLong
         val resourceBundle = ResourceHandler.getResource(event)
         event.deferReply().queue()
 
         if (gameId === null) {
-
             event.hook.sendMessageEmbeds(
                 EmbedBuilder().apply {
                     setTitle("500 Internal Server Error")
@@ -43,19 +40,43 @@ object DeleteScore : GameDataParse() {
             return
         }
 
+        if (guildId === null) {
+            event.hook.sendMessageEmbeds(
+                EmbedBuilder().apply {
+                    setTitle("403 Forbidden")
+                    addField(
+                        resourceBundle.getString("exception.not_in_guild.title"),
+                        resourceBundle.getString("exception.not_in_guild.description"),
+                        true
+                    )
+                    setColor(Color.RED)
+                }.build()
+            ).queue()
+            return
+        }
+
         val key = String(Base64.getEncoder().encode("userID=${userId}, gameID=${gameId}".toByteArray()))
 
         try {
+            if (!DBHandler.selectAdmin(guildId).contains(userId))
+                throw PermissionDeniedException()
+
+
             val gameRecord = DBHandler.getGameData(gameId)
 
             event.hook.sendMessageEmbeds(
                 EmbedBuilder().apply {
-                    setTitle("대충 삭제 확인 메시지?")//TODO
-                    setFooter(key)
+                    setTitle(resourceBundle.getString("delete.embed.alert.title"))
+                    setDescription("GameID=$gameId")
+                    setFooter("key=$key")
 
                     (0..3).forEach {
                         addField(
-                            "${it + 1}위=${event.jda.retrieveUserById(gameRecord.gameResults[it].userID).complete()}",
+                            String.format(
+                                resourceBundle.getString("delete.embed.alert.field"),
+                                it + 1,
+                                event.jda.retrieveUserById(gameRecord.gameResults[it].userID).complete().effectiveName
+                            ),
                             gameRecord.gameResults[it].score.toString(),
                             true
                         )
@@ -66,11 +87,26 @@ object DeleteScore : GameDataParse() {
 
             Logger.addEvent(event)
 
-        } catch (e: EmbeddableException) {
-            event.hook.sendMessageEmbeds(e.getErrorEmbed(event.userLocale)).setEphemeral(true).queue()
+        }
+        catch (e: EmbeddableException) {
+            event.hook.sendMessageEmbeds(e.getErrorEmbed(event.userLocale)).setEphemeral(
+                when (e) {
+                    is DBConnectException -> true
+                    is PermissionDeniedException -> {
+                        Logger.addErrorEvent(event, Logger.PERMISSION_DENY)
+                        false
+                    }
 
-            if (e is GameNotFoundException)
-                Logger.addErrorEvent(event, Logger.GAME_NOT_FOUND)
+                    is GameNotFoundException -> {
+                        Logger.addErrorEvent(event, Logger.GAME_NOT_FOUND)
+                        false
+                    }
+
+                    else -> {
+                        throw IllegalStateException()
+                    }
+                }
+            ).queue()
         }
     }
 
@@ -83,7 +119,7 @@ object DeleteScore : GameDataParse() {
 
 
         val key = event.message.embeds[0].footer?.text?.let {
-            "^key=(.+)".toRegex().find(it)?.groupValues?.get(1)
+            "key=([^=]+)==".toRegex().find(it)?.groupValues?.get(1)
         }
         val decodedKey = String(Base64.getDecoder().decode(key))
         userId = decodedKey.let { "userID=(\\d+)".toRegex().find(it)?.groupValues?.get(1)?.toLong() }
@@ -127,7 +163,7 @@ object DeleteScore : GameDataParse() {
             event.hook.sendMessageEmbeds(
                 EmbedBuilder().apply {
                     setTitle("403 Forbidden")
-                    setDescription("메시지의 주체와 이벤트의 유저가 일치하지 않습니다. 만약 본인이 /delete를 사용하셨다면 잠시 뒤 다시 시도해 주세요.")
+                    setDescription(resourceBundle.getString("delete.embed.err.403.description"))
                     setColor(Color.RED)
                 }.build()
             ).setEphemeral(true).queue()
@@ -140,7 +176,7 @@ object DeleteScore : GameDataParse() {
             event.editOriginalWithNoButton(
                 EmbedBuilder().apply {
                     setTitle("200 OK")
-                    setDescription("Request cancelled")
+                    setDescription(resourceBundle.getString("delete.embed.cancel.description"))
                     setColor(Color.BLACK)
                 }.build()
             )
@@ -155,14 +191,15 @@ object DeleteScore : GameDataParse() {
             event.editOriginalWithNoButton(
                 EmbedBuilder().apply {
                     setTitle("200 OK")
-                    setDescription(String.format(resourceBundle.getString("delete_score.embed.description"), gameId))
+                    setDescription(String.format(resourceBundle.getString("delete.embed.success.description"), gameId))
                     setColor(Color.BLACK)
                 }.build()
             )
 
             Logger.addEvent(event)
-        } catch (e: EmbeddableException) {
-            event.hook.sendMessageEmbeds(e.getErrorEmbed(event.userLocale)).setEphemeral(true).queue()
+        }
+        catch (e: EmbeddableException) {
+            event.editOriginalWithNoButton(e.getErrorEmbed(event.userLocale))
 
             when (e) {
                 is PermissionExpiredException ->
@@ -181,6 +218,8 @@ object DeleteScore : GameDataParse() {
         }
     }
 
-    private fun ButtonInteractionEvent.editOriginalWithNoButton(embed: MessageEmbed) =
-        this.hook.editOriginalEmbeds(embed).setActionRow().queue()
+    private fun ButtonInteractionEvent.editOriginalWithNoButton(embed: MessageEmbed) {
+        // this.message.editMessageEmbeds(embed).setComponents().queue()
+        this.hook.editOriginalEmbeds(embed).setComponents().queue()
+    }
 }

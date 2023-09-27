@@ -158,12 +158,14 @@ public class Main extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        if (event.getComponentId().matches("^rank_uma.*")) rank[0].umaPageControl(event);
-        else if (event.getComponentId().matches("^rank_totalgame.*")) rank[0].totalGamePageControl(event);
-        else if (event.getComponentId().matches("^month_rank_uma.*")) rank[1].umaPageControl(event);
-        else if (event.getComponentId().matches("^month_rank_totalgame.*")) rank[1].totalGamePageControl(event);
-        else if (event.getComponentId().matches("^season_rank_uma.*")) rank[2].umaPageControl(event);
-        else if (event.getComponentId().matches("^season_rank_totalgame.*")) rank[2].totalGamePageControl(event);
+        String id = event.getComponentId();
+        if (id.matches("^rank_uma.*")) rank[0].umaPageControl(event);
+        else if (id.matches("^rank_totalgame.*")) rank[0].totalGamePageControl(event);
+        else if (id.matches("^month_rank_uma.*")) rank[1].umaPageControl(event);
+        else if (id.matches("^month_rank_totalgame.*")) rank[1].totalGamePageControl(event);
+        else if (id.matches("^season_rank_uma.*")) rank[2].umaPageControl(event);
+        else if (id.matches("^season_rank_totalgame.*")) rank[2].totalGamePageControl(event);
+        else if (id.matches("^delete.*")) DeleteScore.INSTANCE.confirm(event);
     }
 
 }

@@ -141,7 +141,7 @@ public class Logger {
         log_list.add(String.format("[%s]", description));
         log_list.add("NONE");
         log_list.add("SYSTEM");
-        log_list.add("SYSTEM_START");
+        log_list.add("EVENT");
         return log_list;
     }
 
@@ -234,7 +234,8 @@ public class Logger {
             String[] log = new String[log_list.size()];
             csv.writeNext(log_list.toArray(log));
             csv.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle("NEW SYSTEM ERR OCC.");
             embed.setDescription("From Logger#abstractWriteLogToCSV(ArrayList<String>, String)");
