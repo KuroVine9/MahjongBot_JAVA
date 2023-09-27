@@ -9,6 +9,7 @@ import kuro9.mahjongbot.db.DBHandler;
 import kuro9.mahjongbot.db.data.Game;
 import kuro9.mahjongbot.db.data.GameResult;
 import kuro9.mahjongbot.exception.DBConnectException;
+import kuro9.mahjongbot.exception.ErrorEmbedsKt;
 import kuro9.mahjongbot.exception.GameGroupNotFoundException;
 import kuro9.mahjongbot.exception.ParameterErrorException;
 import kuro9.mahjongbot.instruction.util.GameDataParse;
@@ -29,15 +30,7 @@ public class AddScore extends GameDataParse {
         event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
         if (!event.isFromGuild()) {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle("403 Forbidden");
-            embed.addField(
-                    resourceBundle.getString("exception.not_in_guild.title"),
-                    resourceBundle.getString("exception.not_in_guild.description"),
-                    true
-            );
-            embed.setColor(Color.RED);
-            event.getHook().sendMessageEmbeds(embed.build()).queue();
+            event.getHook().sendMessageEmbeds(ErrorEmbedsKt.getNotInGuildEmbed(event.getUserLocale())).queue();
 
             Logger.addErrorEvent(event, Logger.NOT_GUILD_MSG);
             return;

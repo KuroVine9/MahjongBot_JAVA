@@ -4,11 +4,12 @@ import kuro9.mahjongbot.Logger
 import kuro9.mahjongbot.ResourceHandler
 import kuro9.mahjongbot.db.DBHandler
 import kuro9.mahjongbot.exception.DBConnectException
+import kuro9.mahjongbot.exception.getInvalidGuildErrorEmbed
+import kuro9.mahjongbot.exception.getNoPermissionEmbed
 import kuro9.mahjongbot.instruction.util.GameDataParse
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import java.awt.Color
-import java.util.*
 
 object DeleteAdmin : GameDataParse() {
     fun action(event: SlashCommandInteractionEvent) {
@@ -19,28 +20,20 @@ object DeleteAdmin : GameDataParse() {
         event.deferReply().queue()
 
         if (guildId == 0L) {
-            invalidGuildTask(event, resourceBundle)
+            invalidGuildTask(event)
             return
         }
 
         val guild = event.jda.getGuildById(guildId)
 
         if (guild === null) {
-            invalidGuildTask(event, resourceBundle)
+            invalidGuildTask(event)
             return
         }
 
         if (event.user.idLong != guild.ownerIdLong) {
             event.hook.sendMessageEmbeds(
-                EmbedBuilder().apply {
-                    setTitle("403 Forbidden")
-                    addField(
-                        resourceBundle.getString("exception.no_permission.title"),
-                        resourceBundle.getString("exception.no_permission.description"),
-                        true
-                    )
-                    setColor(Color.RED)
-                }.build()
+                getNoPermissionEmbed(event.userLocale)
             ).setEphemeral(true).queue()
 
             Logger.addErrorEvent(event, Logger.PERMISSION_DENY)
@@ -74,16 +67,8 @@ object DeleteAdmin : GameDataParse() {
         }
     }
 
-    private fun invalidGuildTask(event: SlashCommandInteractionEvent, resourceBundle: ResourceBundle) {
-        val embed = EmbedBuilder()
-        embed.setTitle("400 Bad Request")
-        embed.addField(
-            resourceBundle.getString("exception.invalid_guild.title"),
-            resourceBundle.getString("exception.invalid_guild.description"),
-            true
-        )
-        embed.setColor(Color.RED)
-        event.hook.sendMessageEmbeds(embed.build()).queue()
+    private fun invalidGuildTask(event: SlashCommandInteractionEvent) {
+        event.hook.sendMessageEmbeds(getInvalidGuildErrorEmbed(event.userLocale)).queue()
 
         Logger.addErrorEvent(event, Logger.UNKNOWN_GUILD)
         return

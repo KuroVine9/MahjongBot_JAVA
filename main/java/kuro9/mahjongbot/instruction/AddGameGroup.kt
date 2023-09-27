@@ -5,6 +5,8 @@ import kuro9.mahjongbot.ResourceHandler
 import kuro9.mahjongbot.db.DBHandler
 import kuro9.mahjongbot.exception.DBConnectException
 import kuro9.mahjongbot.exception.ParameterErrorException
+import kuro9.mahjongbot.exception.getInvalidGameGroupErrorEmbed
+import kuro9.mahjongbot.exception.getNotInGuildEmbed
 import kuro9.mahjongbot.instruction.util.GameDataParse
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -19,31 +21,15 @@ object AddGameGroup : GameDataParse() {
         event.deferReply().queue()
 
         if (guildId == 0L) {
-            val embed = EmbedBuilder()
-            embed.setTitle("403 Forbidden")
-            embed.addField(
-                resourceBundle.getString("exception.not_in_guild.title"),
-                resourceBundle.getString("exception.not_in_guild.description"),
-                true
-            )
-            embed.setColor(Color.RED)
-            event.hook.sendMessageEmbeds(embed.build()).queue()
+            event.hook.sendMessageEmbeds(getNotInGuildEmbed(event.userLocale)).queue()
 
             Logger.addErrorEvent(event, Logger.NOT_GUILD_MSG)
             return
         }
         if (!DBHandler.checkGameGroup(gameGroup) || gameGroup == "") {
-            val embed = EmbedBuilder()
-            embed.setTitle("400 Bad Requests")
-            embed.addField(
-                resourceBundle.getString("game_group.add.embed.err.400.name"),
-                resourceBundle.getString("game_group.add.embed.err.400.description"),
-                true
-            )
-            embed.setColor(Color.RED)
-            event.hook.sendMessageEmbeds(embed.build()).queue()
+            event.hook.sendMessageEmbeds(getInvalidGameGroupErrorEmbed(event.userLocale)).queue()
 
-            Logger.addErrorEvent(event, Logger.NOT_GUILD_MSG)
+            Logger.addErrorEvent(event, Logger.PARAM_ERR)
             return
         }
 
@@ -71,15 +57,7 @@ object AddGameGroup : GameDataParse() {
             Logger.addEvent(event)
         }
         catch (e: ParameterErrorException) {
-            val embed = EmbedBuilder()
-            embed.setTitle("400 Bad Requests")
-            embed.addField(
-                resourceBundle.getString("game_group.add.embed.err.400.name"),
-                resourceBundle.getString("game_group.add.embed.err.400.description"),
-                true
-            )
-            embed.setColor(Color.RED)
-            event.hook.sendMessageEmbeds(embed.build()).queue()
+            event.hook.sendMessageEmbeds(getInvalidGameGroupErrorEmbed(event.userLocale)).queue()
 
             Logger.addErrorEvent(event, Logger.NOT_GUILD_MSG)
             return

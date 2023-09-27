@@ -26,14 +26,7 @@ object DeleteScore : GameDataParse() {
 
         if (gameId === null) {
             event.hook.sendMessageEmbeds(
-                EmbedBuilder().apply {
-                    setTitle("500 Internal Server Error")
-                    addField(
-                        resourceBundle.getString("exception.parse_err.title"),
-                        resourceBundle.getString("exception.parse_err.description"),
-                        true
-                    )
-                }.build()
+                getParseErrorEmbed(event.userLocale)
             ).setEphemeral(true).queue()
 
             Logger.addErrorEvent(event, Logger.PARAM_PARSE_ERR)
@@ -42,15 +35,7 @@ object DeleteScore : GameDataParse() {
 
         if (guildId === null) {
             event.hook.sendMessageEmbeds(
-                EmbedBuilder().apply {
-                    setTitle("403 Forbidden")
-                    addField(
-                        resourceBundle.getString("exception.not_in_guild.title"),
-                        resourceBundle.getString("exception.not_in_guild.description"),
-                        true
-                    )
-                    setColor(Color.RED)
-                }.build()
+                getNotInGuildEmbed(event.userLocale)
             ).queue()
             return
         }
@@ -60,7 +45,6 @@ object DeleteScore : GameDataParse() {
         try {
             if (!DBHandler.selectAdmin(guildId).contains(userId))
                 throw PermissionDeniedException()
-
 
             val gameRecord = DBHandler.getGameData(gameId)
 
@@ -127,33 +111,14 @@ object DeleteScore : GameDataParse() {
 
 
         if (gameId === null || userId === null) {
-            event.editOriginalWithNoButton(
-                EmbedBuilder().apply {
-                    setTitle("500 Internal Server Error")
-                    addField(
-                        resourceBundle.getString("exception.parse_err.title"),
-                        resourceBundle.getString("exception.parse_err.description"),
-                        true
-                    )
-                }.build()
-            )
+            event.editOriginalWithNoButton(getParseErrorEmbed(event.userLocale))
 
             Logger.addErrorEvent(event, Logger.PARAM_PARSE_ERR)
             return
         }
 
         if (guildId === null) {
-            event.editOriginalWithNoButton(
-                EmbedBuilder().apply {
-                    setTitle("403 Forbidden")
-                    addField(
-                        resourceBundle.getString("exception.not_in_guild.title"),
-                        resourceBundle.getString("exception.not_in_guild.description"),
-                        true
-                    )
-                    setColor(Color.RED)
-                }.build()
-            )
+            event.editOriginalWithNoButton(getNotInGuildEmbed(event.userLocale))
 
             Logger.addErrorEvent(event, Logger.NOT_GUILD_MSG)
             return
@@ -161,6 +126,7 @@ object DeleteScore : GameDataParse() {
 
         if (userId != event.user.idLong) {
             event.hook.sendMessageEmbeds(
+
                 EmbedBuilder().apply {
                     setTitle("403 Forbidden")
                     setDescription(resourceBundle.getString("delete.embed.err.403.description"))
@@ -212,14 +178,13 @@ object DeleteScore : GameDataParse() {
                     Logger.addErrorEvent(event, Logger.GAME_NOT_FOUND)
 
                 else -> {
-                    // DO NOTHING
+                    throw IllegalStateException()
                 }
             }
         }
     }
 
     private fun ButtonInteractionEvent.editOriginalWithNoButton(embed: MessageEmbed) {
-        // this.message.editMessageEmbeds(embed).setComponents().queue()
         this.hook.editOriginalEmbeds(embed).setComponents().queue()
     }
 }
