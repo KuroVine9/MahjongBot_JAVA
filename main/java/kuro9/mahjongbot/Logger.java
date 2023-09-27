@@ -84,17 +84,23 @@ public class Logger {
      * @param event       JDA의 SlashCommandEvent
      * @param description 에러 형태에 대한 요약
      */
-    public static void addErrorEvent(SlashCommandInteractionEvent event, String description) {
+    public static void addErrorEvent(GenericInteractionCreateEvent event, String description) {
         ArrayList<String> log_list = getLogList(event, description);
 
         writeErrorLogToCSV(log_list);
+        String eventName = "<event-name>";
+
+        if (event instanceof SlashCommandInteractionEvent e)
+            eventName = e.getFullCommandName();
+        else if (event instanceof ButtonInteractionEvent e)
+            eventName = e.getButton().getId();
 
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("NEW EVENT OCC.");
         embed.setDescription(description);
         embed.addField(
                 "COMMAND_NAME",
-                event.getName(),
+                eventName,
                 true
         );
         embed.addField(
@@ -227,7 +233,8 @@ public class Logger {
             String[] log = new String[log_list.size()];
             csv.writeNext(log_list.toArray(log));
             csv.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle("NEW SYSTEM ERR OCC.");
             embed.setDescription("From Logger#abstractWriteLogToCSV(ArrayList<String>, String)");

@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import java.awt.Color
 import java.util.*
-import java.util.stream.IntStream
 
 object ModifyScore : GameDataParse() {
     fun action(event: SlashCommandInteractionEvent) {
@@ -61,7 +60,7 @@ object ModifyScore : GameDataParse() {
 
 
         val result =
-            IntStream.range(0, 4).mapToObj { GameResult(gameId, resultUserIds[it]!!, it + 1, resultScores[it]!!) }
+            (0..3).map { GameResult(gameId, resultUserIds[it]!!, it + 1, resultScores[it]!!) }
                 .toList()
 
         try {
@@ -86,7 +85,8 @@ object ModifyScore : GameDataParse() {
             ).queue()
 
             Logger.addEvent(event)
-        } catch (e: EmbeddableException) {
+        }
+        catch (e: EmbeddableException) {
             event.hook.sendMessageEmbeds(e.getErrorEmbed(event.userLocale)).setEphemeral(true).queue()
 
             when (e) {

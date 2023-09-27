@@ -24,7 +24,7 @@ public class ReValid {
         }
 
         long time = System.currentTimeMillis();
-        DBScoreProcess.INSTANCE.invalidAllData();
+        DBScoreProcess.INSTANCE.deleteAllCacheData();
         Logger.addEvent(event);
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("PROCESSED");

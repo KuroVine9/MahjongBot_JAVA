@@ -144,12 +144,13 @@ public class Main extends ListenerAdapter {
             case "game_group get" -> GetGameGroupList.INSTANCE.action(event);
 
             case "delete" -> DeleteScore.INSTANCE.action(event);
-            case "modify.description" -> ModifyScore.INSTANCE.action(event);
+            case "modify" -> ModifyScore.INSTANCE.action(event);
 
             default -> {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setTitle("501 Not Implemented");
                 embed.setDescription("Unexpected value: " + event.getName());
+                event.replyEmbeds(embed.build()).setEphemeral(true).queue();
                 Logger.addErrorEvent(event, Logger.UNKNOWN_INST);
             }
         }

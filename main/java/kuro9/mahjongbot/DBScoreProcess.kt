@@ -22,7 +22,7 @@ object DBScoreProcess {
     private object DataCache {
         private const val QUEUE_SIZE = 8
 
-        private enum class STATE { REFFED, OLD, INVALID }
+        private enum class STATE { REFFED, OLD }
         data class Query(
             @GuildRes val id: Long,
             val startDate: Timestamp? = null,
@@ -38,7 +38,7 @@ object DBScoreProcess {
         )
 
         private val cacheQueue: Array<Cache> = Array(QUEUE_SIZE) {
-            Cache(STATE.INVALID, Query(-1, null, null), HashMap())
+            Cache(STATE.OLD, Query(-1, null, null), HashMap())
         }
         private var ptr: Int = 0
 
@@ -59,12 +59,10 @@ object DBScoreProcess {
                 }
 
                 //CASE WHEN TARGET FOUND
-                if (cacheQueue[ptr].state == STATE.INVALID) return null
-                else {
-                    result = cacheQueue[ptr].data
-                    cacheQueue[ptr].state = STATE.REFFED
-                    return result
-                }
+                result = cacheQueue[ptr].data
+                cacheQueue[ptr].state = STATE.REFFED
+                return result
+
             } while (basePos != ptr)
             return null
         }
@@ -80,7 +78,8 @@ object DBScoreProcess {
                     cacheQueue[ptr].state = STATE.OLD
                     ptr = ++ptr % QUEUE_SIZE
                     continue
-                } else {
+                }
+                else {
                     cacheQueue[ptr] = Cache(query = query, data = data)
                     break
                 }
@@ -129,19 +128,19 @@ object DBScoreProcess {
          * @param id 서버의 id
          * @param gameGroup 게임 그룹 스트링
          */
-        fun markDataToInvalid(@GuildRes id: Long, gameGroup: String) {
+        fun deleteCacheData(@GuildRes id: Long, gameGroup: String) {
             for (i in cacheQueue.indices) {
                 if (cacheQueue[i].query.id == id && cacheQueue[i].query.gameGroup == gameGroup)
-                    cacheQueue[i].state = STATE.INVALID
+                    cacheQueue[i] = Cache(state = STATE.OLD, query = Query(-1, null, null), data = HashMap())
             }
         }
 
         /**
          * 캐시를 모두 무효화 처리합니다.
          */
-        fun invalidAllData() {
-            cacheQueue.forEach { it.state = STATE.INVALID }
-            println("[MahjongBot:${this::class.simpleName}] Cache invalided!")
+        fun deleteAllCacheData() {
+            cacheQueue.map { Cache(STATE.OLD, Query(-1, null, null), HashMap()) }
+            println("[MahjongBot:${this::class.simpleName}] Cache deleted!")
         }
     }
 
@@ -159,7 +158,7 @@ object DBScoreProcess {
      */
     @Throws(ParameterErrorException::class, GameGroupNotFoundException::class, DBConnectException::class)
     fun addScore(game: Game, gameResult: Collection<GameResult>): Int {
-        DataCache.markDataToInvalid(game.guildID, game.gameGroup)
+        DataCache.deleteCacheData(game.guildID, game.gameGroup)
         return DBHandler.addScore(game, gameResult)
     }
 
@@ -168,6 +167,7 @@ object DBScoreProcess {
      *
      * @param userId 명령어를 실행하는 유저의 ID
      * @param gameId 삭제할 게임의 ID
+     * @param guildId 명령어가 실행되는 서버의 ID
      *
      * @throws PermissionExpiredException 10분이 지나 더 이상 점수의 수정/삭제가 불가능할 때
      * @throws PermissionDeniedException 점수를 수정/삭제 할 권한이 없을 때
@@ -180,10 +180,10 @@ object DBScoreProcess {
         PermissionDeniedException::class,
         GameNotFoundException::class
     )
-    fun deleteScore(@UserRes userId: Long, gameId: Int) {
-        val game = DBHandler.getGameData(gameId).game
-        DBHandler.deleteRecord(userId, gameId, game.guildID)
-        DataCache.markDataToInvalid(game.guildID, game.gameGroup)
+    fun deleteScore(@UserRes userId: Long, gameId: Int, @GuildRes guildId: Long) {
+        val gameGroup = DBHandler.getGameData(gameId).game.gameGroup
+        DBHandler.deleteRecord(userId, gameId, guildId)
+        DataCache.deleteCacheData(guildId, gameGroup)
     }
 
     /**
@@ -210,7 +210,7 @@ object DBScoreProcess {
         val game = DBHandler.getGameData(gameId).game
 
         DBHandler.modifyRecord(userId, gameId, game.guildID, gameResult)
-        DataCache.markDataToInvalid(game.guildID, game.gameGroup)
+        DataCache.deleteCacheData(game.guildID, game.gameGroup)
     }
 
     /**
@@ -349,8 +349,8 @@ object DBScoreProcess {
         return scoreDataToNyanArray(DBHandler.selectRecentGameResult(guildId, userId, null, null, gameGroup))
     }
 
-    fun invalidAllData() {
-        DataCache.invalidAllData()
+    fun deleteAllCacheData() {
+        DataCache.deleteAllCacheData()
         //TODO 캐시 상태 확인 메시지 or DM -> Log 클래스 만들어서 접두사(클래스, 시간 등 정보 표시) 붙여주는 클래스..?
     }
 
