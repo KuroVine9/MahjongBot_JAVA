@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 import net.dv8tion.jda.api.interactions.components.buttons.Button
 import java.awt.Color
+import java.util.*
 
 object DeleteScore : GameDataParse() {
     private val confirmButton: Button = Button.danger("delete_confirm", "DELETE")
@@ -42,13 +43,15 @@ object DeleteScore : GameDataParse() {
             return
         }
 
+        val key = String(Base64.getEncoder().encode("userID=${userId}, gameID=${gameId}".toByteArray()))
+
         try {
             val gameRecord = DBHandler.getGameData(gameId)
 
             event.hook.sendMessageEmbeds(
                 EmbedBuilder().apply {
                     setTitle("대충 삭제 확인 메시지?")//TODO
-                    setDescription("userID=${userId}, gameID=${gameId}")
+                    setFooter(key)
 
                     (0..3).forEach {
                         addField(
@@ -63,8 +66,7 @@ object DeleteScore : GameDataParse() {
 
             Logger.addEvent(event)
 
-        }
-        catch (e: EmbeddableException) {
+        } catch (e: EmbeddableException) {
             event.hook.sendMessageEmbeds(e.getErrorEmbed(event.userLocale)).setEphemeral(true).queue()
 
             if (e is GameNotFoundException)
@@ -73,13 +75,22 @@ object DeleteScore : GameDataParse() {
     }
 
     fun confirm(event: ButtonInteractionEvent) {
-        val userId: Long = -1
-        val gameId: Int? = -1 //TODO userid gameid 파싱 event.message.embeds.first().
+        var userId: Long? = null
+        var gameId: Int? = null
         val guildId: Long? = event.guild?.idLong
         val resourceBundle = ResourceHandler.getResource(event)
         event.deferEdit().queue()
 
-        if (gameId === null) {
+
+        val key = event.message.embeds[0].footer?.text?.let {
+            "^key=(.+)".toRegex().find(it)?.groupValues?.get(1)
+        }
+        val decodedKey = String(Base64.getDecoder().decode(key))
+        userId = decodedKey.let { "userID=(\\d+)".toRegex().find(it)?.groupValues?.get(1)?.toLong() }
+        gameId = decodedKey.let { "gameID=(\\d+)".toRegex().find(it)?.groupValues?.get(1)?.toInt() }
+
+
+        if (gameId === null || userId === null) {
             event.editOriginalWithNoButton(
                 EmbedBuilder().apply {
                     setTitle("500 Internal Server Error")
@@ -112,16 +123,29 @@ object DeleteScore : GameDataParse() {
             return
         }
 
+        if (userId != event.user.idLong) {
+            event.hook.sendMessageEmbeds(
+                EmbedBuilder().apply {
+                    setTitle("403 Forbidden")
+                    setDescription("메시지의 주체와 이벤트의 유저가 일치하지 않습니다. 만약 본인이 /delete를 사용하셨다면 잠시 뒤 다시 시도해 주세요.")
+                    setColor(Color.RED)
+                }.build()
+            ).setEphemeral(true).queue()
+
+            Logger.addErrorEvent(event, Logger.INVALID_USER)
+            return
+        }
+
         if (event.interaction.componentId == cancelButton.id) {
             event.editOriginalWithNoButton(
                 EmbedBuilder().apply {
                     setTitle("200 OK")
-                    setDescription("요청 취소됨")
+                    setDescription("Request cancelled")
                     setColor(Color.BLACK)
                 }.build()
             )
-            Logger.addEvent(event)
 
+            Logger.addEvent(event)
             return
         }
 
@@ -137,8 +161,7 @@ object DeleteScore : GameDataParse() {
             )
 
             Logger.addEvent(event)
-        }
-        catch (e: EmbeddableException) {
+        } catch (e: EmbeddableException) {
             event.hook.sendMessageEmbeds(e.getErrorEmbed(event.userLocale)).setEphemeral(true).queue()
 
             when (e) {
