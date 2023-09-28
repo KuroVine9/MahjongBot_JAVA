@@ -29,8 +29,9 @@ jobs:
           java-version: "18"
           distribution: "temurin"
 
-      - name: 설정된 Gradle Wrapper 사용
+      - name: Gradle Wrapper
         run: |
+          ./gradlew wrapper
           chmod +x ./gradlew
           ./gradlew build
 
