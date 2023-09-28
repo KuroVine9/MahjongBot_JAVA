@@ -11,7 +11,7 @@ wrapper {
 
 tasks {
     jar {
-        enabled = false
+        enabled = true
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 }
