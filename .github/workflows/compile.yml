@@ -34,6 +34,11 @@ jobs:
         with:
           arguments: build
 
+      - name: 설정된 Gradle Wrapper 사용
+        run: |
+          chmod +x ./gradlew
+          ./gradlew build
+
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
