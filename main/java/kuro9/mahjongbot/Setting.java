@@ -50,7 +50,7 @@ public record Setting() {
         JSONParser parser = new JSONParser();
         Object obj = null;
         try {
-            obj = parser.parse(new FileReader("src/main/resources/setting.json"));
+            obj = parser.parse(new FileReader("resources/setting.json"));
         }
         catch (IOException | ParseException e) {
             Logger.addSystemErrorEvent(Logger.SETTING_JSON_PARSE_ERR);

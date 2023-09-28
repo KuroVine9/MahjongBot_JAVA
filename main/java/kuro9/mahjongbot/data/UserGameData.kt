@@ -69,7 +69,7 @@ data class UserGameData(@UserRes val id: Long) {
 
     fun addGameData(score: Int, @IntRange(1, 4) rank: Int) {
         totalUmaLong += (((score - Setting.RETURN_POINT) / 1000.0 + Setting.UMA[rank - 1]) * 10).toLong()
-        if (score < 0) rankCount[4]--
+        if (score < 0) rankCount[4]++
         rankCount[rank - 1]++
         _isValid = false;
     }
@@ -83,7 +83,7 @@ data class UserGameData(@UserRes val id: Long) {
                 round((it / gameCount.toDouble() * 100.0), 2)
             }.toDoubleArray()
             _avgRank = round(
-                (rankCount[0] + (rankCount[1] * 2) + (rankCount[2] * 3) + (rankCount[3] * 4) / gameCount.toDouble() * 100.0),
+                ((rankCount[0] + (rankCount[1] * 2) + (rankCount[2] * 3) + (rankCount[3] * 4)) / (gameCount.toDouble())),
                 2
             )
             _avgUma = round(totalUma / gameCount, 2)

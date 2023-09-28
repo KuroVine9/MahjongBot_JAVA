@@ -139,7 +139,9 @@ object DBScoreProcess {
          * 캐시를 모두 무효화 처리합니다.
          */
         fun deleteAllCacheData() {
-            cacheQueue.map { Cache(STATE.OLD, Query(-1, null, null), HashMap()) }
+            for (i in cacheQueue.indices) {
+                cacheQueue[i] = Cache(STATE.OLD, Query(-1, null, null), HashMap())
+            }
             println("[MahjongBot:${this::class.simpleName}] Cache deleted!")
         }
     }
