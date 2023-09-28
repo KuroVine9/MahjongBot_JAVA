@@ -9,7 +9,7 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: ["publish"]
+    branches: ["publish", "db-migration"]
   pull_request:
     branches: ["publish"]
 
