@@ -31,7 +31,7 @@ jobs:
 
       - name: Gradle Wrapper
         run: |
-          ./gradlew wrapper
+          gradlew wrapper
           chmod +x ./gradlew
           ./gradlew build
 
