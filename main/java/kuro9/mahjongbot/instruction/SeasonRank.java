@@ -1,19 +1,18 @@
 package kuro9.mahjongbot.instruction;
 
+import kuro9.mahjongbot.DBScoreProcess;
 import kuro9.mahjongbot.Logger;
 import kuro9.mahjongbot.ResourceHandler;
-import kuro9.mahjongbot.ScoreProcess;
-import kuro9.mahjongbot.UserGameData;
+import kuro9.mahjongbot.data.UserGameData;
+import kuro9.mahjongbot.data.UserGameDataComparatorKt;
+import kuro9.mahjongbot.exception.DBConnectException;
 import kuro9.mahjongbot.instruction.action.RankInterface;
-import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.ResourceBundle;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class SeasonRank extends RankArranger implements RankInterface {
 
@@ -34,42 +33,33 @@ public class SeasonRank extends RankArranger implements RankInterface {
             Button.secondary("season_rank_totalgame_go_last", ">>")
     };
 
-    private int getValidSeason(GenericInteractionCreateEvent event) {
-        if (event instanceof SlashCommandInteractionEvent s) {
-            return ((s.getOption("season") == null) ?
-                    ((LocalDateTime.now().getMonthValue() - 1) / 6) + 1 :
-                    (int) s.getOption("season").getAsLong());
-        }
-        else if (event instanceof ButtonInteractionEvent b) {
-            String pattern = "\\[\\d{4}.(\\d)";
-            Pattern r = Pattern.compile(pattern);
-            Matcher m = r.matcher(b.getMessage().getContentDisplay());
-            if (m.find()) {
-                return Integer.parseInt(m.group(1));
-            }
-            else return 0;
-        }
-        else return 0;
-    }
-
     @Override
     public void summaryReply(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
+
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
         int year = getValidYear(event);
         int filter = getValidFilter(event);
+        long guildID = getGuildID(event);
+        String gameGroup = getGameGroup(event);
 
-        event.getHook().sendMessageEmbeds(
-                getSummaryEmbed(
-                        String.format(resourceBundle.getString("season_rank.embed.summary.title"), year, season, filter),
-                        ScoreProcess.getUserDataList(start_month, year, end_month, year).values().stream().peek(UserGameData::updateAllData)
-                                .filter(data -> data.game_count >= filter).toList(),
-                        event.getUserLocale()
-                ).build()
-        ).queue();
+        try {
+            event.getHook().sendMessageEmbeds(
+                    getSummaryEmbed(
+                            String.format(resourceBundle.getString("rank.season.embed.summary.title"), year, season, filter),
+                            DBScoreProcess.INSTANCE.getSelectedUserData(guildID, start_month, year, end_month, year, gameGroup, filter)
+                                    .values().stream().toList(),
+                            event.getUserLocale()
+                    ).build()
+            ).queue();
+        }
+        catch (DBConnectException e) {
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale())).setEphemeral(true).queue();
+            return;
+        }
         Logger.addEvent(event);
     }
 
@@ -77,19 +67,40 @@ public class SeasonRank extends RankArranger implements RankInterface {
     public void umaReply(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
+
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
         int year = getValidYear(event);
         int filter = getValidFilter(event);
+        long guildID = getGuildID(event);
+        String gameGroup = getGameGroup(event);
 
-        var sorted_list = getSortedUmaList(filter, start_month, year, end_month, year);
+        List<UserGameData> sorted_list;
+        try {
+            sorted_list = getSelectedSortedList(
+                    guildID,
+                    start_month,
+                    year,
+                    end_month,
+                    year,
+                    gameGroup,
+                    filter,
+                    UserGameDataComparatorKt::compareWithUma
+            );
+        }
+        catch (DBConnectException e) {
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale())).setEphemeral(true).queue();
+            return;
+        }
+
         season_uma_page_count[0] = 1;
         event.getHook().sendMessage(
                 getUmaPrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("season_rank.embed.uma.title"), year, season, filter),
-                        season_uma_page_count[0]
+                        String.format(resourceBundle.getString("rank.season.embed.uma.title"), year, season, filter),
+                        season_uma_page_count[0],
+                        base64KeyGen(year, null, season, GameType.UMA, filter, null, gameGroup)
                 )
         ).addActionRow(
                 season_uma_button[0].asDisabled(),
@@ -104,13 +115,33 @@ public class SeasonRank extends RankArranger implements RankInterface {
     @Override
     public void umaPageControl(ButtonInteractionEvent event) {
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
+
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
         int year = getValidYear(event);
         int filter = getValidFilter(event);
+        long guildID = getButtonGuildID(event);
+        String gameGroup = getButtonGameGroup(event);
 
-        var sorted_list = getSortedUmaList(filter, start_month, year, end_month, year);
+        List<UserGameData> sorted_list;
+        try {
+            sorted_list = getSelectedSortedList(
+                    guildID,
+                    start_month,
+                    year,
+                    end_month,
+                    year,
+                    gameGroup,
+                    filter,
+                    UserGameDataComparatorKt::compareWithUma
+            );
+        }
+        catch (DBConnectException e) {
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale())).setEphemeral(true).queue();
+            return;
+        }
+
         pageControl(
                 event,
                 season_uma_button,
@@ -118,8 +149,9 @@ public class SeasonRank extends RankArranger implements RankInterface {
                 sorted_list.size(),
                 () -> getUmaPrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("season_rank.embed.uma.title"), year, season, filter),
-                        season_uma_page_count[0]
+                        String.format(resourceBundle.getString("rank.season.embed.uma.title"), year, season, filter),
+                        season_uma_page_count[0],
+                        base64KeyGen(year, null, season, GameType.UMA, filter, season_uma_page_count[0], gameGroup)
                 )
         );
         Logger.addEvent(event);
@@ -129,19 +161,40 @@ public class SeasonRank extends RankArranger implements RankInterface {
     public void totalGameReply(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
+
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
         int year = getValidYear(event);
         int filter = getValidFilter(event);
+        long guildID = getGuildID(event);
+        String gameGroup = getGameGroup(event);
 
-        var sorted_list = getSortedTotalGameList(filter, start_month, year, end_month, year);
+        List<UserGameData> sorted_list;
+        try {
+            sorted_list = getSelectedSortedList(
+                    guildID,
+                    start_month,
+                    year,
+                    end_month,
+                    year,
+                    gameGroup,
+                    filter,
+                    UserGameDataComparatorKt::compareWithGameCount
+            );
+        }
+        catch (DBConnectException e) {
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale())).setEphemeral(true).queue();
+            return;
+        }
+
         season_total_game_page_count[0] = 1;
         event.getHook().sendMessage(
                 getTotalGamePrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("season_rank.embed.total_game_count.title"), year, season, filter),
-                        season_total_game_page_count[0]
+                        String.format(resourceBundle.getString("rank.season.embed.total_game_count.title"), year, season, filter),
+                        season_total_game_page_count[0],
+                        base64KeyGen(year, null, season, GameType.GMC, filter, null, gameGroup)
                 )
         ).addActionRow(
                 season_total_game_button[0].asDisabled(),
@@ -156,13 +209,33 @@ public class SeasonRank extends RankArranger implements RankInterface {
     @Override
     public void totalGamePageControl(ButtonInteractionEvent event) {
         ResourceBundle resourceBundle = ResourceHandler.getResource(event);
+
         int season = getValidSeason(event);
         int start_month = season * 6 - 5;
         int end_month = season * 6;
         int year = getValidYear(event);
         int filter = getValidFilter(event);
+        long guildID = getButtonGuildID(event);
+        String gameGroup = getButtonGameGroup(event);
 
-        var sorted_list = getSortedTotalGameList(filter, start_month, year, end_month, year);
+        List<UserGameData> sorted_list;
+        try {
+            sorted_list = getSelectedSortedList(
+                    guildID,
+                    start_month,
+                    year,
+                    end_month,
+                    year,
+                    gameGroup,
+                    filter,
+                    UserGameDataComparatorKt::compareWithGameCount
+            );
+        }
+        catch (DBConnectException e) {
+            event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale())).setEphemeral(true).queue();
+            return;
+        }
+
         pageControl(
                 event,
                 season_total_game_button,
@@ -170,8 +243,9 @@ public class SeasonRank extends RankArranger implements RankInterface {
                 sorted_list.size(),
                 () -> getTotalGamePrintString(
                         sorted_list,
-                        String.format(resourceBundle.getString("season_rank.embed.total_game_count.title"), year, season, filter),
-                        season_total_game_page_count[0]
+                        String.format(resourceBundle.getString("rank.season.embed.total_game_count.title"), year, season, filter),
+                        season_total_game_page_count[0],
+                        base64KeyGen(year, null, season, GameType.GMC, filter, season_total_game_page_count[0], gameGroup)
                 )
         );
         Logger.addEvent(event);

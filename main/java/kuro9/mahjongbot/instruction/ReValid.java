@@ -1,23 +1,29 @@
 package kuro9.mahjongbot.instruction;
 
+import kuro9.mahjongbot.DBScoreProcess;
 import kuro9.mahjongbot.Logger;
-import kuro9.mahjongbot.ScoreProcess;
 import kuro9.mahjongbot.Setting;
-import kuro9.mahjongbot.gdrive.GDrive;
+import kuro9.mahjongbot.exception.ErrorEmbedsKt;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
+import static kuro9.mahjongbot.Logger.PERMISSION_DENY;
+
 /**
- * 순위 데이터 파일과 유저 데이터를 최신화합니다.
+ * 캐시를 무효화합니다.
  */
 public class ReValid {
     public static void action(SlashCommandInteractionEvent event) {
         event.deferReply(true).queue();
+
+        if (event.getUser().getIdLong() != Setting.ADMIN_ID) {
+            event.getHook().sendMessageEmbeds(ErrorEmbedsKt.getNoPermissionEmbed(event.getUserLocale())).setEphemeral(true).queue();
+            Logger.addErrorEvent(event, PERMISSION_DENY);
+            return;
+        }
+
         long time = System.currentTimeMillis();
-        ScoreProcess.revalidData();
-        GDrive.upload(Setting.DATA_FILE_ID, Setting.DATA_PATH);
-        GDrive.upload(Setting.LOG_FILE_ID, Setting.LOG_PATH);
-        GDrive.upload(Setting.ERROR_LOG_FILE_ID, Setting.ERROR_LOG_PATH);
+        DBScoreProcess.INSTANCE.deleteAllCacheData();
         Logger.addEvent(event);
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("PROCESSED");

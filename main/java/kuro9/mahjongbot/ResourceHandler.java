@@ -27,4 +27,8 @@ public class ResourceHandler {
                 supportLocale.contains(locale) ? Locale.forLanguageTag(locale.getLocale()) : Locale.ROOT
         );
     }
+
+    public static DiscordLocale[] getSupportLocale() {
+        return supportLocale.toArray(new DiscordLocale[0]);
+    }
 }

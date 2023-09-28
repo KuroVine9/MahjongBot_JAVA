@@ -3,8 +3,8 @@ package kuro9.mahjongbot;
 import kuro9.mahjongbot.instruction.*;
 import kuro9.mahjongbot.instruction.action.RankInterface;
 import kuro9.mahjongbot.instruction.action.StatInterface;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.User;
@@ -32,10 +32,10 @@ public class Main extends ListenerAdapter {
     public static void main(String[] args) {
         long time = System.currentTimeMillis();
         System.out.println("[MahjongBot:Main] System Initializing...");
-        Setting.init();
+        Setting.parseString();
+
         final String TOKEN;
         try {
-
             Scanner scan = new Scanner(new File(Setting.TOKEN_PATH));
             TOKEN = scan.next();
             scan.close();
@@ -44,12 +44,18 @@ public class Main extends ListenerAdapter {
             System.out.println("\n\n[MahjongBot:Main] Initialize Failure!\n\n");
             throw new RuntimeException(e);
         }
-        JDA jda = JDABuilder.createDefault(TOKEN).build();
+        Setting.init(TOKEN);
+
+        JDA jda = Setting.JDA;
+        if (jda == null) {
+            System.out.println("\n\n[MahjongBot:Main] JDA Cannot be Null!\n\n");
+            throw new NullPointerException(JDA.class.getName());
+        }
+
         Setting.setAdmin(jda.retrieveUserById(Setting.ADMIN_ID));
         jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
-        jda.retrieveUserById(Setting.ADMIN_ID).map(User::getAsTag)
-                .queue(name -> jda.getPresence().setActivity(Activity.competing("DM => " + name))
-                );
+        jda.retrieveUserById(Setting.ADMIN_ID).map(User::getName)
+                .queue(name -> jda.getPresence().setActivity(Activity.competing("DM => " + name)));
 
         jda.addEventListener(new Main());
 
@@ -67,7 +73,7 @@ public class Main extends ListenerAdapter {
         }
         catch (IOException | ParseException e) {
             System.out.println("\n\n[MahjongBot:Main] Runtime Instruction Loading Failure!\n\n");
-            Logger.addSystemErrorEvent("instruction-load-err");
+            Logger.addSystemErrorEvent(Logger.INSTRUCTION_LOAD_ERR);
             e.printStackTrace();
             throw new RuntimeException(e);
         }
@@ -77,12 +83,12 @@ public class Main extends ListenerAdapter {
         System.out.println("[MahjongBot:Main] Instructions Loaded!");
 
         System.out.printf("[MahjongBot:Main] Bot Started! (%d ms)\n", System.currentTimeMillis() - time);
-        Logger.addSystemEvent("system-start");
+        Logger.addSystemEvent(Logger.SYS_START);
     }
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        switch (event.getName()) {
+        switch (event.getFullCommandName()) {
             case "ping" -> {
                 long time = System.currentTimeMillis();
                 event.reply("Pong!").setEphemeral(true)
@@ -91,34 +97,37 @@ public class Main extends ListenerAdapter {
                         ).queue();
                 Logger.addEvent(event);
             }
+            case "revalid" -> ReValid.action(event);
             case "file" -> {
                 Logger.addEvent(event);
-                event.reply("Uploaded Files").setEphemeral(true).addActionRow(
+                event.reply("Uploaded Files\n> `sunwi.csv` will not be use or update.").setEphemeral(true).addActionRow(
                         Button.link(String.format("https://docs.google.com/spreadsheets/d/%s/", Setting.DATA_FILE_ID), "sunwi.csv"),
                         Button.link(String.format("https://docs.google.com/spreadsheets/d/%s/", Setting.LOG_FILE_ID), "log.csv"),
                         Button.link(String.format("https://docs.google.com/spreadsheets/d/%s/", Setting.ERROR_LOG_FILE_ID), "error_log.csv")
                 ).queue();
             }
-            case "add" -> Add.action(event);
-            case "stat" -> stat[2].action(event);
-            case "month_stat" -> stat[1].action(event);
-            case "entire_stat" -> stat[0].action(event);
-            case "revalid" -> ReValid.action(event);
-            case "entire_rank" -> {
+            case "add" -> AddScore.action(event);
+
+            case "stat season" -> stat[2].action(event);
+            case "stat month" -> stat[1].action(event);
+            case "stat entire" -> stat[0].action(event);
+
+
+            case "rank entire" -> {
                 switch (event.getOption("type") == null ? -1 : (int) event.getOption("type").getAsLong()) {
                     case 0 -> rank[0].summaryReply(event);
                     case 1, -1 -> rank[0].umaReply(event);
                     case 2 -> rank[0].totalGameReply(event);
                 }
             }
-            case "month_rank" -> {
+            case "rank month" -> {
                 switch (event.getOption("type") == null ? -1 : (int) event.getOption("type").getAsLong()) {
                     case 0 -> rank[1].summaryReply(event);
                     case 1, -1 -> rank[1].umaReply(event);
                     case 2 -> rank[1].totalGameReply(event);
                 }
             }
-            case "rank" -> {
+            case "rank season" -> {
                 switch (event.getOption("type") == null ? -1 : (int) event.getOption("type").getAsLong()) {
                     case 0 -> rank[2].summaryReply(event);
                     case 1, -1 -> rank[2].umaReply(event);
@@ -127,18 +136,37 @@ public class Main extends ListenerAdapter {
             }
             case "machi" -> MahjongCalc.getAllMachi(event);
 
-            default -> throw new IllegalStateException("Unexpected value: " + event.getName());
+            case "admin add" -> AddAdmin.INSTANCE.action(event);
+            case "admin get" -> GetAdminList.INSTANCE.action(event);
+            case "admin delete" -> DeleteAdmin.INSTANCE.action(event);
+
+            case "game_group add" -> AddGameGroup.INSTANCE.action(event);
+            case "game_group get" -> GetGameGroupList.INSTANCE.action(event);
+
+            case "delete" -> DeleteScore.INSTANCE.action(event);
+            case "modify" -> ModifyScore.INSTANCE.action(event);
+
+            default -> {
+                EmbedBuilder embed = new EmbedBuilder();
+                embed.setTitle("501 Not Implemented");
+                embed.setDescription("Unexpected value: " + event.getName());
+                event.replyEmbeds(embed.build()).setEphemeral(true).queue();
+                Logger.addErrorEvent(event, Logger.UNKNOWN_INST);
+            }
         }
     }
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        if (event.getComponentId().matches("^rank_uma.*")) rank[0].umaPageControl(event);
-        else if (event.getComponentId().matches("^rank_totalgame.*")) rank[0].totalGamePageControl(event);
-        else if (event.getComponentId().matches("^month_rank_uma.*")) rank[1].umaPageControl(event);
-        else if (event.getComponentId().matches("^month_rank_totalgame.*")) rank[1].totalGamePageControl(event);
-        else if (event.getComponentId().matches("^season_rank_uma.*")) rank[2].umaPageControl(event);
-        else if (event.getComponentId().matches("^season_rank_totalgame.*")) rank[2].totalGamePageControl(event);
+        String id = event.getComponentId();
+        if (id.matches("^rank_uma.*")) rank[0].umaPageControl(event);
+        else if (id.matches("^rank_totalgame.*")) rank[0].totalGamePageControl(event);
+        else if (id.matches("^month_rank_uma.*")) rank[1].umaPageControl(event);
+        else if (id.matches("^month_rank_totalgame.*")) rank[1].totalGamePageControl(event);
+        else if (id.matches("^season_rank_uma.*")) rank[2].umaPageControl(event);
+        else if (id.matches("^season_rank_totalgame.*")) rank[2].totalGamePageControl(event);
+        else if (id.matches("^delete.*")) DeleteScore.INSTANCE.confirm(event);
+        else if (id.matches("^modify.*")) ModifyScore.INSTANCE.confirm(event);
     }
 
 }

@@ -1,13 +1,17 @@
-package kuro9.mahjongbot;
+package kuro9.mahjongbot.data;
 
 import java.util.HashMap;
 
 public class PaiDiscardMachiData {
+    public String pai;
+    public int nokoru_pai;
+    public HashMap<Character, int[]> machi;
+
     PaiDiscardMachiData(String pai) {
         this.pai = pai;
     }
 
-    PaiDiscardMachiData(int pai) {
+    public PaiDiscardMachiData(int pai) {
         this.pai = switch (pai / 10) {
             case 0 -> String.format("%dm", pai % 10);
             case 1 -> String.format("%dp", pai % 10);
@@ -15,8 +19,4 @@ public class PaiDiscardMachiData {
             default -> String.format("%dz", pai / 10 - 2);
         };
     }
-
-    public String pai;
-    public int nokoru_pai;
-    public HashMap<Character, int[]> machi;
 }

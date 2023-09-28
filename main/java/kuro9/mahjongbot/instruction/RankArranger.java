@@ -1,256 +1,198 @@
 package kuro9.mahjongbot.instruction;
 
+import kuro9.mahjongbot.DBScoreProcess;
 import kuro9.mahjongbot.ResourceHandler;
-import kuro9.mahjongbot.ScoreProcess;
-import kuro9.mahjongbot.UserGameData;
+import kuro9.mahjongbot.annotation.GuildRes;
+import kuro9.mahjongbot.annotation.IntRange;
+import kuro9.mahjongbot.data.UserGameData;
+import kuro9.mahjongbot.data.UserGameDataComparatorKt;
+import kuro9.mahjongbot.exception.DBConnectException;
 import kuro9.mahjongbot.instruction.action.RankInterface;
+import kuro9.mahjongbot.instruction.util.GameDataParse;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
-import java.time.LocalDate;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Base64;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public abstract class RankArranger implements RankInterface {
+public abstract class RankArranger extends GameDataParse implements RankInterface {
 
-    protected static int getValidMonth(GenericInteractionCreateEvent event) {
-        if (event instanceof SlashCommandInteractionEvent s) {
-            return ((s.getOption("month") == null) ?
-                    LocalDate.now().getMonthValue() :
-                    (int) s.getOption("month").getAsLong());
-        }
-        else if (event instanceof ButtonInteractionEvent b) {
-            String pattern = "\\[\\d{4}.(\\d{2})";
-            Pattern r = Pattern.compile(pattern);
-            Matcher m = r.matcher(b.getMessage().getContentDisplay());
-            if (m.find()) {
-                return Integer.parseInt(m.group(1));
-            }
-            else return 0;
-        }
-        else return 0;
-    }
-
-    protected static int getValidYear(GenericInteractionCreateEvent event) {
-        if (event instanceof SlashCommandInteractionEvent s) {
-            return ((s.getOption("year") == null) ?
-                    LocalDate.now().getYear() :
-                    (int) s.getOption("year").getAsLong());
-        }
-        else if (event instanceof ButtonInteractionEvent b) {
-            String pattern = "\\[(\\d{4})";
-            Pattern r = Pattern.compile(pattern);
-            Matcher m = r.matcher(b.getMessage().getContentDisplay());
-            if (m.find()) {
-                return Integer.parseInt(m.group(1));
-            }
-            else return 0;
-        }
-        else return 0;
-    }
-
-    protected static int getValidFilter(GenericInteractionCreateEvent event) {
-        if (event instanceof SlashCommandInteractionEvent s) {
-            return ((s.getOption("filter") == null) ?
-                    0 : (int) s.getOption("filter").getAsLong());
-        }
-        else if (event instanceof ButtonInteractionEvent b) {
-            String pattern = "\\([A-Za-z ]*(\\d+)";
-            Pattern r = Pattern.compile(pattern);
-            Matcher m = r.matcher(b.getMessage().getContentDisplay());
-            if (m.find()) {
-                return Integer.parseInt(m.group(1));
-            }
-            else return 0;
-        }
-        else return 0;
-    }
-
-    protected static EmbedBuilder getSummaryEmbed(String title, List<UserGameData> sorted_list, DiscordLocale locale) {
+    protected static EmbedBuilder getSummaryEmbed(String title, List<UserGameData> userGameDataList, DiscordLocale locale) {
         ResourceBundle resourceBundle = ResourceHandler.getResource(locale);
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle(title);
-        sorted_list = sorted_list.stream().sorted(
-                (dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
-        ).toList();
+        userGameDataList.sort(UserGameDataComparatorKt::compareWithUma);
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.total_uma_de"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
-                        sorted_list.get(0).name, sorted_list.get(0).total_uma,
-                        sorted_list.get(1).name, sorted_list.get(1).total_uma,
-                        sorted_list.get(2).name, sorted_list.get(2).total_uma
+                        userGameDataList.get(0).getUserName(), userGameDataList.get(0).getTotalUma(),
+                        userGameDataList.get(1).getUserName(), userGameDataList.get(1).getTotalUma(),
+                        userGameDataList.get(2).getUserName(), userGameDataList.get(2).getTotalUma()
                 ),
                 true
         );
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.total_uma_as"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
-                        sorted_list.get(sorted_list.size() - 1).name, sorted_list.get(sorted_list.size() - 1).total_uma,
-                        sorted_list.get(sorted_list.size() - 2).name, sorted_list.get(sorted_list.size() - 2).total_uma,
-                        sorted_list.get(sorted_list.size() - 3).name, sorted_list.get(sorted_list.size() - 3).total_uma
+                        userGameDataList.get(userGameDataList.size() - 1).getUserName(), userGameDataList.get(userGameDataList.size() - 1).getTotalUma(),
+                        userGameDataList.get(userGameDataList.size() - 2).getUserName(), userGameDataList.get(userGameDataList.size() - 2).getTotalUma(),
+                        userGameDataList.get(userGameDataList.size() - 3).getUserName(), userGameDataList.get(userGameDataList.size() - 3).getTotalUma()
                 ),
                 true
         );
-        sorted_list = sorted_list.stream().sorted(
-                (dataA, dataB) -> (int) (dataB.game_count - dataA.game_count)
-        ).toList();
+        userGameDataList.sort(UserGameDataComparatorKt::compareWithGameCount);
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.total_game_count.title"),
                 String.format(resourceBundle.getString("rank_arranger.embed.total_game_count.field"),
-                        sorted_list.get(0).name, sorted_list.get(0).game_count,
-                        sorted_list.get(1).name, sorted_list.get(1).game_count,
-                        sorted_list.get(2).name, sorted_list.get(2).game_count
+                        userGameDataList.get(0).getUserName(), userGameDataList.get(0).getGameCount(),
+                        userGameDataList.get(1).getUserName(), userGameDataList.get(1).getGameCount(),
+                        userGameDataList.get(2).getUserName(), userGameDataList.get(2).getGameCount()
                 ),
                 true
         );
-        sorted_list = sorted_list.stream().sorted(
-                (dataA, dataB) -> (int) ((dataB.rank_pp[4] * 100) - (dataA.rank_pp[4] * 100))
-        ).toList();
+        userGameDataList.sort(UserGameDataComparatorKt::compareWithTobi);
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.tobi"),
                 String.format("%s : %.1f%%\n%s : %.1f%%\n%s : %.1f%%",
-                        sorted_list.get(0).name, sorted_list.get(0).rank_pp[4],
-                        sorted_list.get(1).name, sorted_list.get(1).rank_pp[4],
-                        sorted_list.get(2).name, sorted_list.get(2).rank_pp[4]
+                        userGameDataList.get(0).getUserName(), userGameDataList.get(0).getRankPercentage()[4],
+                        userGameDataList.get(1).getUserName(), userGameDataList.get(1).getRankPercentage()[4],
+                        userGameDataList.get(2).getUserName(), userGameDataList.get(2).getRankPercentage()[4]
                 ),
                 true
         );
-        sorted_list = sorted_list.stream().sorted(
-                (dataA, dataB) -> (int) ((dataA.avg_rank * 100) - (dataB.avg_rank * 100))
-        ).toList();
+        userGameDataList.sort(UserGameDataComparatorKt::compareWithAvgRank);
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.avg_rank_de"),
                 String.format("%s : %.2f\n%s : %.2f\n%s : %.2f",
-                        sorted_list.get(0).name, sorted_list.get(0).avg_rank,
-                        sorted_list.get(1).name, sorted_list.get(1).avg_rank,
-                        sorted_list.get(2).name, sorted_list.get(2).avg_rank
+                        userGameDataList.get(0).getUserName(), userGameDataList.get(0).getAvgRank(),
+                        userGameDataList.get(1).getUserName(), userGameDataList.get(1).getAvgRank(),
+                        userGameDataList.get(2).getUserName(), userGameDataList.get(2).getAvgRank()
                 ),
                 true
         );
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.avg_rank_as"),
                 String.format("%s : %.2f\n%s : %.2f\n%s : %.2f",
-                        sorted_list.get(sorted_list.size() - 1).name, sorted_list.get(sorted_list.size() - 1).avg_rank,
-                        sorted_list.get(sorted_list.size() - 2).name, sorted_list.get(sorted_list.size() - 2).avg_rank,
-                        sorted_list.get(sorted_list.size() - 3).name, sorted_list.get(sorted_list.size() - 3).avg_rank
+                        userGameDataList.get(userGameDataList.size() - 1).getUserName(), userGameDataList.get(userGameDataList.size() - 1).getAvgRank(),
+                        userGameDataList.get(userGameDataList.size() - 2).getUserName(), userGameDataList.get(userGameDataList.size() - 2).getAvgRank(),
+                        userGameDataList.get(userGameDataList.size() - 3).getUserName(), userGameDataList.get(userGameDataList.size() - 3).getAvgRank()
                 ),
                 true
         );
-        sorted_list = sorted_list.stream().sorted(
-                (dataA, dataB) -> (int) ((dataB.avg_uma * 100) - (dataA.avg_uma * 100))
-        ).toList();
+        userGameDataList.sort(UserGameDataComparatorKt::compareWithAvgUma);
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.avg_uma_de"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
-                        sorted_list.get(0).name, sorted_list.get(0).avg_uma,
-                        sorted_list.get(1).name, sorted_list.get(1).avg_uma,
-                        sorted_list.get(2).name, sorted_list.get(2).avg_uma
+                        userGameDataList.get(0).getUserName(), userGameDataList.get(0).getAvgUma(),
+                        userGameDataList.get(1).getUserName(), userGameDataList.get(1).getAvgUma(),
+                        userGameDataList.get(2).getUserName(), userGameDataList.get(2).getAvgUma()
                 ),
                 true
         );
         embed.addField(
                 resourceBundle.getString("rank_arranger.embed.avg_uma_as"),
                 String.format("%s : %+.1f\n%s : %+.1f\n%s : %+.1f",
-                        sorted_list.get(sorted_list.size() - 1).name, sorted_list.get(sorted_list.size() - 1).avg_uma,
-                        sorted_list.get(sorted_list.size() - 2).name, sorted_list.get(sorted_list.size() - 2).avg_uma,
-                        sorted_list.get(sorted_list.size() - 3).name, sorted_list.get(sorted_list.size() - 3).avg_uma
+                        userGameDataList.get(userGameDataList.size() - 1).getUserName(), userGameDataList.get(userGameDataList.size() - 1).getAvgUma(),
+                        userGameDataList.get(userGameDataList.size() - 2).getUserName(), userGameDataList.get(userGameDataList.size() - 2).getAvgUma(),
+                        userGameDataList.get(userGameDataList.size() - 3).getUserName(), userGameDataList.get(userGameDataList.size() - 3).getAvgUma()
                 ),
                 true
         );
         return embed;
     }
 
-    protected static List<UserGameData> getSortedTotalGameList(int filter) {
-        return ScoreProcess.getUserDataList().values().stream()
-                .peek(UserGameData::updateAllData)
-                .filter(data -> data.game_count >= filter)
-                .sorted((dataA, dataB) -> (dataB.game_count - dataA.game_count)
-                ).toList();
-    }
-
-    protected static List<UserGameData> getSortedTotalGameList(int filter, int month, int year) {
-        return ScoreProcess.getUserDataList(month, year).values().stream()
-                .peek(UserGameData::updateAllData)
-                .filter(data -> data.game_count >= filter)
-                .sorted((dataA, dataB) -> (dataB.game_count - dataA.game_count)
-                ).toList();
-    }
-
-    protected static List<UserGameData> getSortedTotalGameList(int filter, int start_month, int start_year, int end_month, int end_year) {
-        return ScoreProcess.getUserDataList(start_month, start_year, end_month, end_year).values().stream()
-                .peek(UserGameData::updateAllData)
-                .filter(data -> data.game_count >= filter)
-                .sorted((dataA, dataB) -> (dataB.game_count - dataA.game_count)
-                ).toList();
-    }
-
-    protected static List<UserGameData> getSortedTotalGameList() {
-        return getSortedTotalGameList(0);
-    }
-
-    protected static String getTotalGamePrintString(List<UserGameData> data_list, String title, int page) {
+    protected static String getTotalGamePrintString(List<UserGameData> data_list, String title, int page, String base64Key) {
         return getPrintString(
                 data_list,
                 title,
                 page,
-                data -> String.format("%d\n", data.game_count)
+                data -> String.format("%d\n", data.getGameCount()),
+                base64Key
         );
     }
 
-    protected static List<UserGameData> getSortedUmaList(int filter) {
-        return ScoreProcess.getUserDataList().values().stream()
-                .peek(UserGameData::updateAllData)
-                .filter(data -> data.game_count >= filter)
-                .sorted((dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
-                ).toList();
+    protected static List<UserGameData> getAllSortedList(
+            @GuildRes Long guildID,
+            String gameGroup,
+            int filterGameCount,
+            Comparator<UserGameData> comparator
+    ) throws DBConnectException {
+        return DBScoreProcess.INSTANCE.getAllUserData(guildID, gameGroup, filterGameCount)
+                .values().stream().sorted(comparator).toList();
+
     }
 
-    protected static List<UserGameData> getSortedUmaList(int filter, int month, int year) {
-        return ScoreProcess.getUserDataList(month, year).values().stream()
-                .peek(UserGameData::updateAllData)
-                .filter(data -> data.game_count >= filter)
-                .sorted((dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
-                ).toList();
+    protected static List<UserGameData> getMonthSortedList(
+            @GuildRes Long guildID,
+            String gameGroup,
+            @IntRange(inclusiveStart = 1, inclusiveEnd = 12) int month,
+            int year,
+            int filterGameCount,
+            Comparator<UserGameData> comparator
+    ) throws DBConnectException {
+        return DBScoreProcess.INSTANCE.getMonthUserData(guildID, month, year, gameGroup, filterGameCount)
+                .values().stream().sorted(comparator).toList();
     }
 
-    protected static List<UserGameData> getSortedUmaList(int filter, int start_month, int start_year, int end_month, int end_year) {
-        return ScoreProcess.getUserDataList(start_month, start_year, end_month, end_year).values().stream()
-                .peek(UserGameData::updateAllData)
-                .filter(data -> data.game_count >= filter)
-                .sorted((dataA, dataB) -> (int) ((dataB.total_uma * 100) - (dataA.total_uma * 100))
-                ).toList();
+    protected static List<UserGameData> getSelectedSortedList(
+            @GuildRes Long guildID,
+            @IntRange(inclusiveStart = 1, inclusiveEnd = 12) int startMonth,
+            int startYear,
+            @IntRange(inclusiveStart = 1, inclusiveEnd = 12) int endMonth,
+            int endYear,
+            String gameGroup,
+            int filterGameCount,
+            Comparator<UserGameData> comparator
+    ) throws DBConnectException {
+        return DBScoreProcess.INSTANCE.getSelectedUserData(
+                guildID,
+                startMonth,
+                startYear,
+                endMonth,
+                endYear,
+                gameGroup,
+                filterGameCount
+        ).values().stream().sorted(comparator).toList();
     }
 
-    protected static List<UserGameData> getSortedUmaList() {
-        return getSortedUmaList(0);
-    }
-
-    protected static String getUmaPrintString(List<UserGameData> data_list, String title, int page) {
+    protected static String getUmaPrintString(List<UserGameData> data_list, String title, int page, String base64Key) {
         return getPrintString(
                 data_list,
                 title,
                 page,
-                data -> String.format("%+.1f\n", data.total_uma)
+                data -> String.format("%+.1f\n", data.getTotalUma()),
+                base64Key
         );
     }
 
-    private static String getPrintString(List<UserGameData> data_list, String title, int page, Function<UserGameData, String> get_data) {
+    /**
+     * @param data_list
+     * @param title
+     * @param page
+     * @param get_data
+     * @param base64Key yyyy-mm-s-{game-type}-{filter}-{page}-{game-group}
+     *                  y = 년도(null시 0000), m = 월(null시 00), s = 시즌(null시 0),
+     *                  game-type = {"SUM" | "UMA" | "GMC"} (요약, 우마, 총합 국 수),
+     *                  filter = 국 수 필터, page = 현재 페이지, game-group = 게임 그룹(null시 "")
+     */
+    private static String getPrintString(List<UserGameData> data_list, String title, int page, Function<UserGameData, String> get_data, String base64Key) {
         StringBuilder page_block = new StringBuilder();
         page_block.append("```ansi\n").append(String.format("\u001B[1;34m%s (%d/%d)\u001B[0m\n\n", title, page, ((data_list.size() - 1) / 30) + 1));
         for (int i = (page - 1) * 30; i < Math.min(data_list.size(), page * 30); i++) {
             page_block.append(String.format("%-5d", i + 1)).append("\u001B[1;32m");
-            page_block.append(getConstantWidthName(data_list.get(i).name));
+            page_block.append(getConstantWidthName(data_list.get(i).getUserName()));
             page_block.append("\u001B[0m");
             page_block.append(get_data.apply(data_list.get(i)));
         }
+        page_block.append(String.format("\n\n\u001B[0;30mkey=%s\u001B[0m", base64Key));
         page_block.append("```");
         return page_block.toString();
     }
@@ -392,4 +334,35 @@ public abstract class RankArranger implements RankInterface {
         }
         else return;
     }
+
+    /**
+     * @return yyyy-mm-s-{game-type}-{filter}-{page}-{game-group}
+     * y = 년도(null시 0000), m = 월(null시 00), s = 시즌(null시 0),
+     * game-type = {"SUM" | "UMA" | "GMC"} (요약, 우마, 총합 국 수),
+     * filter = 국 수 필터, page = 현재 페이지, game-group = 게임 그룹(null시 "")
+     */
+    protected String base64KeyGen(
+            @Nullable Integer year,
+            @Nullable Integer month,
+            @Nullable Integer season,
+            @Nonnull GameType gameType,
+            @Nullable Integer filter,
+            @Nullable Integer page,
+            @Nullable String gameGroup
+    ) {
+        String original = String.format(
+                "%s-%s-%s-%s-%s-%s-%s",
+                (year == null) ? "0000" : year.toString(),
+                (month == null) ? "00" : month.toString(),
+                (season == null) ? "0" : season.toString(),
+                gameType.name(),
+                (filter == null) ? "0" : filter.toString(),
+                (page == null) ? "1" : page.toString(),
+                (gameGroup == null) ? "" : gameGroup
+        );
+        return Base64.getEncoder().encodeToString(original.getBytes());
+    }
+
+    /*요약, 우마, 총합 국 수*/
+    enum GameType {SUM, UMA, GMC}
 }

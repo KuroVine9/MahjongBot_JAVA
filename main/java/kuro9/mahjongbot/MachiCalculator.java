@@ -1,5 +1,7 @@
 package kuro9.mahjongbot;
 
+import kuro9.mahjongbot.data.PaiDiscardMachiData;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

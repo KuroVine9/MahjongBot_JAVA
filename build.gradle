@@ -1,0 +1,64 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.8.10'
+}
+apply plugin: 'java'
+apply plugin: 'application'
+
+wrapper {
+    gradleVersion = "7.5.1"
+}
+
+tasks {
+    jar {
+        enabled = true
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name 'm2-dv8tion'
+        url 'https://m2.dv8tion.net/releases'
+    }
+}
+
+dependencies {
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    implementation('org.junit.jupiter:junit-jupiter-api:5.9.2')
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+    implementation("net.dv8tion:JDA:5.0.0-beta.13")
+
+    implementation 'org.slf4j:slf4j-simple:2.0.5'
+    implementation 'com.opencsv:opencsv:5.7.1'
+    implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+
+    implementation("com.google.api-client:google-api-client:1.31.3")
+    implementation("com.google.apis:google-api-services-drive:v3-rev197-1.25.0")
+    implementation("com.google.apis:google-api-services-sheets:v4-rev612-1.25.0")
+    implementation("com.google.auth:google-auth-library-oauth2-http:0.25.2")
+    implementation("com.google.http-client:google-http-client-jackson2:1.39.1")
+    implementation("org.apache.poi:poi:5.0.0")
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.8.10'
+
+    implementation('mysql:mysql-connector-java:8.0.28')
+    implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation('org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0')
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = '18'
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = '18'
+}
+
+application {
+    mainClassName = "Main"
+}

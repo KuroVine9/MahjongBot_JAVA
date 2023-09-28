@@ -21,6 +21,24 @@ import java.util.stream.Collectors;
  * 에러 이벤트는 {@code Setting.ADMIN}에 등록된 유저에게 알림을 보냅니다.
  */
 public class Logger {
+    public static final String SYS_START = "system-start";
+    public static final String UNKNOWN_ISSUE = "unknown-issue";
+    public static final String NOT_GUILD_MSG = "not-guild-msg";
+    public static final String DB_CONN_ERR = "db-connect-err";
+    public static final String HAND_IMG_GEN_ERR = "hand-img-gen-err";
+    public static final String IMAGE_GEN_ERR = "image-generate-err";
+    public static final String INSTRUCTION_LOAD_ERR = "instruction-load-err";
+    public static final String SETTING_JSON_PARSE_ERR = "setting-parse-err";
+    public static final String PARAM_ERR = "parameter-err";
+    public static final String UNKNOWN_GAMEGROUP = "unknown-gamegroup";
+    public static final String UNKNOWN_GUILD = "unknown-guild";
+    public static final String PERMISSION_DENY = "no-permission";
+    public static final String TIMEOUT = "timeout";
+    public static final String PARAM_PARSE_ERR = "parameter-parse-err";
+    public static final String UNKNOWN_INST = "unknown-instruction";
+    public static final String GAME_NOT_FOUND = "game-not-found";
+    public static final String INVALID_USER = "user-not-match";
+    public static final String DATA_CONFLICT = "data-conflict";
 
     /**
      * 일반 이벤트를 로깅합니다.
@@ -68,22 +86,28 @@ public class Logger {
      * @param event       JDA의 SlashCommandEvent
      * @param description 에러 형태에 대한 요약
      */
-    public static void addErrorEvent(SlashCommandInteractionEvent event, String description) {
+    public static void addErrorEvent(GenericInteractionCreateEvent event, String description) {
         ArrayList<String> log_list = getLogList(event, description);
 
         writeErrorLogToCSV(log_list);
+        String eventName = "<event-name>";
+
+        if (event instanceof SlashCommandInteractionEvent e)
+            eventName = e.getFullCommandName();
+        else if (event instanceof ButtonInteractionEvent e)
+            eventName = e.getButton().getId();
 
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("NEW EVENT OCC.");
         embed.setDescription(description);
         embed.addField(
                 "COMMAND_NAME",
-                event.getName(),
+                eventName,
                 true
         );
         embed.addField(
                 "USER_NAME",
-                event.getUser().getAsTag(),
+                event.getUser().getEffectiveName(),
                 true
         );
         embed.setFooter(log_list.get(0));
@@ -118,7 +142,7 @@ public class Logger {
         log_list.add(String.format("[%s]", description));
         log_list.add("NONE");
         log_list.add("SYSTEM");
-        log_list.add("SYSTEM_START");
+        log_list.add("EVENT");
         return log_list;
     }
 
@@ -135,10 +159,10 @@ public class Logger {
         log_list.add(time);
         log_list.add(String.format("[%s]", description));
         log_list.add(String.format("%B", event.isFromGuild()));
-        log_list.add(event.getUser().getAsTag());
+        log_list.add(event.getUser().getEffectiveName());
 
         if (event instanceof SlashCommandInteractionEvent s) {
-            log_list.add(s.getName());
+            log_list.add(s.getFullCommandName());
             s.getOptions().forEach(
                     option -> log_list.add(
                             String.format(
@@ -148,7 +172,7 @@ public class Logger {
                                         case STRING -> option.getAsString();
                                         case INTEGER -> String.valueOf(option.getAsLong());
                                         case BOOLEAN -> String.valueOf(option.getAsBoolean());
-                                        case USER -> option.getAsUser().getAsTag();
+                                        case USER -> option.getAsUser().getEffectiveName();
                                         case ROLE -> option.getAsRole().getName();
                                         default -> null;
                                     }
@@ -211,7 +235,8 @@ public class Logger {
             String[] log = new String[log_list.size()];
             csv.writeNext(log_list.toArray(log));
             csv.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle("NEW SYSTEM ERR OCC.");
             embed.setDescription("From Logger#abstractWriteLogToCSV(ArrayList<String>, String)");
