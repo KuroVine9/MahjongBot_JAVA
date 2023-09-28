@@ -8,10 +8,10 @@
 name: Java CI with Gradle
 
 on:
-  push:
-    branches: ["publish", "db-migration"]
-  pull_request:
-    branches: ["publish"]
+  # push:
+  #   branches: ["publish", "db-migration"]
+  # pull_request:
+  #   branches: ["publish"]
 
 permissions:
   contents: read
@@ -52,7 +52,7 @@ jobs:
           path: build
 
   upload:
-    needs: build
+    needs: deploy
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact
