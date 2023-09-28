@@ -4,6 +4,7 @@ import kuro9.mahjongbot.Logger
 import kuro9.mahjongbot.ResourceHandler
 import kuro9.mahjongbot.db.DBHandler
 import kuro9.mahjongbot.exception.DBConnectException
+import kuro9.mahjongbot.exception.getNotInGuildEmbed
 import kuro9.mahjongbot.instruction.util.GameDataParse
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -17,15 +18,7 @@ object GetGameGroupList : GameDataParse() {
         event.deferReply().queue()
 
         if (guildId == 0L) {
-            val embed = EmbedBuilder()
-            embed.setTitle("403 Forbidden")
-            embed.addField(
-                resourceBundle.getString("exception.not_in_guild.title"),
-                resourceBundle.getString("exception.not_in_guild.description"),
-                true
-            )
-            embed.setColor(Color.RED)
-            event.hook.sendMessageEmbeds(embed.build()).queue()
+            event.hook.sendMessageEmbeds(getNotInGuildEmbed(event.userLocale)).queue()
 
             Logger.addErrorEvent(event, Logger.NOT_GUILD_MSG)
             return

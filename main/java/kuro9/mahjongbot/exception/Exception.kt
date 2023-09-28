@@ -16,8 +16,9 @@ class DBConnectException(message: String = "DB Connect Error!") : EmbeddableExce
     override fun getErrorEmbed(locale: DiscordLocale): MessageEmbed = getDBConnectErrorEmbed(locale)
 }
 
-class ParameterErrorException(message: String = "Param Error!") : EmbeddableException(message) {
-    override fun getErrorEmbed(locale: DiscordLocale): MessageEmbed = getParameterErrorEmbed(locale)
+
+class AddParameterErrorException(message: String = "Param Error!") : EmbeddableException(message) {
+    override fun getErrorEmbed(locale: DiscordLocale): MessageEmbed = getAddParameterErrorEmbed(locale)
 
 }
 

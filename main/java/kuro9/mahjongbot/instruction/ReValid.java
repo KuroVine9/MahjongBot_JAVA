@@ -3,6 +3,7 @@ package kuro9.mahjongbot.instruction;
 import kuro9.mahjongbot.DBScoreProcess;
 import kuro9.mahjongbot.Logger;
 import kuro9.mahjongbot.Setting;
+import kuro9.mahjongbot.exception.ErrorEmbedsKt;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
@@ -16,9 +17,7 @@ public class ReValid {
         event.deferReply(true).queue();
 
         if (event.getUser().getIdLong() != Setting.ADMIN_ID) {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle("PERMISSION DENIED");
-            event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
+            event.getHook().sendMessageEmbeds(ErrorEmbedsKt.getNoPermissionEmbed(event.getUserLocale())).setEphemeral(true).queue();
             Logger.addErrorEvent(event, PERMISSION_DENY);
             return;
         }

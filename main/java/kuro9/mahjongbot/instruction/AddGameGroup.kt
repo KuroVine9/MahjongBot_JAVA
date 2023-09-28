@@ -3,8 +3,8 @@ package kuro9.mahjongbot.instruction
 import kuro9.mahjongbot.Logger
 import kuro9.mahjongbot.ResourceHandler
 import kuro9.mahjongbot.db.DBHandler
+import kuro9.mahjongbot.exception.AddParameterErrorException
 import kuro9.mahjongbot.exception.DBConnectException
-import kuro9.mahjongbot.exception.ParameterErrorException
 import kuro9.mahjongbot.exception.getInvalidGameGroupErrorEmbed
 import kuro9.mahjongbot.exception.getNotInGuildEmbed
 import kuro9.mahjongbot.instruction.util.GameDataParse
@@ -56,7 +56,7 @@ object AddGameGroup : GameDataParse() {
             event.hook.sendMessageEmbeds(embed.build()).queue()
             Logger.addEvent(event)
         }
-        catch (e: ParameterErrorException) {
+        catch (e: AddParameterErrorException) {
             event.hook.sendMessageEmbeds(getInvalidGameGroupErrorEmbed(event.userLocale)).queue()
 
             Logger.addErrorEvent(event, Logger.NOT_GUILD_MSG)

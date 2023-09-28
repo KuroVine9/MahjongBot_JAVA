@@ -363,5 +363,6 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
         return Base64.getEncoder().encodeToString(original.getBytes());
     }
 
+    /*요약, 우마, 총합 국 수*/
     enum GameType {SUM, UMA, GMC}
 }

@@ -13,7 +13,7 @@ private const val CODE_404 = "404 Not Found"
 private const val CODE_500 = "500 Internal Server Error"
 private const val CODE_503 = "503 Service Unavailable"
 
-fun getParameterErrorEmbed(locale: DiscordLocale): MessageEmbed {
+fun getAddParameterErrorEmbed(locale: DiscordLocale): MessageEmbed {
     val resourceBundle = ResourceHandler.getResource(locale)
 
     return EmbedBuilder().apply {

@@ -44,14 +44,14 @@ object DBHandler {
      * @param result size가 4인 [GameResult] 객체 배열
      * @return 게임ID
      *
-     * @throws ParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
+     * @throws AddParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
      * @throws GameGroupNotFoundException 등록된 game group가 아닐 때
      * @throws DBConnectException DB 처리 중 에러가 발생할 때
      */
-    @Throws(ParameterErrorException::class, GameGroupNotFoundException::class, DBConnectException::class)
+    @Throws(AddParameterErrorException::class, GameGroupNotFoundException::class, DBConnectException::class)
     fun addScore(game: Game, result: Collection<GameResult>): Int {
         if (!checkGameGroup(game.gameGroup))
-            throw ParameterErrorException("Invalid GameGroup!")
+            throw AddParameterErrorException("Invalid GameGroup!")
         checkGameResult(result)
 
         try {
@@ -78,7 +78,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -89,13 +90,13 @@ object DBHandler {
      *
      * @param game id, guildId, gameGroup가 valid해야 함.
      * @return 속한 서버의 게임 그룹에서의 게임 카운트
-     * @throws ParameterErrorException 게임 그룹 패턴 체크
+     * @throws AddParameterErrorException 게임 그룹 패턴 체크
      * @throws DBConnectException DB 처리 에러
      */
-    @Throws(ParameterErrorException::class, DBConnectException::class)
+    @Throws(AddParameterErrorException::class, DBConnectException::class)
     fun getGameCount(game: Game): Int {
         if (!checkGameGroup(game.gameGroup))
-            throw ParameterErrorException("Invalid GameGroup Pattern!")
+            throw AddParameterErrorException("Invalid GameGroup Pattern!")
 
         try {
             dataSource.connection.use { connection ->
@@ -113,7 +114,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
     }
@@ -126,10 +128,10 @@ object DBHandler {
      * @param gameGroup 게임 그룹
      *
      * @return 속한 서버의 게임 그룹에서의 게임 카운트
-     * @throws ParameterErrorException 게임 그룹 패턴 체크
+     * @throws AddParameterErrorException 게임 그룹 패턴 체크
      * @throws DBConnectException DB 처리 에러
      */
-    @Throws(ParameterErrorException::class, DBConnectException::class)
+    @Throws(AddParameterErrorException::class, DBConnectException::class)
     fun getGameCount(gameId: Int, @GuildRes guildId: Long, gameGroup: String): Int {
         return getGameCount(Game(guildId, -1, gameGroup).apply { id = gameId })
     }
@@ -189,7 +191,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
     }
@@ -199,12 +202,12 @@ object DBHandler {
      * 새 게임 그룹을 추가합니다.
      * @param guildID 길드의 id
      * @param groupName 알파벳, 숫자, 언더바로 구성된 최대 15글자의 게임그룹명
-     * @throws ParameterErrorException [guildID]가 형식에 맞지 않을 때
+     * @throws AddParameterErrorException [guildID]가 형식에 맞지 않을 때
      * @throws DBConnectException DB 처리 중 에러가 발생할 때
      */
-    @Throws(ParameterErrorException::class, DBConnectException::class)
+    @Throws(AddParameterErrorException::class, DBConnectException::class)
     fun addGameGroup(@GuildRes guildID: Long, groupName: String) {
-        if (!checkGameGroup(groupName)) throw ParameterErrorException("Invalid form of game group name!")
+        if (!checkGameGroup(groupName)) throw AddParameterErrorException("Invalid form of game group name!")
 
         try {
             dataSource.connection.use { connection ->
@@ -218,7 +221,7 @@ object DBHandler {
 
                         when (getInt(3)) {
                             -1 -> throw DBConnectException("Procedure Error!")
-                            -400 -> throw ParameterErrorException("Not a Valid GameGroup!")
+                            -400 -> throw AddParameterErrorException("Not a Valid GameGroup!")
                             else -> {
                                 // DO NOTHING
                             }
@@ -226,7 +229,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
     }
@@ -280,7 +284,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -333,7 +338,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -365,7 +371,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -380,14 +387,14 @@ object DBHandler {
      * @param guildId 수정할 게임이 속한 서버의 ID
      * @param result size가 4인 [GameResult] 객체 배열 - id 필드가 반드시 valid한 값이어야 함
      *
-     * @throws ParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
+     * @throws AddParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
      * @throws PermissionExpiredException 10분이 지나 더 이상 점수의 수정/삭제가 불가능할 때
      * @throws PermissionDeniedException 점수를 수정/삭제 할 권한이 없을 때
      * @throws DBConnectException DB 처리 중 에러가 발생할 때
      * @throws GameNotFoundException 수정할 게임을 찾을 수 없을 때
      */
     @Throws(
-        ParameterErrorException::class,
+        AddParameterErrorException::class,
         PermissionExpiredException::class,
         DBConnectException::class,
         PermissionDeniedException::class,
@@ -423,7 +430,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -471,7 +479,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -499,7 +508,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -533,7 +543,8 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
 
@@ -562,20 +573,21 @@ object DBHandler {
                     }
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw DBConnectException()
         }
 
     }
 
-    @Throws(ParameterErrorException::class)
+    @Throws(AddParameterErrorException::class)
     private fun checkGameResult(result: Collection<GameResult>) {
-        if (result.size != 4) throw ParameterErrorException("Size is not 4!")
+        if (result.size != 4) throw AddParameterErrorException("Size is not 4!")
         if (result.withIndex()
                 .all { (index, gameResult) -> gameResult.rank != index + 1 }
-        ) throw ParameterErrorException("Not Sorted!")
+        ) throw AddParameterErrorException("Not Sorted!")
         if (result.map { it.score }
-                .reduce { acc, now -> acc + now } != 100000) throw ParameterErrorException("Score sum is invalid!")
+                .reduce { acc, now -> acc + now } != 100000) throw AddParameterErrorException("Score sum is invalid!")
     }
 
     fun checkGameGroup(gameGroup: String): Boolean =

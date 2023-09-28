@@ -8,8 +8,6 @@ import kuro9.mahjongbot.exception.*
 import kuro9.mahjongbot.instruction.util.GameDataParse
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
-import java.awt.Color
-import java.util.*
 
 object ModifyScore : GameDataParse() {
     fun action(event: SlashCommandInteractionEvent) {
@@ -41,16 +39,7 @@ object ModifyScore : GameDataParse() {
 
         if (gameId === null || resultUserIds.any { it === null } || resultScores.any { it === null }) {
 
-            event.hook.sendMessageEmbeds(
-                EmbedBuilder().apply {
-                    setTitle("500 Internal Server Error")
-                    addField(
-                        resourceBundle.getString("exception.parse_err.title"),
-                        resourceBundle.getString("exception.parse_err.description"),
-                        true
-                    )
-                }.build()
-            ).setEphemeral(true).queue()
+            event.hook.sendMessageEmbeds(getParseErrorEmbed(event.userLocale)).setEphemeral(true).queue()
 
             Logger.addErrorEvent(event, Logger.PARAM_PARSE_ERR)
             return
@@ -90,7 +79,7 @@ object ModifyScore : GameDataParse() {
             event.hook.sendMessageEmbeds(e.getErrorEmbed(event.userLocale)).setEphemeral(true).queue()
 
             when (e) {
-                is ParameterErrorException ->
+                is AddParameterErrorException ->
                     Logger.addErrorEvent(event, Logger.PARAM_ERR)
 
                 is PermissionExpiredException ->
@@ -102,23 +91,15 @@ object ModifyScore : GameDataParse() {
                 is GameNotFoundException ->
                     Logger.addErrorEvent(event, Logger.GAME_NOT_FOUND)
 
-                else -> {
-                    // DO NOTHING
-                }
+                is DBConnectException -> {}
+
+                else -> throw IllegalStateException()
             }
         }
     }
 
-    private fun invalidGuildTask(event: SlashCommandInteractionEvent, resourceBundle: ResourceBundle) {
-        val embed = EmbedBuilder()
-        embed.setTitle("400 Bad Request")
-        embed.addField(
-            resourceBundle.getString("exception.invalid_guild.title"),
-            resourceBundle.getString("exception.invalid_guild.description"),
-            true
-        )
-        embed.setColor(Color.RED)
-        event.hook.sendMessageEmbeds(embed.build()).queue()
+    private fun invalidGuildTask(event: SlashCommandInteractionEvent) {
+        event.hook.sendMessageEmbeds(getInvalidGuildErrorEmbed(event.userLocale)).queue()
 
         Logger.addErrorEvent(event, Logger.UNKNOWN_GUILD)
         return

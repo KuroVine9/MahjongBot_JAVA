@@ -152,11 +152,11 @@ object DBScoreProcess {
      * @param game 게임의 결과 객체
      * @param gameResult 1위부터 4위의 점수가 기록된 리스트
      * @return 게임ID
-     * @throws ParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
+     * @throws AddParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
      * @throws GameGroupNotFoundException 등록된 game group가 아닐 때
      * @throws DBConnectException DB 처리 중 에러가 발생할 때
      */
-    @Throws(ParameterErrorException::class, GameGroupNotFoundException::class, DBConnectException::class)
+    @Throws(AddParameterErrorException::class, GameGroupNotFoundException::class, DBConnectException::class)
     fun addScore(game: Game, gameResult: Collection<GameResult>): Int {
         DataCache.deleteCacheData(game.guildID, game.gameGroup)
         return DBHandler.addScore(game, gameResult)
@@ -193,14 +193,14 @@ object DBScoreProcess {
      * @param gameId 수정할 게임의 ID
      * @param gameResult size가 4인 [GameResult] 객체 배열 - id 필드가 반드시 valid한 값이어야 함
      *
-     * @throws ParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
+     * @throws AddParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
      * @throws PermissionExpiredException 10분이 지나 더 이상 점수의 수정/삭제가 불가능할 때
      * @throws PermissionDeniedException 점수를 수정/삭제 할 권한이 없을 때
      * @throws DBConnectException DB 처리 중 에러가 발생할 때
      * @throws GameNotFoundException 수정할 게임을 찾을 수 없을 때
      */
     @Throws(
-        ParameterErrorException::class,
+        AddParameterErrorException::class,
         PermissionExpiredException::class,
         DBConnectException::class,
         PermissionDeniedException::class,
