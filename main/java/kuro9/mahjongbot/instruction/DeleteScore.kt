@@ -158,7 +158,7 @@ object DeleteScore : GameDataParse() {
                 EmbedBuilder().apply {
                     setTitle("200 OK")
                     setDescription(String.format(resourceBundle.getString("delete.embed.success.description"), gameId))
-                    setColor(Color.BLACK)
+                    setColor(Color.WHITE)
                 }.build()
             )
 

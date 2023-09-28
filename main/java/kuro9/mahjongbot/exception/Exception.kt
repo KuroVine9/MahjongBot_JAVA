@@ -22,6 +22,10 @@ class AddParameterErrorException(message: String = "Param Error!") : EmbeddableE
 
 }
 
+class InvalidGameGroupPatternException(message: String = "Not valid GameGroup!") : EmbeddableException(message) {
+    override fun getErrorEmbed(locale: DiscordLocale): MessageEmbed = getInvalidGameGroupErrorEmbed(locale)
+}
+
 class GameGroupNotFoundException(message: String = "Game Group Not Found!") : EmbeddableException(message) {
     override fun getErrorEmbed(locale: DiscordLocale): MessageEmbed = getGameGroupNotFoundEmbed(locale)
 
@@ -42,5 +46,9 @@ class PermissionExpiredException(message: String = "Too late!") : EmbeddableExce
 
 class GameNotFoundException(message: String = "GameData Not Found!") : EmbeddableException(message) {
     override fun getErrorEmbed(locale: DiscordLocale): MessageEmbed = getGameDataNotFoundEmbed(locale)
+}
+
+class DataConflictException(message: String = "Data Conflict!") : EmbeddableException(message) {
+    override fun getErrorEmbed(locale: DiscordLocale): MessageEmbed = getDataConflictErrorEmbed(locale)
 }
 

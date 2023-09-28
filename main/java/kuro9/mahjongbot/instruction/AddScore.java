@@ -8,10 +8,7 @@ import kuro9.mahjongbot.annotation.UserRes;
 import kuro9.mahjongbot.db.DBHandler;
 import kuro9.mahjongbot.db.data.Game;
 import kuro9.mahjongbot.db.data.GameResult;
-import kuro9.mahjongbot.exception.AddParameterErrorException;
-import kuro9.mahjongbot.exception.DBConnectException;
-import kuro9.mahjongbot.exception.ErrorEmbedsKt;
-import kuro9.mahjongbot.exception.GameGroupNotFoundException;
+import kuro9.mahjongbot.exception.*;
 import kuro9.mahjongbot.instruction.util.GameDataParse;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -72,6 +69,7 @@ public class AddScore extends GameDataParse {
 
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle(resourceBundle.getString("add.embed.success.title"));
+            if (!"".equals(gameGroup)) embed.setDescription(String.format("`[GameGroup=%s]`", gameGroup));
             for (int i = 0; i < 4; i++) {
                 embed.addField(
                         String.format(resourceBundle.getString("add.embed.success.field"), i + 1, names[i]),
@@ -91,13 +89,16 @@ public class AddScore extends GameDataParse {
             event.getHook().sendMessageEmbeds(embed.build()).queue();
             Logger.addEvent(event);
         }
-        catch (AddParameterErrorException | GameGroupNotFoundException | DBConnectException e) {
+        catch (AddParameterErrorException | GameGroupNotFoundException | DBConnectException |
+               InvalidGameGroupPatternException e) {
             event.getHook().sendMessageEmbeds(e.getErrorEmbed(event.getUserLocale())).setEphemeral(true).queue();
 
             if (e instanceof AddParameterErrorException)
                 Logger.addErrorEvent(event, Logger.PARAM_ERR);
             if (e instanceof GameGroupNotFoundException)
                 Logger.addErrorEvent(event, Logger.UNKNOWN_GAMEGROUP);
+            if (e instanceof InvalidGameGroupPatternException)
+                Logger.addErrorEvent(event, Logger.PARAM_ERR);
         }
     }
 }

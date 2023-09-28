@@ -10,6 +10,7 @@ import kuro9.mahjongbot.db.data.GameRecord
 import kuro9.mahjongbot.db.data.GameResult
 import kuro9.mahjongbot.exception.*
 import java.sql.SQLException
+import java.sql.SQLTimeoutException
 import java.sql.Timestamp
 import java.sql.Types.*
 
@@ -36,6 +37,8 @@ object DBHandler {
     private const val deleteAdminQuery = "CALL delete_admin(?,?)"
     private const val getGameCountQuery = "CALL get_game_count(?, ?, ?, ?)"
     private const val getGameDataQuery = "CALL get_game_data(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)"
+    private const val addTempScoreQuery = "CALL add_temp_score(?,?,?,?,?,?,?,?,?,?,?,?)"
+    private const val getTempScoreQuery = "CALL get_temp_score(?,?,?,?)"
 
 
     /**
@@ -45,13 +48,19 @@ object DBHandler {
      * @return 게임ID
      *
      * @throws AddParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
+     * @throws InvalidGameGroupPatternException 유효한 게임 그룹이 아닐 때
      * @throws GameGroupNotFoundException 등록된 game group가 아닐 때
      * @throws DBConnectException DB 처리 중 에러가 발생할 때
      */
-    @Throws(AddParameterErrorException::class, GameGroupNotFoundException::class, DBConnectException::class)
+    @Throws(
+        AddParameterErrorException::class,
+        InvalidGameGroupPatternException::class,
+        GameGroupNotFoundException::class,
+        DBConnectException::class
+    )
     fun addScore(game: Game, result: Collection<GameResult>): Int {
         if (!checkGameGroup(game.gameGroup))
-            throw AddParameterErrorException("Invalid GameGroup!")
+            throw InvalidGameGroupPatternException()
         checkGameResult(result)
 
         try {
@@ -580,6 +589,114 @@ object DBHandler {
 
     }
 
+    @Throws(
+        AddParameterErrorException::class,
+        DBConnectException::class,
+        PermissionDeniedException::class,
+        PermissionExpiredException::class,
+        GameNotFoundException::class,
+        DataConflictException::class
+    )
+    fun addTempScore(@UserRes userId: Long, @GuildRes guildId: Long, gameId: Int, result: Collection<GameResult>) {
+        checkGameResult(result)
+        try {
+            dataSource.connection.use { connection ->
+                connection.prepareCall(addTempScoreQuery).use { call ->
+                    with(call) {
+                        setLong(1, userId)
+                        setInt(2, gameId)
+                        setLong(3, guildId)
+
+                        result.forEach {
+                            setLong(it.rank * 2 + 2, it.userID)
+                            setInt(it.rank * 2 + 3, it.score)
+                        }
+
+                        registerOutParameter(12, INTEGER)
+
+                        executeUpdate()
+
+                        when (getInt(12)) {
+                            0 -> {} // 정상처리
+                            -1 -> throw DBConnectException("Procedure Error!")
+                            -400 -> throw PermissionExpiredException()
+                            -403 -> throw PermissionDeniedException()
+                            -404 -> throw GameNotFoundException()
+                            -409 -> throw DataConflictException()
+                            else -> throw IllegalStateException() // 이 브랜치에 도달해서는 안 됨.
+                        }
+                    }
+                }
+            }
+        }
+        catch (e: SQLException) {
+            throw DBConnectException()
+        }
+    }
+
+    @Throws(DBConnectException::class, GameNotFoundException::class)
+    fun getTempScore(@UserRes userId: Long, @GuildRes guildId: Long, gameId: Int): List<GameResult> {
+        try {
+            dataSource.connection.use { connection ->
+                connection.prepareCall(getTempScoreQuery).use { call ->
+                    with(call) {
+                        setLong(1, userId)
+                        setInt(2, gameId)
+                        setLong(3, guildId)
+
+
+                        registerOutParameter(4, INTEGER)
+
+                        executeQuery().use { resultSet ->
+
+                            when (getInt("result")) {
+                                0 -> {} // 정상처리
+                                -1 -> throw DBConnectException("Procedure Error!")
+                                -404 -> throw GameNotFoundException()
+                                else -> throw IllegalStateException() // 이 브랜치에 도달해서는 안 됨.
+                            }
+
+                            with(resultSet) {
+                                if (next())
+                                    return listOf<GameResult>(
+                                        GameResult(
+                                            userID = getLong("first_id"),
+                                            score = getInt("first_score"),
+                                            rank = 1
+                                        ),
+                                        GameResult(
+                                            userID = getLong("second_id"),
+                                            score = getInt("second_score"),
+                                            rank = 2
+                                        ),
+                                        GameResult(
+                                            userID = getLong("third_id"),
+                                            score = getInt("third_score"),
+                                            rank = 3
+                                        ),
+                                        GameResult(
+                                            userID = getLong("fourth_id"),
+                                            score = getInt("fourth_score"),
+                                            rank = 4
+                                        ),
+                                    )
+                                else throw IllegalStateException()
+                            }
+                        }
+
+
+                    }
+                }
+            }
+        }
+        catch (e: SQLException) {
+            throw DBConnectException()
+        }
+        catch (e: SQLTimeoutException) {
+            throw DBConnectException("SQL Timeout!")
+        }
+    }
+
     @Throws(AddParameterErrorException::class)
     private fun checkGameResult(result: Collection<GameResult>) {
         if (result.size != 4) throw AddParameterErrorException("Size is not 4!")
@@ -588,6 +705,7 @@ object DBHandler {
         ) throw AddParameterErrorException("Not Sorted!")
         if (result.map { it.score }
                 .reduce { acc, now -> acc + now } != 100000) throw AddParameterErrorException("Score sum is invalid!")
+        if (result.map { it.userID }.distinct().size != 4) throw AddParameterErrorException("Duplicated ID!")
     }
 
     fun checkGameGroup(gameGroup: String): Boolean =

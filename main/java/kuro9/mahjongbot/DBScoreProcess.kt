@@ -153,10 +153,16 @@ object DBScoreProcess {
      * @param gameResult 1위부터 4위의 점수가 기록된 리스트
      * @return 게임ID
      * @throws AddParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
+     * @throws InvalidGameGroupPatternException 유효한 게임 그룹이 아닐 때
      * @throws GameGroupNotFoundException 등록된 game group가 아닐 때
      * @throws DBConnectException DB 처리 중 에러가 발생할 때
      */
-    @Throws(AddParameterErrorException::class, GameGroupNotFoundException::class, DBConnectException::class)
+    @Throws(
+        AddParameterErrorException::class,
+        InvalidGameGroupPatternException::class,
+        GameGroupNotFoundException::class,
+        DBConnectException::class
+    )
     fun addScore(game: Game, gameResult: Collection<GameResult>): Int {
         DataCache.deleteCacheData(game.guildID, game.gameGroup)
         return DBHandler.addScore(game, gameResult)
@@ -191,6 +197,7 @@ object DBScoreProcess {
      *
      * @param userId 명령어를 실행하는 유저의 ID
      * @param gameId 수정할 게임의 ID
+     * @param guildId 명령어가 실행되는 서버의 ID
      * @param gameResult size가 4인 [GameResult] 객체 배열 - id 필드가 반드시 valid한 값이어야 함
      *
      * @throws AddParameterErrorException 4명이 아닐 때, 점수별 정렬되어있지 않을 때, 점수 합이 10만점이 아닐 때
@@ -206,11 +213,11 @@ object DBScoreProcess {
         PermissionDeniedException::class,
         GameNotFoundException::class
     )
-    fun modifyRecord(@UserRes userId: Long, gameId: Int, gameResult: Collection<GameResult>) {
-        val game = DBHandler.getGameData(gameId).game
+    fun modifyRecord(@UserRes userId: Long, gameId: Int, @GuildRes guildId: Long, gameResult: Collection<GameResult>) {
+        val gameGroup = DBHandler.getGameData(gameId).game.gameGroup
 
-        DBHandler.modifyRecord(userId, gameId, game.guildID, gameResult)
-        DataCache.deleteCacheData(game.guildID, game.gameGroup)
+        DBHandler.modifyRecord(userId, gameId, guildId, gameResult)
+        DataCache.deleteCacheData(guildId, gameGroup)
     }
 
     /**

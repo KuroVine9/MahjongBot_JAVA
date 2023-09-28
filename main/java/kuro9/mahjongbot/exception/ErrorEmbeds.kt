@@ -10,6 +10,7 @@ private const val CODE_200 = "200 OK"
 private const val CODE_400 = "400 Bad Request"
 private const val CODE_403 = "403 Forbidden"
 private const val CODE_404 = "404 Not Found"
+private const val CODE_409 = "409 Conflict"
 private const val CODE_500 = "500 Internal Server Error"
 private const val CODE_503 = "503 Service Unavailable"
 
@@ -21,7 +22,7 @@ fun getAddParameterErrorEmbed(locale: DiscordLocale): MessageEmbed {
         setDescription("Parameter err.")
         addField(
             resourceBundle.getString("add.embed.err.400.name"),
-            resourceBundle.getString("add.embed.err.400.description"), //TODO 좀 더 일반적인 것으로 바꾸기
+            resourceBundle.getString("add.embed.err.400.description"),
             true
         )
         setColor(Color.RED)
@@ -122,6 +123,20 @@ fun getGameDataNotFoundEmbed(locale: DiscordLocale): MessageEmbed {
         addField(
             resourceBundle.getString("exception.not_found.title"),
             resourceBundle.getString("exception.not_found.description"),
+            true
+        )
+        setColor(Color.RED)
+    }.build()
+}
+
+fun getDataConflictErrorEmbed(locale: DiscordLocale): MessageEmbed {
+    val resourceBundle = ResourceHandler.getResource(locale)
+
+    return EmbedBuilder().apply {
+        setTitle(CODE_409)
+        addField(
+            resourceBundle.getString("exception.conflict.title"),
+            resourceBundle.getString("exception.conflict.description.description"),
             true
         )
         setColor(Color.RED)

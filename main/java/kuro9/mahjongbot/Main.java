@@ -166,6 +166,7 @@ public class Main extends ListenerAdapter {
         else if (id.matches("^season_rank_uma.*")) rank[2].umaPageControl(event);
         else if (id.matches("^season_rank_totalgame.*")) rank[2].totalGamePageControl(event);
         else if (id.matches("^delete.*")) DeleteScore.INSTANCE.confirm(event);
+        else if (id.matches("^modify.*")) ModifyScore.INSTANCE.confirm(event);
     }
 
 }

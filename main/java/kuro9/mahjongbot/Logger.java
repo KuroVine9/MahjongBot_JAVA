@@ -38,6 +38,7 @@ public class Logger {
     public static final String UNKNOWN_INST = "unknown-instruction";
     public static final String GAME_NOT_FOUND = "game-not-found";
     public static final String INVALID_USER = "user-not-match";
+    public static final String DATA_CONFLICT = "data-conflict";
 
     /**
      * 일반 이벤트를 로깅합니다.
