@@ -219,7 +219,7 @@ public class Logger {
         while (log_list.size() < 12) log_list.add("<NO_DATA>");
         abstractWriteLogToCSV(log_list, Setting.LOG_PATH);
         System.out.printf("[MahjongBot:Logger] %s used %s\n", log_list.get(2), log_list.get(3));
-        // GDrive.upload(Setting.LOG_FILE_ID, Setting.LOG_PATH);
+        GDrive.upload(Setting.LOG_FILE_ID, Setting.LOG_PATH);
     }
 
     /**

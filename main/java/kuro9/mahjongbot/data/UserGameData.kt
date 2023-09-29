@@ -7,11 +7,15 @@ import org.apache.commons.math3.util.Precision.round
 
 data class UserGameData(@UserRes val id: Long) {
 
+    init {
+        Setting.JDA.retrieveUserById(id).queue { _userName = it.effectiveName }
+    }
+
     /** 연산 캐싱을 위한 파라미터 */
     private var _isValid: Boolean = true
     private var _isProcessing: Boolean = false
 
-    var _userName: String? = null
+    private var _userName: String? = null
     val userName: String
         get() {
             if (_userName == null)
@@ -45,7 +49,6 @@ data class UserGameData(@UserRes val id: Long) {
             return _gameCount
         }
 
-    //TODO 작동하는지 확인필(소수점 반올림)
     /** 1등, 2등, 3등, 4등, 토비 */
     val rankPercentage: DoubleArray
         get() {
@@ -72,6 +75,9 @@ data class UserGameData(@UserRes val id: Long) {
         if (score < 0) rankCount[4]++
         rankCount[rank - 1]++
         _isValid = false;
+
+        if (_userName == null)
+            Setting.JDA.retrieveUserById(id).queue { _userName = it.effectiveName }
     }
 
 
