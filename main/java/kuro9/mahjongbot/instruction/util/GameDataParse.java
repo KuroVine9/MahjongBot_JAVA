@@ -69,6 +69,26 @@ public class GameDataParse {
         else return "";
     }
 
+    public static int getPage(ButtonInteractionEvent event) {
+        String pattern = "key=([^=]+)=";
+        Pattern r = Pattern.compile(pattern);
+        String message = new String(event.getMessage().getContentDisplay().getBytes());
+        String footer = message.split("\u001B")[message.split("\u001B").length - 2].replace("[0;", "");
+        Matcher m = r.matcher(footer);
+        if (m.find()) {
+            String result = new String(Base64.getDecoder().decode(m.group(1)));
+
+            String base64Pattern = "\\d{1,4}-\\d{1,2}-\\d-[A-Z]{3}-\\d+-(\\d+)-[A-Za-z0-9_]{0,15}";
+            Pattern br = Pattern.compile(base64Pattern);
+            Matcher bm = br.matcher(result);
+            if (bm.find()) {
+                return Integer.parseInt(bm.group(1));
+            }
+            else return 1;
+        }
+        else return 1;
+    }
+
     @IntRange(inclusiveStart = 1, inclusiveEnd = 12)
     public static int getValidMonth(GenericInteractionCreateEvent event) {
         if (event instanceof SlashCommandInteractionEvent s) {

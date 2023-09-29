@@ -19,7 +19,21 @@ import java.util.ResourceBundle;
  * 1개월 범위의 순위표를 출력합니다.
  */
 public class MonthRank extends RankArranger implements RankInterface {
-    static int[] month_uma_page_count = {1};
+
+    static String[] month_uma_id = {
+            "month_rank_uma_go_first",
+            "month_rank_uma_go_back",
+            "month_rank_uma_refresh",
+            "month_rank_uma_go_next",
+            "month_rank_uma_go_last"
+    };
+    static String[] month_total_id = {
+            "month_rank_totalgame_go_first",
+            "month_rank_totalgame_go_back",
+            "month_rank_totalgame_refresh",
+            "month_rank_totalgame_go_next",
+            "month_rank_totalgame_go_last"
+    };
     static Button[] month_uma_button = {
             Button.secondary("month_rank_uma_go_first", "<<"),
             Button.secondary("month_rank_uma_go_back", "<"),
@@ -27,7 +41,6 @@ public class MonthRank extends RankArranger implements RankInterface {
             Button.secondary("month_rank_uma_go_next", ">"),
             Button.secondary("month_rank_uma_go_last", ">>")
     };
-    static int[] month_total_game_page_count = {1};
     static Button[] month_total_game_button = {
             Button.secondary("month_rank_totalgame_go_first", "<<"),
             Button.secondary("month_rank_totalgame_go_back", "<"),
@@ -80,6 +93,7 @@ public class MonthRank extends RankArranger implements RankInterface {
         long guildId = getGuildID(event);
         String gameGroup = getGameGroup(event);
 
+
         List<UserGameData> sorted_list = null;
 
         try {
@@ -100,12 +114,11 @@ public class MonthRank extends RankArranger implements RankInterface {
             return;
         }
 
-        month_uma_page_count[0] = 1;
         event.getHook().sendMessage(
                 getUmaPrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("rank.month.embed.uma.title"), year, month, filter),
-                        month_uma_page_count[0],
+                        1,
                         base64KeyGen(year, month, null, GameType.UMA, filter, null, gameGroup)
                 )
         ).addActionRow(
@@ -127,6 +140,9 @@ public class MonthRank extends RankArranger implements RankInterface {
         int filter = getValidFilter(event);
         long guildId = getButtonGuildID(event);
         String gameGroup = getButtonGameGroup(event);
+        int page = getPage(event);
+        int gotoPage;
+        String buttonId = event.getInteraction().getComponentId();
 
         List<UserGameData> sorted_list;
 
@@ -148,16 +164,25 @@ public class MonthRank extends RankArranger implements RankInterface {
             return;
         }
 
+        if (buttonId.equals(month_uma_id[2])) gotoPage = page;
+        else if (buttonId.equals(month_uma_id[0])) gotoPage = 1;
+        else if (buttonId.equals(month_uma_id[4])) gotoPage = ((sorted_list.size() - 1) / 30 + 1);
+        else if (buttonId.equals(month_uma_id[1])) gotoPage = Math.max(--page, 1);
+        else if (buttonId.equals(month_uma_id[3])) gotoPage = Math.min(++page, ((sorted_list.size() - 1) / 30 + 1));
+        else gotoPage = 1;
+
+        int finalPage = gotoPage;
+
         pageControl(
                 event,
                 month_uma_button,
-                month_uma_page_count,
+                finalPage,
                 sorted_list.size(),
                 () -> getUmaPrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("rank.month.embed.uma.title"), year, month, filter),
-                        month_uma_page_count[0],
-                        base64KeyGen(year, month, null, GameType.UMA, filter, month_uma_page_count[0], gameGroup)
+                        finalPage,
+                        base64KeyGen(year, month, null, GameType.UMA, filter, finalPage, gameGroup)
                 )
         );
         Logger.addEvent(event);
@@ -194,12 +219,11 @@ public class MonthRank extends RankArranger implements RankInterface {
             return;
         }
 
-        month_total_game_page_count[0] = 1;
         event.getHook().sendMessage(
                 getTotalGamePrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("rank.month.embed.total_game_count.title"), year, month, filter),
-                        month_total_game_page_count[0],
+                        1,
                         base64KeyGen(year, month, null, GameType.GMC, filter, null, gameGroup)
                 )
         ).addActionRow(
@@ -221,6 +245,9 @@ public class MonthRank extends RankArranger implements RankInterface {
         int filter = getValidFilter(event);
         long guildId = getButtonGuildID(event);
         String gameGroup = getButtonGameGroup(event);
+        int page = getPage(event);
+        int gotoPage;
+        String buttonId = event.getInteraction().getComponentId();
 
         List<UserGameData> sorted_list;
 
@@ -242,16 +269,25 @@ public class MonthRank extends RankArranger implements RankInterface {
             return;
         }
 
+        if (buttonId.equals(month_total_id[2])) gotoPage = page;
+        else if (buttonId.equals(month_total_id[0])) gotoPage = 1;
+        else if (buttonId.equals(month_total_id[4])) gotoPage = ((sorted_list.size() - 1) / 30 + 1);
+        else if (buttonId.equals(month_total_id[1])) gotoPage = Math.max(--page, 1);
+        else if (buttonId.equals(month_total_id[3])) gotoPage = Math.min(++page, ((sorted_list.size() - 1) / 30 + 1));
+        else gotoPage = 1;
+
+        int finalPage = gotoPage;
+
         pageControl(
                 event,
                 month_total_game_button,
-                month_total_game_page_count,
+                finalPage,
                 sorted_list.size(),
                 () -> getTotalGamePrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("rank.month.embed.total_game_count.title"), year, month, filter),
-                        month_total_game_page_count[0],
-                        base64KeyGen(year, month, null, GameType.GMC, filter, month_total_game_page_count[0], gameGroup)
+                        finalPage,
+                        base64KeyGen(year, month, null, GameType.GMC, filter, finalPage, gameGroup)
                 )
         );
         Logger.addEvent(event);

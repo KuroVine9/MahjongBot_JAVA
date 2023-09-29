@@ -19,21 +19,35 @@ import java.util.ResourceBundle;
  * 전체 범위의 데이터 순위를 출력합니다.
  */
 public class EntireRank extends RankArranger implements RankInterface {
-    static int[] uma_page_count = {1};
-    static Button[] uma_button = {
-            Button.secondary("rank_uma_go_first", "<<"),
-            Button.secondary("rank_uma_go_back", "<"),
-            Button.primary("rank_uma_refresh", "F5"),
-            Button.secondary("rank_uma_go_next", ">"),
-            Button.secondary("rank_uma_go_last", ">>")
+    final static String[] uma_id = {
+            "rank_uma_go_first",
+            "rank_uma_go_back",
+            "rank_uma_refresh",
+            "rank_uma_go_next",
+            "rank_uma_go_last"
     };
-    static int[] total_game_page_count = {1};
+
+    static Button[] uma_button = {
+            Button.secondary(uma_id[0], "<<"),
+            Button.secondary(uma_id[1], "<"),
+            Button.primary(uma_id[2], "F5"),
+            Button.secondary(uma_id[3], ">"),
+            Button.secondary(uma_id[4], ">>")
+    };
+
+    static String[] total_id = {
+            "rank_totalgame_go_first",
+            "rank_totalgame_go_back",
+            "rank_totalgame_refresh",
+            "rank_totalgame_go_next",
+            "rank_totalgame_go_last"
+    };
     static Button[] total_game_button = {
-            Button.secondary("rank_totalgame_go_first", "<<"),
-            Button.secondary("rank_totalgame_go_back", "<"),
-            Button.primary("rank_totalgame_refresh", "F5"),
-            Button.secondary("rank_totalgame_go_next", ">"),
-            Button.secondary("rank_totalgame_go_last", ">>")
+            Button.secondary(total_id[0], "<<"),
+            Button.secondary(total_id[1], "<"),
+            Button.primary(total_id[2], "F5"),
+            Button.secondary(total_id[3], ">"),
+            Button.secondary(total_id[4], ">>")
     };
 
     @Override
@@ -95,12 +109,11 @@ public class EntireRank extends RankArranger implements RankInterface {
             return;
         }
 
-        uma_page_count[0] = 1;
         event.getHook().sendMessage(
                 getUmaPrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("rank.entire.embed.uma.title"), filter),
-                        uma_page_count[0],
+                        1,
                         base64KeyGen(null, null, null, GameType.UMA, filter, null, gameGroup)
                 )
         ).addActionRow(
@@ -119,6 +132,10 @@ public class EntireRank extends RankArranger implements RankInterface {
         int filter = getValidFilter(event);
         long guildId = getButtonGuildID(event);
         String gameGroup = getButtonGameGroup(event);
+        int page = getPage(event);
+        int gotoPage;
+        String buttonId = event.getInteraction().getComponentId();
+
 
         List<UserGameData> sorted_list;
 
@@ -138,16 +155,24 @@ public class EntireRank extends RankArranger implements RankInterface {
             return;
         }
 
+        if (buttonId.equals(uma_id[2])) gotoPage = page;
+        else if (buttonId.equals(uma_id[0])) gotoPage = 1;
+        else if (buttonId.equals(uma_id[4])) gotoPage = ((sorted_list.size() - 1) / 30 + 1);
+        else if (buttonId.equals(uma_id[1])) gotoPage = Math.max(--page, 1);
+        else if (buttonId.equals(uma_id[3])) gotoPage = Math.min(++page, ((sorted_list.size() - 1) / 30 + 1));
+        else gotoPage = 1;
+
+        int finalPage = gotoPage;
         pageControl(
                 event,
                 uma_button,
-                uma_page_count,
+                gotoPage,
                 sorted_list.size(),
                 () -> getUmaPrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("rank.entire.embed.uma.title"), filter),
-                        uma_page_count[0],
-                        base64KeyGen(null, null, null, GameType.UMA, filter, uma_page_count[0], gameGroup)
+                        finalPage,
+                        base64KeyGen(null, null, null, GameType.UMA, filter, finalPage, gameGroup)
                 )
         );
         Logger.addEvent(event);
@@ -179,12 +204,11 @@ public class EntireRank extends RankArranger implements RankInterface {
             return;
         }
 
-        total_game_page_count[0] = 1;
         event.getHook().sendMessage(
                 getTotalGamePrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("rank.entire.embed.total_game_count.title"), filter),
-                        total_game_page_count[0],
+                        1,
                         base64KeyGen(null, null, null, GameType.GMC, filter, null, gameGroup)
                 )
         ).addActionRow(
@@ -203,6 +227,9 @@ public class EntireRank extends RankArranger implements RankInterface {
         int filter = getValidFilter(event);
         long guildId = getButtonGuildID(event);
         String gameGroup = getButtonGameGroup(event);
+        int page = getPage(event);
+        int gotoPage;
+        String buttonId = event.getInteraction().getComponentId();
 
         List<UserGameData> sorted_list;
 
@@ -222,16 +249,25 @@ public class EntireRank extends RankArranger implements RankInterface {
             return;
         }
 
+        if (buttonId.equals(total_id[2])) gotoPage = page;
+        else if (buttonId.equals(total_id[0])) gotoPage = 1;
+        else if (buttonId.equals(total_id[4])) gotoPage = ((sorted_list.size() - 1) / 30 + 1);
+        else if (buttonId.equals(total_id[1])) gotoPage = Math.max(--page, 1);
+        else if (buttonId.equals(total_id[3])) gotoPage = Math.min(++page, ((sorted_list.size() - 1) / 30 + 1));
+        else gotoPage = 1;
+
+        int finalPage = gotoPage;
+
         pageControl(
                 event,
                 total_game_button,
-                total_game_page_count,
+                finalPage,
                 sorted_list.size(),
                 () -> getTotalGamePrintString(
                         sorted_list,
                         String.format(resourceBundle.getString("rank.entire.embed.total_game_count.title"), filter),
-                        total_game_page_count[0],
-                        base64KeyGen(null, null, null, GameType.GMC, filter, total_game_page_count[0], gameGroup)
+                        finalPage,
+                        base64KeyGen(null, null, null, GameType.GMC, filter, finalPage, gameGroup)
                 )
         );
         Logger.addEvent(event);

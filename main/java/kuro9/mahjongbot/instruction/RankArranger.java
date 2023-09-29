@@ -237,11 +237,11 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
      * @param size       전체 리스트의 항목 수 (30줄마다 한 페이지로 생성)
      * @param action     출력할 페이지의 String을 리턴하는 함수
      */
-    protected static void pageControl(ButtonInteractionEvent event, Button[] buttons, int[] page_count, int size, Supplier<String> action) {
+    protected static void pageControl(ButtonInteractionEvent event, Button[] buttons, int page_count, int size, Supplier<String> action) {
         event.deferEdit().queue();
 
         if (event.getInteraction().getComponentId().equals(buttons[2].getId())) {
-            if ((page_count[0] == 1) && page_count[0] == ((size - 1) / 30 + 1)) {
+            if ((page_count == 1) && page_count == ((size - 1) / 30 + 1)) {
                 event.getHook().editOriginal(action.get()).setActionRow(
                         buttons[0].asDisabled(),
                         buttons[1].asDisabled(),
@@ -250,7 +250,7 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
                         buttons[4].asDisabled()
                 ).queue();
             }
-            else if (page_count[0] == 1) {
+            else if (page_count == 1) {
                 event.getHook().editOriginal(action.get()).setActionRow(
                         buttons[0].asDisabled(),
                         buttons[1].asDisabled(),
@@ -259,7 +259,7 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
                         buttons[4]
                 ).queue();
             }
-            else if (page_count[0] == ((size - 1) / 30 + 1)) {
+            else if (page_count == ((size - 1) / 30 + 1)) {
                 event.getHook().editOriginal(action.get()).setActionRow(
                         buttons[0],
                         buttons[1],
@@ -272,7 +272,6 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
             return;
         }
         else if (event.getInteraction().getComponentId().equals(buttons[0].getId())) {
-            page_count[0] = 1;
             event.getHook().editOriginal(action.get()).setActionRow(
                     buttons[0].asDisabled(),
                     buttons[1].asDisabled(),
@@ -282,8 +281,8 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
             ).queue();
         }
         else if (event.getInteraction().getComponentId().equals(buttons[1].getId())) {
-            if ((page_count[0] != 1)) --page_count[0];
-            if (page_count[0] < 2) {
+            // if ((page_count[0] != 1)) --page_count[0];
+            if (page_count < 2) {
                 event.getHook().editOriginal(action.get()).setActionRow(
                         buttons[0].asDisabled(),
                         buttons[1].asDisabled(),
@@ -292,7 +291,7 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
                         buttons[4]
                 ).queue();
             }
-            else if (page_count[0] == ((size - 1) / 30 + 1)) {
+            else if (page_count == ((size - 1) / 30 + 1)) {
                 event.getHook().editOriginal(action.get()).setActionRow(
                         buttons[0],
                         buttons[1],
@@ -307,8 +306,8 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
 
         }
         else if (event.getInteraction().getComponentId().equals(buttons[3].getId())) {
-            if (page_count[0] < ((size - 1) / 30 + 1)) ++page_count[0];
-            if (page_count[0] > ((size - 1) / 30)) {
+            // if (page_count[0] < ((size - 1) / 30 + 1)) ++page_count[0];
+            if (page_count > ((size - 1) / 30)) {
                 event.getHook().editOriginal(action.get()).setActionRow(
                         buttons[0],
                         buttons[1],
@@ -323,7 +322,7 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
 
         }
         else if (event.getInteraction().getComponentId().equals(buttons[4].getId())) {
-            page_count[0] = ((size - 1) / 30 + 1);
+            // page_count[0] = ((size - 1) / 30 + 1);
             event.getHook().editOriginal(action.get()).setActionRow(
                     buttons[0],
                     buttons[1],
