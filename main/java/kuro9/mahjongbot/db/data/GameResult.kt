@@ -9,7 +9,8 @@ data class GameResult(
     val gameID: Int = 0,
     @UserRes val userID: Long,
     @IntRange(1, 4) val rank: Int,
-    val score: Int
+    val score: Int,
+    val name: String?
 ) {
     override fun toString(): String {
         return Gson().toJson(this)

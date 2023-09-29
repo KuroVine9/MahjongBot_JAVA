@@ -60,7 +60,7 @@ public class AddScore extends GameDataParse {
 
         Game game = new Game(guildId, userId, gameGroup);
         List<GameResult> gameResult = IntStream.rangeClosed(0, 3).mapToObj(i ->
-                new GameResult(game.getId(), userIds[i], i + 1, scores[i])
+                new GameResult(game.getId(), userIds[i], i + 1, scores[i], names[i])
         ).toList();
 
         try {

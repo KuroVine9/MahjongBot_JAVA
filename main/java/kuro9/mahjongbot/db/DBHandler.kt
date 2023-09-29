@@ -25,7 +25,7 @@ object DBHandler {
         }
     )
 
-    private const val addScoreQuery = "CALL add_score(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    private const val addScoreQuery = "CALL add_score(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)"
     private const val addGameGroupQuery = "CALL add_group(?, ?, ?)"
     private const val selectGameResultQuery = "CALL select_record(?, ?, ?, ?, ?)"
     private const val selectRecentGameResultQuery = "CALL recent_ten_record(?, ?, ?, ?, ?)"
@@ -36,7 +36,7 @@ object DBHandler {
     private const val selectAdminQuery = "CALL select_admin(?)"
     private const val deleteAdminQuery = "CALL delete_admin(?,?)"
     private const val getGameCountQuery = "CALL get_game_count(?, ?, ?, ?)"
-    private const val getGameDataQuery = "CALL get_game_data(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)"
+    private const val getGameDataQuery = "CALL get_game_data(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?)"
     private const val addTempScoreQuery = "CALL add_temp_score(?,?,?,?,?,?,?,?,?,?,?,?)"
     private const val getTempScoreQuery = "CALL get_temp_score(?,?,?,?)"
 
@@ -72,14 +72,15 @@ object DBHandler {
                         setLong(3, game.addedBy)
 
                         result.forEach {
-                            setLong(it.rank * 2 + 2, it.userID)
-                            setInt(it.rank * 2 + 3, it.score)
+                            setLong(it.rank * 3 + 1, it.userID)
+                            setString(it.rank * 3 + 2, it.name)
+                            setInt(it.rank * 3 + 3, it.score)
                         }
 
-                        registerOutParameter(12, INTEGER)
+                        registerOutParameter(16, INTEGER)
 
                         executeUpdate()
-                        when (val gameId: Int = getInt(12)) {
+                        when (val gameId: Int = getInt(16)) {
                             -400 -> throw GameGroupNotFoundException()
                             -1 -> throw DBConnectException("Procedure Error!")
                             else -> return gameId
@@ -166,15 +167,19 @@ object DBHandler {
                         registerOutParameter("addedBy", BIGINT)
 
                         registerOutParameter("firstId", BIGINT)
+                        registerOutParameter("firstName", VARCHAR)
                         registerOutParameter("firstScore", INTEGER)
 
                         registerOutParameter("secondId", BIGINT)
+                        registerOutParameter("secondName", VARCHAR)
                         registerOutParameter("secondScore", INTEGER)
 
                         registerOutParameter("thirdId", BIGINT)
+                        registerOutParameter("thirdName", VARCHAR)
                         registerOutParameter("thirdScore", INTEGER)
 
                         registerOutParameter("fourthId", BIGINT)
+                        registerOutParameter("fourthName", VARCHAR)
                         registerOutParameter("fourthScore", INTEGER)
 
                         executeUpdate()
@@ -188,10 +193,34 @@ object DBHandler {
                                     createdAt = getTimestamp("createdAt")
                                 }
                                 val gameResults = arrayOf(
-                                    GameResult(gameId, getLong("firstId"), 1, getInt("firstScore")),
-                                    GameResult(gameId, getLong("secondId"), 2, getInt("secondScore")),
-                                    GameResult(gameId, getLong("thirdId"), 3, getInt("thirdScore")),
-                                    GameResult(gameId, getLong("fourthId"), 4, getInt("fourthScore")),
+                                    GameResult(
+                                        gameId,
+                                        getLong("firstId"),
+                                        1,
+                                        getInt("firstScore"),
+                                        getString("firstName")
+                                    ),
+                                    GameResult(
+                                        gameId,
+                                        getLong("secondId"),
+                                        2,
+                                        getInt("secondScore"),
+                                        getString("secondName")
+                                    ),
+                                    GameResult(
+                                        gameId,
+                                        getLong("thirdId"),
+                                        3,
+                                        getInt("thirdScore"),
+                                        getString("thirdName")
+                                    ),
+                                    GameResult(
+                                        gameId,
+                                        getLong("fourthId"),
+                                        4,
+                                        getInt("fourthScore"),
+                                        getString("fourthName")
+                                    ),
                                 )
 
                                 GameRecord(game, gameResults)
@@ -285,7 +314,8 @@ object DBHandler {
                                             gameID = getInt(1),
                                             userID = getLong(2),
                                             rank = getInt(3),
-                                            score = getInt(4)
+                                            score = getInt(4),
+                                            name = getString(5)
                                         )
                                     )
                             }
@@ -339,7 +369,8 @@ object DBHandler {
                                             gameID = getInt("game_id"),
                                             userID = getLong("user_id"),
                                             rank = getInt("rank"),
-                                            score = getInt("score")
+                                            score = getInt("score"),
+                                            name = null
                                         )
                                     )
                             }
@@ -662,22 +693,26 @@ object DBHandler {
                                         GameResult(
                                             userID = getLong("first_id"),
                                             score = getInt("first_score"),
-                                            rank = 1
+                                            rank = 1,
+                                            name = null
                                         ),
                                         GameResult(
                                             userID = getLong("second_id"),
                                             score = getInt("second_score"),
-                                            rank = 2
+                                            rank = 2,
+                                            name = null
                                         ),
                                         GameResult(
                                             userID = getLong("third_id"),
                                             score = getInt("third_score"),
-                                            rank = 3
+                                            rank = 3,
+                                            name = null
                                         ),
                                         GameResult(
                                             userID = getLong("fourth_id"),
                                             score = getInt("fourth_score"),
-                                            rank = 4
+                                            rank = 4,
+                                            name = null
                                         ),
                                     )
                                 else throw IllegalStateException()

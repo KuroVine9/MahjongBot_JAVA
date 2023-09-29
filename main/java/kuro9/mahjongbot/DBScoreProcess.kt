@@ -112,11 +112,13 @@ object DBScoreProcess {
             val data = HashMap<Long, UserGameData>()
 
             dataList.forEach { userData ->
-                data[userData.userID] = data[userData.userID]?.apply {
-                    addGameData(userData.score, userData.rank)
-                } ?: UserGameData(userData.userID).apply {
-                    addGameData(userData.score, userData.rank)
-                }
+                data[userData.userID] =
+                    (data[userData.userID] ?: UserGameData(userData.userID)).apply {
+                        addGameData(userData.score, userData.rank)
+
+                        if (userData.name.isNullOrEmpty()) this.userName =
+                            Setting.JDA.retrieveUserById(this.id).complete().effectiveName
+                    }
             }
 
             insertData(query, data)

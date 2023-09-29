@@ -7,20 +7,20 @@ import org.apache.commons.math3.util.Precision.round
 
 data class UserGameData(@UserRes val id: Long) {
 
-    init {
-        Setting.JDA.retrieveUserById(id).queue { _userName = it.effectiveName }
-    }
 
     /** 연산 캐싱을 위한 파라미터 */
     private var _isValid: Boolean = true
     private var _isProcessing: Boolean = false
 
     private var _userName: String? = null
-    val userName: String
+    var userName: String
         get() {
             if (_userName == null)
                 _userName = Setting.JDA.retrieveUserById(id).complete().effectiveName
             return _userName!!
+        }
+        set(value) {
+            _userName = value
         }
 
     /** 연산 편의성 위해 10을 곱해 정수로 저장 */
@@ -75,9 +75,6 @@ data class UserGameData(@UserRes val id: Long) {
         if (score < 0) rankCount[4]++
         rankCount[rank - 1]++
         _isValid = false;
-
-        if (_userName == null)
-            Setting.JDA.retrieveUserById(id).queue { _userName = it.effectiveName }
     }
 
 
