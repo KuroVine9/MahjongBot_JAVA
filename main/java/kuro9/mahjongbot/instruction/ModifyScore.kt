@@ -64,7 +64,7 @@ object ModifyScore : GameDataParse() {
 
 
         val result =
-            (0..3).map { GameResult(gameId, resultUserIds[it]!!, it + 1, resultScores[it]!!) }
+            (0..3).map { GameResult(gameId, resultUserIds[it]!!, it + 1, resultScores[it]!!, resultUserNames[it]) }
                 .toList()
 
         val key = String(Base64.getEncoder().encode("userID=${userId}, gameID=${gameId}".toByteArray()))

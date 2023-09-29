@@ -132,8 +132,6 @@ public class EntireRank extends RankArranger implements RankInterface {
         int filter = getValidFilter(event);
         long guildId = getButtonGuildID(event);
         String gameGroup = getButtonGameGroup(event);
-        int page = getPage(event);
-        int gotoPage;
         String buttonId = event.getInteraction().getComponentId();
 
 
@@ -155,18 +153,11 @@ public class EntireRank extends RankArranger implements RankInterface {
             return;
         }
 
-        if (buttonId.equals(uma_id[2])) gotoPage = page;
-        else if (buttonId.equals(uma_id[0])) gotoPage = 1;
-        else if (buttonId.equals(uma_id[4])) gotoPage = ((sorted_list.size() - 1) / 30 + 1);
-        else if (buttonId.equals(uma_id[1])) gotoPage = Math.max(--page, 1);
-        else if (buttonId.equals(uma_id[3])) gotoPage = Math.min(++page, ((sorted_list.size() - 1) / 30 + 1));
-        else gotoPage = 1;
-
-        int finalPage = gotoPage;
+        int finalPage = getNextPage(buttonId, uma_id, getPage(event), sorted_list.size());
         pageControl(
                 event,
                 uma_button,
-                gotoPage,
+                finalPage,
                 sorted_list.size(),
                 () -> getUmaPrintString(
                         sorted_list,
@@ -227,8 +218,6 @@ public class EntireRank extends RankArranger implements RankInterface {
         int filter = getValidFilter(event);
         long guildId = getButtonGuildID(event);
         String gameGroup = getButtonGameGroup(event);
-        int page = getPage(event);
-        int gotoPage;
         String buttonId = event.getInteraction().getComponentId();
 
         List<UserGameData> sorted_list;
@@ -249,14 +238,7 @@ public class EntireRank extends RankArranger implements RankInterface {
             return;
         }
 
-        if (buttonId.equals(total_id[2])) gotoPage = page;
-        else if (buttonId.equals(total_id[0])) gotoPage = 1;
-        else if (buttonId.equals(total_id[4])) gotoPage = ((sorted_list.size() - 1) / 30 + 1);
-        else if (buttonId.equals(total_id[1])) gotoPage = Math.max(--page, 1);
-        else if (buttonId.equals(total_id[3])) gotoPage = Math.min(++page, ((sorted_list.size() - 1) / 30 + 1));
-        else gotoPage = 1;
-
-        int finalPage = gotoPage;
+        int finalPage = getNextPage(buttonId, total_id, getPage(event), sorted_list.size());
 
         pageControl(
                 event,

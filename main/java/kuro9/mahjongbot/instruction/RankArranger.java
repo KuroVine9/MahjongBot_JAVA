@@ -334,6 +334,16 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
         else return;
     }
 
+    protected int getNextPage(String buttonId, String[] buttons, int nowPage, int dataSize) {
+        System.out.println(("param: nowpage=" + nowPage + ", datasize=" + dataSize));
+        if (buttonId.equals(buttons[2])) return nowPage;
+        else if (buttonId.equals(buttons[0])) return 1;
+        else if (buttonId.equals(buttons[4])) return ((dataSize - 1) / 30 + 1);
+        else if (buttonId.equals(buttons[1])) return Math.max(--nowPage, 1);
+        else if (buttonId.equals(buttons[3])) return Math.min(++nowPage, ((dataSize - 1) / 30 + 1));
+        else throw new IllegalStateException("getNextPage param err! nowpage=" + nowPage + ", datasize=" + dataSize);
+    }
+
     /**
      * @return yyyy-mm-s-{game-type}-{filter}-{page}-{game-group}
      * y = 년도(null시 0000), m = 월(null시 00), s = 시즌(null시 0),

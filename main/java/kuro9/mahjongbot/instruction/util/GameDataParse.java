@@ -50,10 +50,10 @@ public class GameDataParse {
     }
 
     public static String getButtonGameGroup(ButtonInteractionEvent event) {
-        String pattern = "key=([^=]+)=";
+        String pattern = "key=([^=]+)";
         Pattern r = Pattern.compile(pattern);
         String message = new String(event.getMessage().getContentDisplay().getBytes());
-        String footer = message.split("\u001B")[message.split("\u001B").length - 2].replace("[0;", "");
+        String footer = message.split("\u001B")[message.split("\u001B").length - 2].replace("[0;30m", "");
         Matcher m = r.matcher(footer);
         if (m.find()) {
             String result = new String(Base64.getDecoder().decode(m.group(1)));
@@ -70,10 +70,10 @@ public class GameDataParse {
     }
 
     public static int getPage(ButtonInteractionEvent event) {
-        String pattern = "key=([^=]+)=";
+        String pattern = "key=([^=]+)";
         Pattern r = Pattern.compile(pattern);
         String message = new String(event.getMessage().getContentDisplay().getBytes());
-        String footer = message.split("\u001B")[message.split("\u001B").length - 2].replace("[0;", "");
+        String footer = message.split("\u001B")[message.split("\u001B").length - 2].replace("[0;30m", "");
         Matcher m = r.matcher(footer);
         if (m.find()) {
             String result = new String(Base64.getDecoder().decode(m.group(1)));

@@ -111,13 +111,29 @@ object DBScoreProcess {
 
             val data = HashMap<Long, UserGameData>()
 
+            val userNameCache = HashMap<Long, String>()
+
             dataList.forEach { userData ->
                 data[userData.userID] =
                     (data[userData.userID] ?: UserGameData(userData.userID)).apply {
                         addGameData(userData.score, userData.rank)
 
-                        if (userData.name.isNullOrEmpty()) this.userName =
-                            Setting.JDA.retrieveUserById(this.id).complete().effectiveName
+                        if (userData.name.isNullOrEmpty()) {
+                            if (userNameCache.containsKey(id)) {
+                                println("[MahjongBot:${this::class.simpleName}] Already got ${userNameCache[id]!!}! Using Cache...")
+                                this.userName = userNameCache[id]!!
+                            }
+                            else {
+                                println("[MahjongBot:${this::class.simpleName}] trying to get name $id...")
+                                this.userName =
+                                    Setting.JDA.retrieveUserById(this.id).complete().effectiveName
+                                println("[MahjongBot:${this::class.simpleName}] got $userName!")
+                                userNameCache[id] = userName
+
+                                DBHandler.registerName(this.id, this.userName)
+                            }
+
+                        }
                     }
             }
 

@@ -39,6 +39,7 @@ object DBHandler {
     private const val getGameDataQuery = "CALL get_game_data(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?)"
     private const val addTempScoreQuery = "CALL add_temp_score(?,?,?,?,?,?,?,?,?,?,?,?)"
     private const val getTempScoreQuery = "CALL get_temp_score(?,?,?,?)"
+    private const val registerNameQuery = "CALL register_name(?,?)"
 
 
     /**
@@ -729,6 +730,25 @@ object DBHandler {
         }
         catch (e: SQLTimeoutException) {
             throw DBConnectException("SQL Timeout!")
+        }
+    }
+
+    @Throws(DBConnectException::class)
+    fun registerName(@UserRes id: Long, name: String) {
+        try {
+            dataSource.connection.use { connection ->
+                connection.prepareCall(registerNameQuery).use { call ->
+                    with(call) {
+                        setLong(1, id)
+                        setString(2, name)
+
+                        executeUpdate()
+                    }
+                }
+            }
+        }
+        catch (e: SQLException) {
+            throw DBConnectException("Procedure E")
         }
     }
 

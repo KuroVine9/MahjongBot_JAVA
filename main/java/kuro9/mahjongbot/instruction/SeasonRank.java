@@ -32,18 +32,18 @@ public class SeasonRank extends RankArranger implements RankInterface {
     };
 
     static Button[] season_uma_button = {
-            Button.secondary("season_rank_uma_go_first", "<<"),
-            Button.secondary("season_rank_uma_go_back", "<"),
-            Button.primary("season_rank_uma_refresh", "F5"),
-            Button.secondary("season_rank_uma_go_next", ">"),
-            Button.secondary("season_rank_uma_go_last", ">>")
+            Button.secondary(season_uma_id[0], "<<"),
+            Button.secondary(season_uma_id[1], "<"),
+            Button.primary(season_uma_id[2], "F5"),
+            Button.secondary(season_uma_id[3], ">"),
+            Button.secondary(season_uma_id[4], ">>")
     };
     static Button[] season_total_game_button = {
-            Button.secondary("season_rank_totalgame_go_first", "<<"),
-            Button.secondary("season_rank_totalgame_go_back", "<"),
-            Button.primary("season_rank_totalgame_refresh", "F5"),
-            Button.secondary("season_rank_totalgame_go_next", ">"),
-            Button.secondary("season_rank_totalgame_go_last", ">>")
+            Button.secondary(season_total_id[0], "<<"),
+            Button.secondary(season_total_id[1], "<"),
+            Button.primary(season_total_id[2], "F5"),
+            Button.secondary(season_total_id[3], ">"),
+            Button.secondary(season_total_id[4], ">>")
     };
 
     @Override
@@ -135,8 +135,6 @@ public class SeasonRank extends RankArranger implements RankInterface {
         int filter = getValidFilter(event);
         long guildID = getButtonGuildID(event);
         String gameGroup = getButtonGameGroup(event);
-        int page = getPage(event);
-        int gotoPage;
         String buttonId = event.getInteraction().getComponentId();
 
         List<UserGameData> sorted_list;
@@ -157,14 +155,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
             return;
         }
 
-        if (buttonId.equals(season_uma_id[2])) gotoPage = page;
-        else if (buttonId.equals(season_uma_id[0])) gotoPage = 1;
-        else if (buttonId.equals(season_uma_id[4])) gotoPage = ((sorted_list.size() - 1) / 30 + 1);
-        else if (buttonId.equals(season_uma_id[1])) gotoPage = Math.max(--page, 1);
-        else if (buttonId.equals(season_uma_id[3])) gotoPage = Math.min(++page, ((sorted_list.size() - 1) / 30 + 1));
-        else gotoPage = 1;
-
-        int finalPage = gotoPage;
+        int finalPage = getNextPage(buttonId, season_uma_id, getPage(event), sorted_list.size());
 
         pageControl(
                 event,
@@ -240,8 +231,6 @@ public class SeasonRank extends RankArranger implements RankInterface {
         int filter = getValidFilter(event);
         long guildID = getButtonGuildID(event);
         String gameGroup = getButtonGameGroup(event);
-        int page = getPage(event);
-        int gotoPage;
         String buttonId = event.getInteraction().getComponentId();
 
         List<UserGameData> sorted_list;
@@ -262,15 +251,7 @@ public class SeasonRank extends RankArranger implements RankInterface {
             return;
         }
 
-        if (buttonId.equals(season_total_id[2])) gotoPage = page;
-        else if (buttonId.equals(season_total_id[0])) gotoPage = 1;
-        else if (buttonId.equals(season_total_id[4])) gotoPage = ((sorted_list.size() - 1) / 30 + 1);
-        else if (buttonId.equals(season_total_id[1])) gotoPage = Math.max(--page, 1);
-        else if (buttonId.equals(season_total_id[3])) gotoPage = Math.min(++page, ((sorted_list.size() - 1) / 30 + 1));
-        else gotoPage = 1;
-
-        int finalPage = gotoPage;
-
+        int finalPage = getNextPage(buttonId, season_total_id, getPage(event), sorted_list.size());
         pageControl(
                 event,
                 season_total_game_button,
