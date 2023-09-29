@@ -1,53 +1,32 @@
-## 제목.
+## MahjongBot_JAVA
 
-### gradle
+### 0. 개요
+이 봇은 VR 또는 오프라인 마작을 기록하고 쉽게 통계를 확인하기 위한 봇입니다. 
 
-```gradle
-plugins {
-    id 'java'
-    id 'org.jetbrains.kotlin.jvm' version '1.7.21'
-}
-apply plugin: 'java'
-apply plugin: 'application'
+### 1. 명령어
 
-repositories {
-    mavenCentral()
-    maven {
-        name 'm2-dv8tion'
-        url 'https://m2.dv8tion.net/releases'
-    }
-}
+- `/add`: 점수를 기록합니다.
+- `/modify`: 점수를 수정합니다. admin으로 등록되어 있거나 점수를 등록한 본인이 10분 이내에 수정할 수 있습니다.
+- `/delete`: 점수를 삭제합니다. admin이 60분 이내에 삭제할 수 있습니다.
+  
+- `/admin` 명령어 셋
+  - `/admin add`: 유저를 admin으로 등록합니다. 서버장이 아니라면 동작하지 않습니다.
+  - `/admin get`: 현재 서버에서 admin인 유저의 목록을 출력합니다.
+  - `/admin delete`: 유저를 등록 해제합니다.
 
-dependencies {
-    testImplementation 'org.jetbrains.kotlin:kotlin-test'
-    implementation('org.junit.jupiter:junit-jupiter-api:5.9.2')
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
-    implementation("net.dv8tion:JDA:5.0.0-beta.3")
-
-    implementation 'org.slf4j:slf4j-simple:2.0.5'
-    implementation 'com.opencsv:opencsv:5.7.1'
-    implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
-
-    implementation("com.google.api-client:google-api-client:1.31.3")
-    implementation("com.google.apis:google-api-services-drive:v3-rev197-1.25.0")
-    implementation("com.google.apis:google-api-services-sheets:v4-rev612-1.25.0")
-    implementation("com.google.auth:google-auth-library-oauth2-http:0.25.2")
-    implementation("com.google.http-client:google-http-client-jackson2:1.39.1")
-    implementation("org.apache.poi:poi:5.0.0")
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.7.10"
-}
-
-compileKotlin {
-    kotlinOptions.jvmTarget = '18'
-}
-
-compileTestKotlin {
-    kotlinOptions.jvmTarget = '18'
-}
-```
-
-### TODO
-
-- sql 데이터베이스 적용
-- 대기패 계산 알고리즘 개선
-- 테스트클래스 작성
+> 게임 그룹은 기록을 분리 보관하기 위한 수단입니다. `/add` 사용 시 게임 그룹을 병기할 수 있으며, 이때 이미 서버에 등록된 게임 그룹을 입력해야 합니다.
+> 점수 통계를 볼 때 게임 그룹을 병기하여 통계를 분리 출력 할 수 있습니다. 
+- `/game_group` 명령어 셋
+  - `/game_group add`: 새 게임 그룹을 등록합니다. 15자 이내의 대/소문자, 숫자, 언더바 입력이 가능합니다.
+  - `/game_group get`: 현재 서버에 존재하는 게임 그룹 목록을 출력합니다.
+ 
+- `/stat` 명령어 셋 - 자기 자신의 통계를 확인합니다. 
+  - `/stat entire`: 전체 범위
+  - `/stat season`: 반기(6개월 단위) 점수 확인
+  - `/stat month`: 월 단위 점수 확인
+- `/rank` 명령어 셋 - 서버에서의 점수판을 확인합니다. 
+  - `/rank entire`: 전체 범위
+  - `/rank season`: 반기(6개월 단위) 점수 확인
+  - `/rank month`: 월 단위 점수 확인
+ 
+### 2. 기타
