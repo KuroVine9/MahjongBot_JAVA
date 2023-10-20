@@ -184,6 +184,8 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
      *                  filter = 국 수 필터, page = 현재 페이지, game-group = 게임 그룹(null시 "")
      */
     private static String getPrintString(List<UserGameData> data_list, String title, int page, Function<UserGameData, String> get_data, String base64Key) {
+        System.out.println("[MahjongBot:RankArranger] #getPrintString begin!");
+
         StringBuilder page_block = new StringBuilder();
         page_block.append("```ansi\n").append(String.format("\u001B[1;34m%s (%d/%d)\u001B[0m\n\n", title, page, ((data_list.size() - 1) / 30) + 1));
         for (int i = (page - 1) * 30; i < Math.min(data_list.size(), page * 30); i++) {
@@ -194,6 +196,8 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
         }
         page_block.append(String.format("\n\n\u001B[0;30mkey=%s\u001B[0m", base64Key));
         page_block.append("```");
+
+        System.out.println("[MahjongBot:RankArranger] #getPrintString end!");
         return page_block.toString();
     }
 
@@ -229,7 +233,6 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
 
     /**
      * Rank의 message page를 버튼으로 컨트롤하는 메소드입니다.
-     * 연산 시간을 위해 deferEdit() 메소드를 사용합니다.
      *
      * @param event      버튼 인터렉션 이벤트
      * @param buttons    추가할 버튼 배열(0: 맨 앞, 1: 앞으로, 2: 새로고침, 3: 뒤로, 4: 맨 뒤로)
@@ -238,7 +241,9 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
      * @param action     출력할 페이지의 String을 리턴하는 함수
      */
     protected static void pageControl(ButtonInteractionEvent event, Button[] buttons, int page_count, int size, Supplier<String> action) {
-        if (event.getInteraction().getComponentId().equals(buttons[2].getId())) {
+        System.out.println("[MahjongBot:RankArranger] #pageControl begin!");
+        String pushedButtonId = event.getInteraction().getComponentId();
+        if (pushedButtonId.equals(buttons[2].getId())) {
             if ((page_count == 1) && page_count == ((size - 1) / 30 + 1)) {
                 event.getHook().editOriginal(action.get()).setActionRow(
                         buttons[0].asDisabled(),
@@ -267,9 +272,8 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
                 ).queue();
             }
             else event.getHook().editOriginal(action.get()).setActionRow(buttons).queue();
-            return;
         }
-        else if (event.getInteraction().getComponentId().equals(buttons[0].getId())) {
+        else if (pushedButtonId.equals(buttons[0].getId())) {
             event.getHook().editOriginal(action.get()).setActionRow(
                     buttons[0].asDisabled(),
                     buttons[1].asDisabled(),
@@ -278,7 +282,7 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
                     buttons[4]
             ).queue();
         }
-        else if (event.getInteraction().getComponentId().equals(buttons[1].getId())) {
+        else if (pushedButtonId.equals(buttons[1].getId())) {
             // if ((page_count[0] != 1)) --page_count[0];
             if (page_count < 2) {
                 event.getHook().editOriginal(action.get()).setActionRow(
@@ -303,7 +307,7 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
             }
 
         }
-        else if (event.getInteraction().getComponentId().equals(buttons[3].getId())) {
+        else if (pushedButtonId.equals(buttons[3].getId())) {
             // if (page_count[0] < ((size - 1) / 30 + 1)) ++page_count[0];
             if (page_count > ((size - 1) / 30)) {
                 event.getHook().editOriginal(action.get()).setActionRow(
@@ -319,7 +323,7 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
             }
 
         }
-        else if (event.getInteraction().getComponentId().equals(buttons[4].getId())) {
+        else if (pushedButtonId.equals(buttons[4].getId())) {
             // page_count[0] = ((size - 1) / 30 + 1);
             event.getHook().editOriginal(action.get()).setActionRow(
                     buttons[0],
@@ -329,7 +333,8 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
                     buttons[4].asDisabled()
             ).queue();
         }
-        else return;
+
+        System.out.println("[MahjongBot:RankArranger] #pageControl end!");
     }
 
     protected int getNextPage(String buttonId, String[] buttons, int nowPage, int dataSize) {

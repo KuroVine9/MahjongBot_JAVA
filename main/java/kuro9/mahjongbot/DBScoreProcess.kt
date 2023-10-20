@@ -114,8 +114,10 @@ object DBScoreProcess {
             val userNameCache = HashMap<Long, String>()
 
             dataList.forEach { userData ->
+                val isFirstGame: Boolean = !data.containsKey(userData.userID)
+
                 data[userData.userID] =
-                    (data[userData.userID] ?: UserGameData(userData.userID)).apply {
+                    (if (isFirstGame) UserGameData(userData.userID) else data[userData.userID]!!).apply {
                         addGameData(userData.score, userData.rank)
 
                         if (userData.name.isNullOrEmpty()) {
@@ -133,6 +135,9 @@ object DBScoreProcess {
                                 DBHandler.registerName(this.id, this.userName)
                             }
 
+                        }
+                        else if (isFirstGame) {
+                            this.userName = userData.name
                         }
                     }
             }

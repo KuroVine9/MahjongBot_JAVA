@@ -15,8 +15,11 @@ data class UserGameData(@UserRes val id: Long) {
     private var _userName: String? = null
     var userName: String
         get() {
-            if (_userName == null)
+            if (_userName == null) {
+                print("[MahjongBot:${this::class.simpleName}] No Name Provided!: ")
                 _userName = Setting.JDA.retrieveUserById(id).complete().effectiveName
+                println("Got $_userName")
+            }
             return _userName!!
         }
         set(value) {
