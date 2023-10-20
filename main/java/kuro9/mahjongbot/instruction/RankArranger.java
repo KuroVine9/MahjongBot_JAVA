@@ -238,8 +238,6 @@ public abstract class RankArranger extends GameDataParse implements RankInterfac
      * @param action     출력할 페이지의 String을 리턴하는 함수
      */
     protected static void pageControl(ButtonInteractionEvent event, Button[] buttons, int page_count, int size, Supplier<String> action) {
-        event.deferEdit().queue();
-
         if (event.getInteraction().getComponentId().equals(buttons[2].getId())) {
             if ((page_count == 1) && page_count == ((size - 1) / 30 + 1)) {
                 event.getHook().editOriginal(action.get()).setActionRow(

@@ -138,6 +138,9 @@ public class SeasonRank extends RankArranger implements RankInterface {
         String buttonId = event.getInteraction().getComponentId();
 
         List<UserGameData> sorted_list;
+
+        event.deferEdit().queue();
+
         try {
             sorted_list = getSelectedSortedList(
                     guildID,
@@ -234,6 +237,9 @@ public class SeasonRank extends RankArranger implements RankInterface {
         String buttonId = event.getInteraction().getComponentId();
 
         List<UserGameData> sorted_list;
+
+        event.deferEdit().queue();
+
         try {
             sorted_list = getSelectedSortedList(
                     guildID,

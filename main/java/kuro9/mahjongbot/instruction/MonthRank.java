@@ -144,6 +144,8 @@ public class MonthRank extends RankArranger implements RankInterface {
 
         List<UserGameData> sorted_list;
 
+        event.deferEdit().queue();
+
         try {
             sorted_list = getMonthSortedList(
                     guildId,
@@ -239,6 +241,8 @@ public class MonthRank extends RankArranger implements RankInterface {
         String buttonId = event.getInteraction().getComponentId();
 
         List<UserGameData> sorted_list;
+
+        event.deferEdit().queue();
 
         try {
             sorted_list = getMonthSortedList(
