@@ -103,7 +103,7 @@ object DeleteScore : GameDataParse() {
 
 
         val key = event.message.embeds[0].footer?.text?.let {
-            "key=([^=]+)==".toRegex().find(it)?.groupValues?.get(1)
+            "key=([^=]+)".toRegex().find(it)?.groupValues?.get(1)
         }
         val decodedKey = String(Base64.getDecoder().decode(key))
         userId = decodedKey.let { "userID=(\\d+)".toRegex().find(it)?.groupValues?.get(1)?.toLong() }
